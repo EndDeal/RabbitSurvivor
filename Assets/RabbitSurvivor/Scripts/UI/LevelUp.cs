@@ -11,6 +11,9 @@ namespace Goldmetal.UndeadSurvivor
         const int WeaponSlots = 3;
         const int PassiveSlots = 3;
         const int OfferCount = 3;
+        const float TicketRowHeight = 15f;
+
+        enum EvolutionMenu { None, Chest, Ticket }
 
         [SerializeField] ItemData[] additionalItems = Array.Empty<ItemData>();
         [SerializeField] Text title;
@@ -22,11 +25,18 @@ namespace Goldmetal.UndeadSurvivor
         Item recovery;
         readonly List<Item> eligible = new List<Item>();
         readonly List<Item> offered = new List<Item>();
+        readonly List<Item> evolutionOffers = new List<Item>();
+        RectTransform itemGroup;
+        Vector2 itemGroupBottom;
+        Button ticketButton;
+        Text ticketLabel;
+        string levelHeading;
         int pendingLevels;
-        bool evolution;
+        EvolutionMenu evolutionMenu;
 
         public bool IsOpen { get; private set; }
         public bool HasEvolved { get; private set; }
+        public bool HasEvolutionTicket { get; private set; }
 
         void Awake()
         {
@@ -37,6 +47,8 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             Item template = items[0];
+            itemGroup = (RectTransform)template.transform.parent;
+            itemGroupBottom = itemGroup.offsetMin;
             foreach (ItemData data in additionalItems) {
                 Item card = Instantiate(template, template.transform.parent);
                 card.data = data;
@@ -54,8 +66,10 @@ namespace Goldmetal.UndeadSurvivor
                 item.Bind(this, partner);
             }
 
-            if (title)
+            if (title) {
                 CreateNotice();
+                CreateTicketButton();
+            }
         }
 
         void Update()
@@ -81,25 +95,47 @@ namespace Goldmetal.UndeadSurvivor
                 ShowNextLevel();
         }
 
-        public bool TryShowEvolution()
+        internal void CollectTreasure()
         {
-            if (IsOpen || HasEvolved)
-                return false;
+            if (HasEvolved || HasEvolutionTicket)
+                return;
 
+            FindEvolutions();
+            if (evolutionOffers.Count == 1) {
+                Evolve(evolutionOffers[0]);
+                evolutionOffers.Clear();
+                return;
+            }
+            if (evolutionOffers.Count > 1) {
+                ShowEvolutionOffers(EvolutionMenu.Chest);
+                Open();
+                return;
+            }
+
+            HasEvolutionTicket = true;
             eligible.Clear();
             foreach (Item item in items) {
-                if (CanEvolve(item))
+                if (item != recovery && item.level > 0 && !item.IsMaxLevel)
                     eligible.Add(item);
             }
-            if (eligible.Count == 0)
-                return false;
 
-            evolution = true;
-            foreach (Item item in eligible) {
-                AddOffer(item);
+            if (eligible.Count == 0) {
+                Notify("장비 강화권 획득!");
+                return;
             }
-            Open("보물상자\n진화할 무기 선택");
-            return true;
+
+            Item upgrade = eligible[Random.Range(0, eligible.Count)];
+            upgrade.Upgrade();
+            Notify($"장비 강화권 획득!\n{upgrade.data.itemName} Lv.{upgrade.level}");
+        }
+
+        void FindEvolutions()
+        {
+            evolutionOffers.Clear();
+            foreach (Item item in items) {
+                if (CanEvolve(item))
+                    evolutionOffers.Add(item);
+            }
         }
 
         bool CanEvolve(Item item)
@@ -113,23 +149,28 @@ namespace Goldmetal.UndeadSurvivor
 
         public void Choose(Item item)
         {
-            if (!IsOpen || !offered.Contains(item))
+            if (!IsOpen)
                 return;
 
-            if (evolution) {
-                item.weapon.Evolve();
-                HasEvolved = true;
-                Notify($"{item.data.evolutionName} 진화!");
+            if (evolutionMenu != EvolutionMenu.None) {
+                if (!evolutionOffers.Contains(item))
+                    return;
+
+                Evolve(item);
+                if (evolutionMenu == EvolutionMenu.Ticket) {
+                    HideOffers(evolutionOffers);
+                    evolutionOffers.Clear();
+                    ShowLevelOffers();
+                    return;
+                }
             }
             else {
+                if (!offered.Contains(item))
+                    return;
                 item.Upgrade();
             }
 
-            foreach (Item offer in offered) {
-                offer.gameObject.SetActive(false);
-            }
-            offered.Clear();
-
+            ClearOffers();
             if (pendingLevels > 0) {
                 ShowNextLevel();
                 return;
@@ -147,9 +188,7 @@ namespace Goldmetal.UndeadSurvivor
             if (!IsOpen)
                 return;
 
-            foreach (Item item in offered)
-                item.gameObject.SetActive(false);
-            offered.Clear();
+            ClearOffers();
             pendingLevels = 0;
             IsOpen = false;
             rect.localScale = Vector3.zero;
@@ -159,7 +198,6 @@ namespace Goldmetal.UndeadSurvivor
         void ShowNextLevel()
         {
             pendingLevels--;
-            evolution = false;
             int weaponCount = items.FindAll(item => item.level > 0 && item.data.IsWeapon).Count;
             int passiveCount = items.FindAll(item => item.level > 0 && item.data.IsPassive).Count;
 
@@ -181,38 +219,134 @@ namespace Goldmetal.UndeadSurvivor
             if (passiveOffers.Count > 0) {
                 Item passive = passiveOffers[Random.Range(0, passiveOffers.Count)];
                 eligible.Remove(passive);
-                AddOffer(passive);
+                offered.Add(passive);
             }
 
             while (offered.Count < OfferCount && eligible.Count > 0) {
                 int index = Random.Range(0, eligible.Count);
-                AddOffer(eligible[index]);
+                offered.Add(eligible[index]);
                 eligible.RemoveAt(index);
             }
 
             if (offered.Count == 0)
-                AddOffer(recovery);
+                offered.Add(recovery);
 
-            Open($"레벨 업\n액티브 {weaponCount}/{WeaponSlots} · 패시브 {passiveCount}/{PassiveSlots}");
+            if (HasEvolutionTicket)
+                FindEvolutions();
+            levelHeading = $"레벨 업\n액티브 {weaponCount}/{WeaponSlots} · 패시브 {passiveCount}/{PassiveSlots}";
+            ShowLevelOffers();
+            Open();
         }
 
-        void AddOffer(Item item)
+        void Evolve(Item item)
         {
-            offered.Add(item);
-            item.transform.SetAsLastSibling();
-            item.ShowOffer(evolution);
+            item.weapon.Evolve();
+            HasEvolved = true;
+            HasEvolutionTicket = false;
+            Notify($"{item.data.evolutionName} 진화!");
         }
 
-        void Open(string heading)
+        void ShowLevelOffers()
+        {
+            evolutionMenu = EvolutionMenu.None;
+            if (title)
+                title.text = levelHeading;
+            ShowOffers(offered, false);
+            bool ready = evolutionOffers.Count > 0;
+            SetTicketButton(HasEvolutionTicket, ready ? "강화권 사용 · 무기 진화" : "강화권 보유 · 조건 미충족", ready);
+        }
+
+        void ShowEvolutionOffers(EvolutionMenu menu)
+        {
+            evolutionMenu = menu;
+            if (title)
+                title.text = menu == EvolutionMenu.Ticket ? "장비 강화권\n진화할 무기 선택" : "보물상자\n진화할 무기 선택";
+            HideOffers(offered);
+            ShowOffers(evolutionOffers, true);
+            SetTicketButton(menu == EvolutionMenu.Ticket, "레벨업 보상으로 돌아가기", true);
+        }
+
+        static void ShowOffers(List<Item> offers, bool evolution)
+        {
+            foreach (Item item in offers) {
+                item.transform.SetAsLastSibling();
+                item.ShowOffer(evolution);
+            }
+        }
+
+        static void HideOffers(List<Item> offers)
+        {
+            foreach (Item item in offers)
+                item.gameObject.SetActive(false);
+        }
+
+        void ClearOffers()
+        {
+            HideOffers(offered);
+            HideOffers(evolutionOffers);
+            offered.Clear();
+            evolutionOffers.Clear();
+            evolutionMenu = EvolutionMenu.None;
+            SetTicketButton(false, "", false);
+        }
+
+        void Open()
         {
             IsOpen = true;
-            if (title)
-                title.text = heading;
-
             rect.localScale = Vector3.one;
             GameManager.instance.Stop();
             AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);
             AudioManager.instance.EffectBgm(true);
+        }
+
+        void CreateTicketButton()
+        {
+            var button = new GameObject("Evolution Ticket", typeof(RectTransform), typeof(Image), typeof(Button));
+            var placement = (RectTransform)button.transform;
+            placement.SetParent(itemGroup.parent, false);
+            placement.anchorMin = Vector2.zero;
+            placement.anchorMax = Vector2.right;
+            placement.offsetMin = new Vector2(5f, itemGroupBottom.y);
+            placement.offsetMax = new Vector2(-5f, itemGroupBottom.y + TicketRowHeight - 2f);
+            var background = button.GetComponent<Image>();
+            background.color = new Color32(44, 64, 55, 255);
+            ticketButton = button.GetComponent<Button>();
+            ticketButton.targetGraphic = background;
+            ticketButton.onClick.AddListener(ToggleTicketMenu);
+
+            ticketLabel = Instantiate(title, placement);
+            ticketLabel.name = "Ticket Label";
+            ticketLabel.fontSize = 7;
+            ticketLabel.raycastTarget = false;
+            RectTransform labelRect = ticketLabel.rectTransform;
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            button.SetActive(false);
+        }
+
+        void SetTicketButton(bool visible, string label, bool interactable)
+        {
+            if (!ticketButton)
+                return;
+
+            ticketLabel.text = label;
+            ticketLabel.color = interactable ? new Color32(255, 228, 156, 255) : Color.white;
+            ticketButton.interactable = interactable;
+            ticketButton.gameObject.SetActive(visible);
+            itemGroup.offsetMin = itemGroupBottom + (visible ? Vector2.up * TicketRowHeight : Vector2.zero);
+        }
+
+        void ToggleTicketMenu()
+        {
+            if (evolutionMenu == EvolutionMenu.Ticket) {
+                HideOffers(evolutionOffers);
+                ShowLevelOffers();
+            }
+            else if (HasEvolutionTicket && evolutionOffers.Count > 0) {
+                ShowEvolutionOffers(EvolutionMenu.Ticket);
+            }
         }
 
         void CreateNotice()

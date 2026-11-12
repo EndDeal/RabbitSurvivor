@@ -7,7 +7,6 @@ namespace Goldmetal.UndeadSurvivor
         const float PickupDistance = 1.15f;
 
         Transform spriteTransform;
-        bool waitingForPassive;
 
         public static void Drop(Vector3 position, Sprite sprite)
         {
@@ -32,20 +31,11 @@ namespace Goldmetal.UndeadSurvivor
 
             spriteTransform.localPosition = Vector3.up * (0.15f + Mathf.Sin(Time.time * 4f) * 0.12f);
             Vector2 offset = game.player.transform.position - transform.position;
-            if (offset.sqrMagnitude > PickupDistance * PickupDistance) {
-                waitingForPassive = false;
+            if (offset.sqrMagnitude > PickupDistance * PickupDistance)
                 return;
-            }
 
-            if (game.uiLevelUp.TryShowEvolution()) {
-                Destroy(gameObject);
-                return;
-            }
-
-            if (!waitingForPassive) {
-                waitingForPassive = true;
-                game.uiLevelUp.Notify("보유 무기 + 대응 패시브 Lv.5 필요");
-            }
+            game.uiLevelUp.CollectTreasure();
+            Destroy(gameObject);
         }
     }
 }
