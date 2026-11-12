@@ -11,7 +11,11 @@ namespace Goldmetal.UndeadSurvivor
         public RuntimeAnimatorController[] animCon;
         public Rigidbody2D target;
 
-        public bool IsMidBoss { get; private set; }
+        public BossType Boss { get; private set; }
+        public bool IsBoss => Boss != BossType.None;
+        public bool IsAlive => isLive;
+        public int SpriteType { get; private set; }
+        public int ExperienceReward { get; private set; }
 
         bool isLive;
         Rigidbody2D rigid;
@@ -40,7 +44,7 @@ namespace Goldmetal.UndeadSurvivor
             if (!GameManager.instance.isLive || !isLive)
                 return;
 
-            if (!IsMidBoss && anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
+            if (!IsBoss && anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
                 return;
 
             Vector2 direction = target.position - rigid.position;
@@ -70,11 +74,12 @@ namespace Goldmetal.UndeadSurvivor
             coll.enabled = true;
             rigid.simulated = true;
             spriter.sortingOrder = 2;
+            anim.enabled = true;
             anim.SetBool("Dead", false);
             health = maxHealth;
         }
 
-        public void Init(SpawnData data, bool midBoss = false, RuntimeAnimatorController animation = null)
+        public void Init(SpawnData data, BossType boss = BossType.None, RuntimeAnimatorController animation = null)
         {
             anim.runtimeAnimatorController = animation ? animation : animCon[data.spriteType];
             anim.ResetTrigger("Hit");
@@ -82,9 +87,12 @@ namespace Goldmetal.UndeadSurvivor
             speed = data.speed;
             maxHealth = data.health;
             health = maxHealth;
-            IsMidBoss = midBoss;
-            transform.localScale = midBoss ? defaultScale * 1.7f : defaultScale;
-            spriter.color = midBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
+            Boss = boss;
+            SpriteType = data.spriteType;
+            ExperienceReward = Mathf.Max(1, data.experience);
+            float scale = boss == BossType.Final ? 2.1f : IsBoss ? 1.7f : 1f;
+            transform.localScale = defaultScale * scale;
+            spriter.color = IsBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
         }
 
         void OnTriggerEnter2D(Collider2D collision)
@@ -106,7 +114,7 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             if (health > 0f) {
-                if (!IsMidBoss)
+                if (!IsBoss)
                     StartCoroutine(KnockBack());
                 anim.SetTrigger("Hit");
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
@@ -120,7 +128,7 @@ namespace Goldmetal.UndeadSurvivor
             spriter.sortingOrder = 1;
             anim.SetBool("Dead", true);
 
-            game.RegisterKill(transform.position, IsMidBoss);
+            game.RegisterKill(this);
 
             if (game.isLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);

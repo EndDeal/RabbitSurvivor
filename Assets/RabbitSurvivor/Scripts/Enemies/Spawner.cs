@@ -2,21 +2,24 @@ using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
 {
+    public enum BossType { None, Mid, Final }
+
     public class Spawner : MonoBehaviour
     {
         public Transform[] spawnPoint;
         public SpawnData[] spawnData;
         public float levelTime;
 
-        [SerializeField] float[] midBossTimes = System.Array.Empty<float>();
         [SerializeField] RuntimeAnimatorController[] enemyAnimations = System.Array.Empty<RuntimeAnimatorController>();
         [SerializeField] RuntimeAnimatorController midBossAnimation;
+        [SerializeField] RuntimeAnimatorController finalBossAnimation;
+        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 145, speed = 1.3f, experience = 24 };
+        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 525, speed = 1.7f };
 
-        int nextMidBoss;
         float timer;
 
-        public SpawnData CurrentWave => spawnData[Mathf.Min(
-            Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), spawnData.Length - 1)];
+        public SpawnData CurrentWave => spawnData[Mathf.Clamp(
+            Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), 0, spawnData.Length - 1)];
 
         void Awake()
         {
@@ -30,38 +33,38 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             timer += Time.deltaTime;
-            float gameTime = GameManager.instance.gameTime;
             SpawnData wave = CurrentWave;
-
-            if (nextMidBoss < midBossTimes.Length && gameTime >= midBossTimes[nextMidBoss]) {
-                SpawnMidBoss(wave);
-                nextMidBoss++;
-            }
-
-            if (timer > wave.spawnTime) {
-                timer = 0;
-                Spawn(wave, false);
+            if (timer >= wave.spawnTime) {
+                timer -= wave.spawnTime;
+                Spawn(wave, BossType.None);
             }
         }
 
-        void SpawnMidBoss(SpawnData wave)
+        public Enemy SpawnBoss(BossType type)
         {
-            SpawnData boss = new SpawnData {
-                spriteType = spawnData[spawnData.Length - 1].spriteType,
-                health = wave.health * (5 + nextMidBoss),
-                speed = wave.speed * 0.8f
-            };
-            Spawn(boss, true);
-            GameManager.instance.uiLevelUp.Notify("중간 보스 출현!");
+            Enemy boss = Spawn(type == BossType.Final ? finalBoss : midBoss, type);
+            GameManager game = GameManager.instance;
+            if (game.BossPresentation)
+                game.BossPresentation.ShowArrival(boss);
+            else
+                game.uiLevelUp.Notify("보스 등장!");
+            return boss;
         }
 
-        void Spawn(SpawnData data, bool midBoss)
+        Enemy Spawn(SpawnData data, BossType bossType)
         {
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
-            RuntimeAnimatorController animation = midBoss ? midBossAnimation :
-                (data.spriteType < enemyAnimations.Length ? enemyAnimations[data.spriteType] : null);
-            enemy.GetComponent<Enemy>().Init(data, midBoss, animation);
+            RuntimeAnimatorController controller = data.spriteType < enemyAnimations.Length ?
+                enemyAnimations[data.spriteType] : null;
+            if (bossType == BossType.Mid)
+                controller = midBossAnimation;
+            else if (bossType == BossType.Final)
+                controller = finalBossAnimation ? finalBossAnimation : midBossAnimation;
+
+            Enemy spawned = enemy.GetComponent<Enemy>();
+            spawned.Init(data, bossType, controller);
+            return spawned;
         }
     }
 
@@ -73,5 +76,6 @@ namespace Goldmetal.UndeadSurvivor
         public int health;
         public float speed;
         [Min(1)] public int killsPerMagnet = 100;
+        [Min(1)] public int experience = 1;
     }
 }

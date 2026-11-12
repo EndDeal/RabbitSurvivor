@@ -83,7 +83,9 @@ namespace Goldmetal.UndeadSurvivor
             if (!game.isLive)
                 return;
 
-            float damage = collision.gameObject.TryGetComponent(out Enemy enemy) && enemy.IsMidBoss ? 16f : 10f;
+            float damage = 10f;
+            if (collision.gameObject.TryGetComponent(out Enemy enemy) && enemy.IsBoss)
+                damage = enemy.Boss == BossType.Final ? 24f : 16f;
             game.health = Mathf.Max(0f, game.health - Time.deltaTime * damage);
             bool lethal = game.health <= 0f;
             hitFlash ??= new SpriteHitFlash(spriter);

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,10 +7,14 @@ namespace Goldmetal.UndeadSurvivor
     public class GameManager : MonoBehaviour
     {
         public static GameManager instance;
+
         [Header("# Game Control")]
         public bool isLive;
         public float gameTime;
-        public float maxGameTime = 2 * 10f;
+        public float maxGameTime = 600f;
+        [SerializeField, Min(0f)] float midBossTime = 300f;
+        [SerializeField] Spawner encounterSpawner;
+
         [Header("# Player Info")]
         public int playerId;
         public float health;
@@ -20,6 +23,7 @@ namespace Goldmetal.UndeadSurvivor
         public int kill;
         public int exp;
         public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
+
         [Header("# Game Object")]
         public PoolManager pool;
         public Player player;
@@ -30,13 +34,20 @@ namespace Goldmetal.UndeadSurvivor
         public Sprite treasureChestSprite;
         [SerializeField] LootDrops lootDrops;
         [SerializeField] Material hitFlashMaterial;
+        [SerializeField] BossPresentation bossPresentation;
+        [SerializeField] GameOverPresentation gameOverPresentation;
         [SerializeField, Min(0f)] float corpseLifetime = 2f;
 
-        public Material HitFlashMaterial => hitFlashMaterial;
-        public float CorpseLifetime => corpseLifetime;
-
+        Enemy clockBoss;
+        bool midBossStarted;
+        bool finalBossStarted;
+        bool ending;
         float baseMaxHealth;
 
+        public Material HitFlashMaterial => hitFlashMaterial;
+        public BossPresentation BossPresentation => bossPresentation;
+        public float CorpseLifetime => corpseLifetime;
+        public bool IsBossClockHeld => clockBoss;
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
 
         void Awake()
@@ -50,7 +61,6 @@ namespace Goldmetal.UndeadSurvivor
         {
             playerId = id;
             health = maxHealth;
-
             player.gameObject.SetActive(true);
             uiLevelUp.Select(playerId % 2);
             Resume();
@@ -61,41 +71,45 @@ namespace Goldmetal.UndeadSurvivor
 
         public void GameOver()
         {
-            StartCoroutine(GameOverRoutine());
+            if (!ending)
+                StartCoroutine(GameOverRoutine());
         }
 
         IEnumerator GameOverRoutine()
         {
-            isLive = false;
+            BeginResult();
+            bossPresentation?.Clear();
 
-            yield return new WaitForSeconds(0.5f);
-
+            yield return new WaitForSecondsRealtime(0.5f);
             uiResult.gameObject.SetActive(true);
             uiResult.Lose();
             Stop();
-
+            gameOverPresentation?.Begin(player.transform.position, uiResult);
             AudioManager.instance.PlayBgm(false);
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);
         }
 
-        public void GameVictroy()
+        IEnumerator VictoryRoutine(float delay)
         {
-            StartCoroutine(GameVictroyRoutine());
-        }
-
-        IEnumerator GameVictroyRoutine()
-        {
-            isLive = false;
+            BeginResult();
             enemyCleaner.SetActive(true);
 
-            yield return new WaitForSeconds(0.5f);
-
+            yield return new WaitForSecondsRealtime(delay);
+            bossPresentation?.Clear();
             uiResult.gameObject.SetActive(true);
             uiResult.Win();
             Stop();
-
             AudioManager.instance.PlayBgm(false);
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Win);
+        }
+
+        void BeginResult()
+        {
+            ending = true;
+            isLive = false;
+            clockBoss = null;
+            uiLevelUp.Dismiss();
+            Time.timeScale = 1f;
         }
 
         public void GameRetry()
@@ -110,30 +124,53 @@ namespace Goldmetal.UndeadSurvivor
 
         void Update()
         {
-            if (!isLive)
+            if (!isLive || IsBossClockHeld)
                 return;
 
-            gameTime += Time.deltaTime;
-
-            if (gameTime > maxGameTime) {
-                gameTime = maxGameTime;
-                GameVictroy();
+            if (!encounterSpawner) {
+                gameTime = Mathf.Min(gameTime + Time.deltaTime, maxGameTime);
+                if (gameTime >= maxGameTime)
+                    StartCoroutine(VictoryRoutine(0.5f));
+                return;
             }
+
+            float gate = midBossStarted ? maxGameTime : midBossTime;
+            gameTime = Mathf.Min(gameTime + Time.deltaTime, gate);
+            if (gameTime < gate || finalBossStarted)
+                return;
+
+            BossType type = midBossStarted ? BossType.Final : BossType.Mid;
+            finalBossStarted = type == BossType.Final;
+            midBossStarted = true;
+            clockBoss = encounterSpawner.SpawnBoss(type);
         }
 
-        public void RegisterKill(Vector3 position, bool midBoss)
+        public void RegisterKill(Enemy enemy)
         {
-            kill++;
-            if (!isLive && !uiLevelUp.IsOpen)
+            if (ending || (!isLive && !uiLevelUp.IsOpen))
                 return;
 
-            if (lootDrops)
-                lootDrops.DropFromEnemy(position, midBoss);
-            else
-                GainExperience(1);
+            kill++;
+            if (enemy.IsBoss)
+                bossPresentation?.ShowDefeat(enemy);
 
-            if (midBoss && treasureChestSprite)
-                TreasureChest.Drop(position, treasureChestSprite);
+            if (enemy.Boss != BossType.Final) {
+                Vector3 position = enemy.transform.position;
+                if (lootDrops)
+                    lootDrops.DropFromEnemy(position, enemy.IsBoss, enemy.ExperienceReward);
+                else
+                    GainExperience(enemy.ExperienceReward);
+
+                if (enemy.Boss == BossType.Mid && treasureChestSprite)
+                    TreasureChest.Drop(position, treasureChestSprite);
+            }
+
+            if (clockBoss != enemy)
+                return;
+
+            clockBoss = null;
+            if (enemy.Boss == BossType.Final)
+                StartCoroutine(VictoryRoutine(bossPresentation ? bossPresentation.BannerSeconds : 0.5f));
         }
 
         public void GainExperience(int amount)
@@ -156,14 +193,17 @@ namespace Goldmetal.UndeadSurvivor
         public void Stop()
         {
             isLive = false;
-            Time.timeScale = 0;
+            Time.timeScale = 0f;
             uiJoy.localScale = Vector3.zero;
         }
 
         public void Resume()
         {
+            if (ending)
+                return;
+
             isLive = true;
-            Time.timeScale = 1;
+            Time.timeScale = 1f;
             uiJoy.localScale = Vector3.one;
         }
     }

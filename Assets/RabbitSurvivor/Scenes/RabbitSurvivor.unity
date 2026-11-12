@@ -1883,6 +1883,7 @@ GameObject:
   m_Component:
   - component: {fileID: 430624467}
   - component: {fileID: 430624466}
+  - component: {fileID: 430624468}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -1890,6 +1891,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &430624468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430624465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c23c8ef18fa84840894c20c6ca840002, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  seafloor: {fileID: 21300000, guid: c23c8ef18fa84840894c20c6ca840006, type: 3}
+  unlitMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!156049354 &430624466
 Grid:
   m_ObjectHideFlags: 0
@@ -16666,6 +16681,8 @@ GameObject:
   - component: {fileID: 861663792}
   - component: {fileID: 861663791}
   - component: {fileID: 861663793}
+  - component: {fileID: 861663794}
+  - component: {fileID: 861663795}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -16687,14 +16704,16 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   isLive: 0
   gameTime: 0
-  maxGameTime: 300
+  maxGameTime: 600
+  midBossTime: 300
+  encounterSpawner: {fileID: 1453284998}
   playerId: 0
   health: 0
   maxHealth: 100
   level: 0
   kill: 0
   exp: 0
-  nextExp: 030000000500000007000000090000000c0000001000000014000000190000001e000000240000002b000000320000003a000000420000004b00000055000000600000006e0000007d0000008c000000
+  nextExp: 030000000500000007000000090000000c0000000f0000001200000015000000180000001b0000001e0000002100000024000000270000002a0000002d000000300000003300000036000000390000003c0000003f0000004200000045000000480000004b0000004e0000005100000054000000
   pool: {fileID: 994102858}
   player: {fileID: 539536290}
   uiLevelUp: {fileID: 603419247}
@@ -16704,7 +16723,46 @@ MonoBehaviour:
   treasureChestSprite: {fileID: 813450073, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   lootDrops: {fileID: 861663793}
   hitFlashMaterial: {fileID: 2100000, guid: 2af380a5935b4d56ab53749053572d03, type: 2}
+  bossPresentation: {fileID: 861663794}
+  gameOverPresentation: {fileID: 861663795}
   corpseLifetime: 2
+--- !u!114 &861663794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861663790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c874e1c106f34a3b8e2ab6c6a3571102, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  font: {fileID: 12800000, guid: e715fcabbb6163e48b780b3b92979f8e, type: 3}
+  arrivalPortrait: {fileID: 816220001, guid: c874e1c106f34a3b8e2ab6c6a3571101, type: 3}
+  defeatedPortrait: {fileID: 816220002, guid: c874e1c106f34a3b8e2ab6c6a3571101, type: 3}
+  finalArrivalPortrait: {fileID: 816230005, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
+  finalDefeatedPortrait: {fileID: 816230006, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
+--- !u!114 &861663795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861663790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c23c8ef18fa84840894c20c6ca840001, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  tombstoneSprite: {fileID: 21300000, guid: c23c8ef18fa84840894c20c6ca840005, type: 3}
+  tombstoneMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  regularLaughSprites:
+  - {fileID: 816231001, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
+  - {fileID: 816231002, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
+  captainLaughSprite: {fileID: 816231003, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
+  finalLaughSprite: {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
+  font: {fileID: 12800000, guid: e715fcabbb6163e48b780b3b92979f8e, type: 3}
 --- !u!114 &861663793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20845,25 +20903,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPoint: []
   spawnData:
-  - spawnTime: 0.3
+  - spawnTime: 0.45
     spriteType: 0
-    health: 15
-    speed: 1.5
+    health: 12
+    speed: 1.4
     killsPerMagnet: 100
-  - spawnTime: 0.1
+    experience: 1
+  - spawnTime: 0.32
+    spriteType: 0
+    health: 20
+    speed: 1.6
+    killsPerMagnet: 125
+    experience: 1
+  - spawnTime: 0.24
     spriteType: 1
-    health: 35
-    speed: 2
+    health: 28
+    speed: 1.75
+    killsPerMagnet: 165
+    experience: 2
+  - spawnTime: 0.18
+    spriteType: 1
+    health: 38
+    speed: 1.95
     killsPerMagnet: 200
+    experience: 2
   levelTime: 0
-  midBossTimes:
-  - 75
-  - 150
-  - 240
   enemyAnimations:
   - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cc, type: 2}
   - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cd, type: 2}
   midBossAnimation: {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100ce, type: 2}
+  finalBossAnimation: {fileID: 22100000, guid: c23c8ef18fa84840894c20c6ca840004, type: 2}
+  midBoss:
+    spriteType: 1
+    health: 145
+    speed: 1.3
+    experience: 24
+  finalBoss:
+    spriteType: 1
+    health: 525
+    speed: 1.7
+    experience: 1
 --- !u!1 &1453797367
 GameObject:
   m_ObjectHideFlags: 0

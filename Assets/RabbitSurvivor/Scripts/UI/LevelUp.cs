@@ -26,6 +26,7 @@ namespace Goldmetal.UndeadSurvivor
         bool evolution;
 
         public bool IsOpen { get; private set; }
+        public bool HasEvolved { get; private set; }
 
         void Awake()
         {
@@ -82,7 +83,7 @@ namespace Goldmetal.UndeadSurvivor
 
         public bool TryShowEvolution()
         {
-            if (IsOpen)
+            if (IsOpen || HasEvolved)
                 return false;
 
             eligible.Clear();
@@ -117,6 +118,7 @@ namespace Goldmetal.UndeadSurvivor
 
             if (evolution) {
                 item.weapon.Evolve();
+                HasEvolved = true;
                 Notify($"{item.data.evolutionName} 진화!");
             }
             else {
@@ -137,6 +139,20 @@ namespace Goldmetal.UndeadSurvivor
             rect.localScale = Vector3.zero;
             GameManager.instance.Resume();
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Select);
+            AudioManager.instance.EffectBgm(false);
+        }
+
+        public void Dismiss()
+        {
+            if (!IsOpen)
+                return;
+
+            foreach (Item item in offered)
+                item.gameObject.SetActive(false);
+            offered.Clear();
+            pendingLevels = 0;
+            IsOpen = false;
+            rect.localScale = Vector3.zero;
             AudioManager.instance.EffectBgm(false);
         }
 
@@ -206,7 +222,7 @@ namespace Goldmetal.UndeadSurvivor
             notice.raycastTarget = false;
             notice.color = new Color(1f, 0.86f, 0.49f);
             RectTransform placement = notice.rectTransform;
-            placement.anchoredPosition = new Vector2(0f, -34f);
+            placement.anchoredPosition = new Vector2(0f, -44f);
             notice.gameObject.SetActive(false);
         }
 

@@ -34,9 +34,10 @@ namespace Goldmetal.UndeadSurvivor
                     myText.text = string.Format("{0:F0}", GameManager.instance.kill);
                     break;
                 case InfoType.Time:
-                    float remainTime = GameManager.instance.maxGameTime - GameManager.instance.gameTime;
-                    int min = Mathf.FloorToInt(remainTime / 60);
-                    int sec = Mathf.FloorToInt(remainTime % 60);
+                    float elapsed = GameManager.instance.gameTime;
+                    myText.color = GameManager.instance.IsBossClockHeld ? new Color32(255, 206, 104, 255) : Color.white;
+                    int min = Mathf.FloorToInt(elapsed / 60);
+                    int sec = Mathf.FloorToInt(elapsed % 60);
                     myText.text = string.Format("{0:D2}:{1:D2}", min, sec);
                     break;
                 case InfoType.Health:

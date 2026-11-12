@@ -25,6 +25,7 @@ namespace Goldmetal.UndeadSurvivor
             public Kind kind;
             public SpriteRenderer sprite;
             public bool attracted;
+            public int experience;
         }
 
         readonly List<Pickup> pickups = new List<Pickup>();
@@ -38,10 +39,10 @@ namespace Goldmetal.UndeadSurvivor
             game = GetComponent<GameManager>();
         }
 
-        public void DropFromEnemy(Vector3 position, bool midBoss)
+        public void DropFromEnemy(Vector3 position, bool boss, int experience)
         {
-            Drop(Kind.Experience, experienceSprite, position);
-            if (midBoss)
+            Drop(Kind.Experience, experienceSprite, position, experience);
+            if (boss)
                 return;
 
             int magnetInterval = hasDroppedMagnet ?
@@ -58,7 +59,7 @@ namespace Goldmetal.UndeadSurvivor
                 Drop(Kind.Potion, potionSprite, position + Vector3.right * 0.45f);
         }
 
-        void Drop(Kind kind, Sprite sprite, Vector3 position)
+        void Drop(Kind kind, Sprite sprite, Vector3 position, int experience = 0)
         {
             SpriteRenderer renderer;
             if (availableSprites.Count > 0) {
@@ -74,7 +75,7 @@ namespace Goldmetal.UndeadSurvivor
             renderer.sortingOrder = kind == Kind.Experience ? 1 : 4;
             renderer.transform.position = position;
             renderer.gameObject.SetActive(true);
-            pickups.Add(new Pickup { kind = kind, sprite = renderer });
+            pickups.Add(new Pickup { kind = kind, sprite = renderer, experience = experience });
         }
 
         void Update()
@@ -97,7 +98,7 @@ namespace Goldmetal.UndeadSurvivor
                     }
 
                     if (distance <= ExperiencePickupRadius * ExperiencePickupRadius) {
-                        collectedExperience++;
+                        collectedExperience += pickup.experience;
                         RemoveAt(index);
                     }
                     continue;
