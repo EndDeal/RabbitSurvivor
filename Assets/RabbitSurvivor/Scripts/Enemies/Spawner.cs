@@ -19,7 +19,8 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField] RuntimeAnimatorController midBossAnimation;
         [SerializeField] RuntimeAnimatorController finalBossAnimation;
         [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 145, speed = 1.3f, experience = 24 };
-        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 525, speed = 1.7f };
+        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 525 };
+        [SerializeField] Material dashGuideMaterial;
         [SerializeField, Min(0f)] float barrierStart = 90f;
         [SerializeField] SpawnData barrierWave;
         [SerializeField, Min(0f)] float shooterStart = 180f;
@@ -80,13 +81,30 @@ namespace Goldmetal.UndeadSurvivor
 
         public Enemy SpawnBoss(BossType type)
         {
-            Enemy boss = Spawn(type == BossType.Final ? finalBoss : midBoss, type, RandomSpawnPoint());
             GameManager game = GameManager.instance;
+            bool isFinal = type == BossType.Final;
+            Vector3 position = isFinal ? DragonPosition(game.player) : RandomSpawnPoint();
+            Enemy boss = Spawn(isFinal ? finalBoss : midBoss, type, position);
+            boss.ConfigureBossAttacks(this, dashGuideMaterial);
             if (game.BossPresentation)
                 game.BossPresentation.ShowArrival(boss);
             else
                 game.uiLevelUp.Notify("보스 등장!");
             return boss;
+        }
+
+        internal Enemy SpawnDragonGuard(Vector2 position, Enemy dragon)
+        {
+            Enemy guard = Spawn(spawnData[spawnData.Length - 1], BossType.None, position);
+            guard.Summoner = dragon;
+            return guard;
+        }
+
+        static Vector3 DragonPosition(Player player)
+        {
+            Camera camera = Camera.main;
+            float distance = camera && camera.orthographic ? Mathf.Min(camera.orthographicSize * 0.56f, 3.4f) : 3.4f;
+            return player.transform.position + Vector3.up * distance;
         }
 
         Vector3 RandomSpawnPoint()
@@ -98,6 +116,7 @@ namespace Goldmetal.UndeadSurvivor
         {
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = position;
+            enemy.GetComponent<Rigidbody2D>().position = position;
             RuntimeAnimatorController controller = data.spriteType < enemyAnimations.Length ?
                 enemyAnimations[data.spriteType] : null;
             if (bossType == BossType.Mid)

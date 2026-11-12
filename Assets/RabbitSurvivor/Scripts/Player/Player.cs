@@ -80,8 +80,12 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnCollisionStay2D(Collision2D collision)
         {
-            float damage = collision.gameObject.TryGetComponent(out Enemy enemy) ? enemy.ContactDamage : 10f;
-            TakeDamage(Time.deltaTime * damage);
+            if (collision.gameObject.TryGetComponent(out Enemy enemy)) {
+                if (!enemy.IsDashing)
+                    TakeDamage(Time.deltaTime * enemy.ContactDamage);
+                return;
+            }
+            TakeDamage(Time.deltaTime * 10f);
         }
 
         internal void TakeDamage(float amount)

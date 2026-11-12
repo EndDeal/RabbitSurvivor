@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dragon-King Run
+  m_Name: Dragon-King Idle
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -22,12 +22,8 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
-    - time: 0.1
-      value: {fileID: 816230002, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
-    - time: 0.2
-      value: {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
     - time: 0.3
-      value: {fileID: 816230002, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
+      value: {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -51,9 +47,7 @@ AnimationClip:
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
     - {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
-    - {fileID: 816230002, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
     - {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
-    - {fileID: 816230002, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}

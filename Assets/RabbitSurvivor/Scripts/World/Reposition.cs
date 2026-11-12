@@ -39,9 +39,13 @@ namespace Goldmetal.UndeadSurvivor
                     break;
                 case "Enemy":
                     if (coll.enabled) {
-                        if (TryGetComponent(out Enemy enemy) && enemy.IsBarrier) {
-                            gameObject.SetActive(false);
-                            break;
+                        if (TryGetComponent(out Enemy enemy)) {
+                            if (enemy.Boss == BossType.Final)
+                                break;
+                            if (enemy.IsBarrier) {
+                                gameObject.SetActive(false);
+                                break;
+                            }
                         }
                         Vector3 dist = playerPos - myPos;
                         Vector3 ran = new Vector3(Random.Range(-3, 3), Random.Range(-3, 3), 0);

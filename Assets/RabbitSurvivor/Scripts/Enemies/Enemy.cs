@@ -23,6 +23,8 @@ namespace Goldmetal.UndeadSurvivor
         public int ExperienceReward { get; private set; }
         public EnemyBehavior Behavior { get; private set; }
         public bool IsBarrier => Behavior == EnemyBehavior.Barrier;
+        internal Enemy Summoner { get; set; }
+        internal bool IsDashing => bossAttacks && bossAttacks.IsDashing;
 
         internal float ContactDamage => Boss == BossType.Final ? 24f : Boss == BossType.Mid ? 16f :
             IsBarrier ? 8f : Behavior == EnemyBehavior.Shooter ? 4f : 10f;
@@ -46,6 +48,7 @@ namespace Goldmetal.UndeadSurvivor
         Vector2 shotDirection;
         float windupRemaining;
         float nextShotAt;
+        BossAttacks bossAttacks;
 
         void Awake()
         {
@@ -75,6 +78,10 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             Vector2 direction = target.position - rigid.position;
+            if (bossAttacks && bossAttacks.isActiveAndEnabled && bossAttacks.Step(direction))
+                return;
+            if (Boss == BossType.Final)
+                return;
             if (Behavior == EnemyBehavior.Shooter && AimOrShoot(direction))
                 return;
 
@@ -90,9 +97,17 @@ namespace Goldmetal.UndeadSurvivor
                 return;
             }
 
-            if (GameManager.instance.isLive && isLive && !IsBarrier) {
-                spriter.flipX = windupRemaining > 0f ? shotDirection.x < 0f : target.position.x < rigid.position.x;
-                if (windupRemaining > 0f && attackPose)
+            GameManager game = GameManager.instance;
+            if (game.IsEnding && bossAttacks && bossAttacks.enabled)
+                bossAttacks.enabled = false;
+
+            if (game.isLive && isLive && !IsBarrier) {
+                bool bossAiming = bossAttacks && bossAttacks.IsAiming;
+                if (bossAiming || IsDashing)
+                    spriter.flipX = bossAttacks.Aim.x < 0f;
+                else
+                    spriter.flipX = windupRemaining > 0f ? shotDirection.x < 0f : target.position.x < rigid.position.x;
+                if ((windupRemaining > 0f || bossAiming) && attackPose)
                     spriter.sprite = attackPose;
             }
 
@@ -114,6 +129,9 @@ namespace Goldmetal.UndeadSurvivor
 
         public void Init(SpawnData data, BossType boss = BossType.None, RuntimeAnimatorController animation = null)
         {
+            if (bossAttacks)
+                bossAttacks.enabled = false;
+
             anim.runtimeAnimatorController = animation ? animation : animCon[data.spriteType];
             anim.ResetTrigger("Hit");
             anim.Play("Run", 0, 0f);
@@ -121,23 +139,34 @@ namespace Goldmetal.UndeadSurvivor
             maxHealth = data.health;
             health = maxHealth;
             Boss = boss;
+            Summoner = null;
             SpriteType = data.spriteType;
             Behavior = data.behavior;
             attackPose = data.attackPose;
             projectileIndex = data.projectile ? System.Array.IndexOf(GameManager.instance.pool.prefabs, data.projectile) : -1;
-            sceneCamera = Behavior == EnemyBehavior.Shooter ? Camera.main : null;
+            sceneCamera = IsBoss || Behavior == EnemyBehavior.Shooter ? Camera.main : null;
             windupRemaining = 0f;
             nextShotAt = Time.time;
             barrierExpiresAt = Time.time + BarrierLifetime;
             rigid.velocity = Vector2.zero;
-            rigid.constraints = IsBarrier ? RigidbodyConstraints2D.FreezeAll : defaultConstraints;
-            coll.size = IsBarrier ? new Vector2(8.5f, 8.5f) :
+            rigid.constraints = IsBarrier || Boss == BossType.Final ? RigidbodyConstraints2D.FreezeAll : defaultConstraints;
+            coll.size = Boss == BossType.Final ? new Vector2(4.5f, 3.6f) :
+                Boss == BossType.Mid ? new Vector2(3.6f, 3.4f) :
+                IsBarrier ? new Vector2(8.5f, 8.5f) :
                 Behavior == EnemyBehavior.Shooter ? new Vector2(5.2f, 4.5f) : defaultColliderSize;
             spriter.flipX = false;
             ExperienceReward = Mathf.Max(1, data.experience);
             float scale = boss == BossType.Final ? 2.1f : IsBoss ? 1.7f : 1f;
             transform.localScale = defaultScale * scale;
             spriter.color = IsBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
+        }
+
+        internal void ConfigureBossAttacks(Spawner spawner, Material guideMaterial)
+        {
+            if (!bossAttacks)
+                bossAttacks = gameObject.AddComponent<BossAttacks>();
+            bossAttacks.enabled = true;
+            bossAttacks.Begin(spawner, projectileIndex, guideMaterial);
         }
 
         bool AimOrShoot(Vector2 direction)
@@ -163,7 +192,7 @@ namespace Goldmetal.UndeadSurvivor
             return true;
         }
 
-        bool IsInView()
+        internal bool IsInView()
         {
             if (!sceneCamera)
                 return true;
@@ -203,6 +232,8 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             isLive = false;
+            if (bossAttacks)
+                bossAttacks.enabled = false;
             recycleAt = Time.unscaledTime + game.CorpseLifetime;
             coll.enabled = false;
             rigid.simulated = false;

@@ -4,28 +4,36 @@ namespace Goldmetal.UndeadSurvivor
 {
     public class EnemyProjectile : MonoBehaviour
     {
-        const float Speed = 4.5f;
-        const float Damage = 8f;
         const float Lifetime = 2.4f;
 
         Rigidbody2D body;
+        Vector3 baseScale;
+        float hitDamage;
         float remaining;
 
         void Awake()
         {
             body = GetComponent<Rigidbody2D>();
+            baseScale = transform.localScale;
         }
 
-        internal void Launch(Vector2 position, Vector2 direction)
+        internal void Launch(Vector2 position, Vector2 direction, float damage = 8f, float speed = 4.5f, float size = 1f)
         {
             body.position = position;
-            body.velocity = direction * Speed;
+            body.velocity = direction * speed;
+            transform.localScale = baseScale * size;
+            hitDamage = damage;
             remaining = Lifetime;
         }
 
         void Update()
         {
-            if (!GameManager.instance.isLive)
+            GameManager game = GameManager.instance;
+            if (game.IsEnding) {
+                gameObject.SetActive(false);
+                return;
+            }
+            if (!game.isLive)
                 return;
 
             remaining -= Time.deltaTime;
@@ -39,7 +47,7 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             gameObject.SetActive(false);
-            player.TakeDamage(Damage);
+            player.TakeDamage(hitDamage);
         }
     }
 }
