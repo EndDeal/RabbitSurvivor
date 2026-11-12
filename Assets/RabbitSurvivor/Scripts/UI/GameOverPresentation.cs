@@ -10,7 +10,7 @@ namespace Goldmetal.UndeadSurvivor
         const int MaxCaptions = 3;
 
         [SerializeField] Sprite tombstoneSprite;
-        [SerializeField] Material tombstoneMaterial;
+        [SerializeField] Material presentationMaterial;
         [SerializeField] Sprite[] regularLaughSprites;
         [SerializeField] Sprite captainLaughSprite;
         [SerializeField] Sprite finalLaughSprite;
@@ -28,9 +28,13 @@ namespace Goldmetal.UndeadSurvivor
 
         struct LaughingEnemy
         {
-            public Transform transform;
-            public Vector3 position;
-            public Vector3 scale;
+            public SpriteRenderer renderer;
+            public Animator animator;
+            public Sprite originalSprite;
+            public Material originalMaterial;
+            public Vector3 originalScale;
+            public bool originalFlip;
+            public bool animatorWasEnabled;
             public float height;
             public float phase;
             public Text caption;
@@ -47,7 +51,7 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             result = resultScreen;
-            resultCanvas = result.GetComponentInParent<Canvas>();
+            resultCanvas = result.GetComponentInParent<Canvas>(true);
             sceneCamera = Camera.main;
             started = Time.unscaledTime;
 
@@ -55,10 +59,10 @@ namespace Goldmetal.UndeadSurvivor
                 tombstone = new GameObject("Bouncing Tombstone").AddComponent<SpriteRenderer>();
                 tombstone.transform.SetParent(transform, false);
                 tombstone.sprite = tombstoneSprite;
-                if (tombstoneMaterial)
-                    tombstone.sharedMaterial = tombstoneMaterial;
+                if (presentationMaterial)
+                    tombstone.sharedMaterial = presentationMaterial;
                 tombstone.sortingOrder = 7;
-                gravePosition = deathPosition + Vector3.up * 0.25f;
+                gravePosition = deathPosition;
                 tombstone.transform.position = gravePosition;
             }
 
@@ -85,14 +89,15 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             foreach (LaughingEnemy enemy in visibleEnemies) {
-                if (!enemy.transform || !enemy.transform.gameObject.activeInHierarchy)
+                if (!enemy.renderer || !enemy.renderer.gameObject.activeInHierarchy)
                     continue;
                 float laugh = Mathf.Repeat(elapsed + enemy.phase, LoopSeconds);
-                float bounce = Hop(laugh, 0.31f, 0.14f) + Hop(laugh, 0.46f, 0.14f) + Hop(laugh, 0.61f, 0.17f);
-                enemy.transform.position = enemy.position + Vector3.up * (bounce * 0.15f);
-                enemy.transform.localScale = Vector3.Scale(enemy.scale, new Vector3(1f + bounce * 0.05f, 1f - bounce * 0.05f, 1f));
-                if (enemy.caption)
-                    UpdateCaption(enemy, laugh, bounce);
+                bool flipped = laugh >= 0.31f && laugh < 0.87f && Mathf.FloorToInt((laugh - 0.31f) / 0.14f) % 2 == 0;
+                enemy.renderer.flipX = enemy.originalFlip ^ flipped;
+                if (enemy.caption) {
+                    float pulse = Hop(laugh, 0.31f, 0.14f) + Hop(laugh, 0.46f, 0.14f) + Hop(laugh, 0.61f, 0.17f);
+                    UpdateCaption(enemy, laugh, pulse);
+                }
             }
         }
 
@@ -114,23 +119,28 @@ namespace Goldmetal.UndeadSurvivor
                 if (!enemy.IsAlive || !renderer.enabled || !GeometryUtility.TestPlanesAABB(view, renderer.bounds))
                     continue;
 
-                float height = renderer.bounds.size.y;
-                enemy.GetComponent<Animator>().enabled = false;
                 Sprite laugh = LaughSprite(enemy);
-                if (laugh && renderer.sprite) {
-                    float scale = renderer.sprite.bounds.size.y / laugh.bounds.size.y;
-                    renderer.sprite = laugh;
-                    enemy.transform.localScale *= scale;
-                }
+                if (!laugh || !renderer.sprite)
+                    continue;
 
+                Animator animator = enemy.GetComponent<Animator>();
                 visibleEnemies.Add(new LaughingEnemy {
-                    transform = enemy.transform,
-                    position = enemy.transform.position,
-                    scale = enemy.transform.localScale,
-                    height = height,
+                    renderer = renderer,
+                    animator = animator,
+                    originalSprite = renderer.sprite,
+                    originalMaterial = renderer.sharedMaterial,
+                    originalScale = enemy.transform.localScale,
+                    originalFlip = renderer.flipX,
+                    animatorWasEnabled = animator.enabled,
+                    height = renderer.bounds.size.y,
                     phase = (visibleEnemies.Count % 5) * 0.045f,
                     caption = visibleEnemies.Count < MaxCaptions && font && resultCanvas ? CreateCaption() : null
                 });
+                animator.enabled = false;
+                enemy.transform.localScale *= renderer.sprite.bounds.size.y / laugh.bounds.size.y;
+                renderer.sprite = laugh;
+                if (presentationMaterial)
+                    renderer.sharedMaterial = presentationMaterial;
             }
         }
 
@@ -163,12 +173,12 @@ namespace Goldmetal.UndeadSurvivor
             return text;
         }
 
-        void UpdateCaption(LaughingEnemy enemy, float laugh, float bounce)
+        void UpdateCaption(LaughingEnemy enemy, float laugh, float pulse)
         {
             Color color = new Color32(255, 231, 148, 255);
-            color.a = Mathf.Clamp01(bounce * 1.5f);
+            color.a = Mathf.Clamp01(pulse * 1.5f);
             enemy.caption.color = color;
-            Vector3 above = enemy.transform.position + Vector3.up * (enemy.height * 0.65f + 0.3f + laugh * 0.12f);
+            Vector3 above = enemy.renderer.transform.position + Vector3.up * (enemy.height * 0.65f + 0.3f + laugh * 0.12f);
             RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)resultCanvas.transform,
                 sceneCamera.WorldToScreenPoint(above), null, out Vector2 position);
             enemy.caption.rectTransform.anchoredPosition = position;
@@ -218,6 +228,14 @@ namespace Goldmetal.UndeadSurvivor
                 Destroy(tombstone.gameObject);
 
             foreach (LaughingEnemy enemy in visibleEnemies) {
+                if (enemy.renderer) {
+                    enemy.renderer.sprite = enemy.originalSprite;
+                    enemy.renderer.sharedMaterial = enemy.originalMaterial;
+                    enemy.renderer.flipX = enemy.originalFlip;
+                    enemy.renderer.transform.localScale = enemy.originalScale;
+                }
+                if (enemy.animator)
+                    enemy.animator.enabled = enemy.animatorWasEnabled;
                 if (enemy.caption)
                     Destroy(enemy.caption.gameObject);
             }

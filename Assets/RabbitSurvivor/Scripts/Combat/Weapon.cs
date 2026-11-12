@@ -42,8 +42,7 @@ namespace Goldmetal.UndeadSurvivor
 
             if (data.hand) {
                 Hand hand = player.hands[data.itemType == ItemData.ItemType.Melee ? 0 : 1];
-                hand.spriter.sprite = data.hand;
-                hand.gameObject.SetActive(true);
+                hand.Equip(data.hand);
             }
 
             if (data.itemType == ItemData.ItemType.Pulse)

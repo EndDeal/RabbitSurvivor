@@ -28,7 +28,7 @@ MonoBehaviour:
   - 1.4
   counts: 0000000001000000000000000100000001000000
   projectile: {fileID: 7308793349900079891, guid: fe2a05f2bb2a19c418e2015e390757a0, type: 3}
-  hand: {fileID: 143021600, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  hand: {fileID: 712346104, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
   requiredPassive: {fileID: 11400000, guid: 96a539ae1d8b5ab49b46e3de0117ddb7, type: 2}
   evolutionName: "\uD30C\uB3C4 \uC0BD"
   evolutionIcon: {fileID: 712346103, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}

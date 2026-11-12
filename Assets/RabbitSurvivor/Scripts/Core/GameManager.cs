@@ -47,6 +47,7 @@ namespace Goldmetal.UndeadSurvivor
         public Material HitFlashMaterial => hitFlashMaterial;
         public BossPresentation BossPresentation => bossPresentation;
         public float CorpseLifetime => corpseLifetime;
+        internal bool IsEnding => ending;
         public bool IsBossClockHeld => clockBoss;
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
 
@@ -79,12 +80,15 @@ namespace Goldmetal.UndeadSurvivor
         {
             BeginResult();
             bossPresentation?.Clear();
+            Stop();
 
-            yield return new WaitForSecondsRealtime(0.5f);
+            Vector3 deathPosition = player.transform.position;
+            yield return player.PlayDeathAnimation();
+
+            player.gameObject.SetActive(false);
+            gameOverPresentation?.Begin(deathPosition, uiResult);
             uiResult.gameObject.SetActive(true);
             uiResult.Lose();
-            Stop();
-            gameOverPresentation?.Begin(player.transform.position, uiResult);
             AudioManager.instance.PlayBgm(false);
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Lose);
         }

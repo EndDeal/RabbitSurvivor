@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +6,8 @@ namespace Goldmetal.UndeadSurvivor
 {
     public class Player : MonoBehaviour
     {
+        static readonly int DeadState = Animator.StringToHash("Dead");
+
         public Vector2 inputVec;
         public float speed;
         public Scanner scanner;
@@ -91,8 +92,14 @@ namespace Goldmetal.UndeadSurvivor
             hitFlash ??= new SpriteHitFlash(spriter);
             hitFlash.Show(game.HitFlashMaterial, lethal);
 
-            if (!lethal)
-                return;
+            if (lethal)
+                game.GameOver();
+        }
+
+        internal IEnumerator PlayDeathAnimation()
+        {
+            if (!gameObject.activeInHierarchy)
+                yield break;
 
             rigid.velocity = Vector2.zero;
             hitbox.enabled = false;
@@ -101,15 +108,22 @@ namespace Goldmetal.UndeadSurvivor
             foreach (Weapon weapon in GetComponentsInChildren<Weapon>())
                 weapon.gameObject.SetActive(false);
 
-            anim.SetTrigger("Dead");
-            StartCoroutine(HideCorpse(game.CorpseLifetime));
-            game.GameOver();
-        }
+            if (!anim.isActiveAndEnabled)
+                yield break;
 
-        IEnumerator HideCorpse(float lifetime)
-        {
-            yield return new WaitForSecondsRealtime(lifetime);
-            gameObject.SetActive(false);
+            AnimatorUpdateMode previousMode = anim.updateMode;
+            anim.updateMode = AnimatorUpdateMode.UnscaledTime;
+            anim.SetTrigger(DeadState);
+
+            float deadline = Time.unscaledTime + 2f;
+            while (Time.unscaledTime < deadline) {
+                AnimatorStateInfo state = anim.GetCurrentAnimatorStateInfo(0);
+                if (state.shortNameHash == DeadState && state.normalizedTime >= 1f)
+                    break;
+                yield return null;
+            }
+
+            anim.updateMode = previousMode;
         }
 
         void OnMove(InputValue value)

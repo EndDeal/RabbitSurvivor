@@ -15,7 +15,7 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnTriggerExit2D(Collider2D collision)
         {
-            if (!collision.CompareTag("Area"))
+            if (!collision.CompareTag("Area") || GameManager.instance.IsEnding)
                 return;
 
             Vector3 playerPos = GameManager.instance.player.transform.position;
