@@ -61,6 +61,9 @@ namespace Goldmetal.UndeadSurvivor
 
         void Drop(Kind kind, Sprite sprite, Vector3 position, int experience = 0)
         {
+            if (game.IsOutsideFinalArena(position))
+                return;
+
             SpriteRenderer renderer;
             if (availableSprites.Count > 0) {
                 renderer = availableSprites.Pop();
@@ -76,6 +79,14 @@ namespace Goldmetal.UndeadSurvivor
             renderer.transform.position = position;
             renderer.gameObject.SetActive(true);
             pickups.Add(new Pickup { kind = kind, sprite = renderer, experience = experience });
+        }
+
+        internal void RecycleOutsideFinalArena()
+        {
+            for (int index = pickups.Count - 1; index >= 0; index--) {
+                if (game.IsOutsideFinalArena(pickups[index].sprite.transform.position))
+                    RemoveAt(index);
+            }
         }
 
         void Update()

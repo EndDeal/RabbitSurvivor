@@ -38,5 +38,27 @@ namespace Goldmetal.UndeadSurvivor
 
             return select;
         }
+
+        internal void RecycleOutsideFinalArena(GameManager game)
+        {
+            foreach (List<GameObject> pool in pools) {
+                foreach (GameObject item in pool) {
+                    if (!item.activeInHierarchy || !game.IsOutsideFinalArena(item.transform.position))
+                        continue;
+
+                    if (item.TryGetComponent(out Enemy enemy)) {
+                        if (!enemy.IsBoss)
+                            item.SetActive(false);
+                    }
+                    else if (item.TryGetComponent(out Bullet bullet)) {
+                        if (bullet.per != Bullet.InfinitePierce)
+                            item.SetActive(false);
+                    }
+                    else if (item.TryGetComponent<EnemyProjectile>(out _)) {
+                        item.SetActive(false);
+                    }
+                }
+            }
+        }
     }
 }

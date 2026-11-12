@@ -15,10 +15,11 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnTriggerExit2D(Collider2D collision)
         {
-            if (!collision.CompareTag("Area") || GameManager.instance.IsEnding)
+            GameManager game = GameManager.instance;
+            if (!collision.CompareTag("Area") || game.IsEnding)
                 return;
 
-            Vector3 playerPos = GameManager.instance.player.transform.position;
+            Vector3 playerPos = game.player.transform.position;
             Vector3 myPos = transform.position;
 
             switch (transform.tag) {
@@ -38,7 +39,7 @@ namespace Goldmetal.UndeadSurvivor
                     }
                     break;
                 case "Enemy":
-                    if (coll.enabled) {
+                    if (coll.enabled && !game.HasFinalArena) {
                         if (TryGetComponent(out Enemy enemy)) {
                             if (enemy.Boss == BossType.Final)
                                 break;

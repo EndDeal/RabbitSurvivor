@@ -8,6 +8,7 @@ namespace Goldmetal.UndeadSurvivor
     {
         const int ArenaBorderSegments = 96;
         const float ArenaPlayerInset = 0.15f;
+        const float ArenaCleanupInterval = 0.25f;
 
         public static GameManager instance;
 
@@ -46,6 +47,8 @@ namespace Goldmetal.UndeadSurvivor
         Enemy clockBoss;
         LineRenderer finalArenaBorder;
         Vector2 finalArenaCenter;
+        float nextArenaCleanupAt;
+        TreasureChest unopenedTreasure;
         bool midBossStarted;
         bool finalBossStarted;
         bool ending;
@@ -55,6 +58,7 @@ namespace Goldmetal.UndeadSurvivor
         public BossPresentation BossPresentation => bossPresentation;
         public float CorpseLifetime => corpseLifetime;
         internal bool IsEnding => ending;
+        internal bool HasFinalArena => finalArenaBorder;
         public bool IsBossClockHeld => clockBoss;
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
 
@@ -136,7 +140,14 @@ namespace Goldmetal.UndeadSurvivor
 
         void Update()
         {
-            if (!isLive || IsBossClockHeld)
+            if (!isLive)
+                return;
+            if (HasFinalArena) {
+                if (Time.time >= nextArenaCleanupAt)
+                    RecycleOutsideArena();
+                return;
+            }
+            if (IsBossClockHeld)
                 return;
 
             if (!encounterSpawner) {
@@ -179,6 +190,22 @@ namespace Goldmetal.UndeadSurvivor
                 float angle = index * (2f * Mathf.PI / ArenaBorderSegments);
                 finalArenaBorder.SetPosition(index, new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * finalArenaRadius);
             }
+
+            RecycleOutsideArena();
+            if (lootDrops)
+                lootDrops.RecycleOutsideFinalArena();
+
+            if (unopenedTreasure && IsOutsideFinalArena(unopenedTreasure.transform.position)) {
+                Transform chest = unopenedTreasure.transform;
+                Vector2 inside = ConstrainPlayerPosition(chest.position);
+                chest.position = new Vector3(inside.x, inside.y, chest.position.z);
+            }
+        }
+
+        void RecycleOutsideArena()
+        {
+            pool.RecycleOutsideFinalArena(this);
+            nextArenaCleanupAt = Time.time + ArenaCleanupInterval;
         }
 
         void ClearFinalArena()
@@ -202,6 +229,11 @@ namespace Goldmetal.UndeadSurvivor
                 finalArenaCenter + offset.normalized * limit;
         }
 
+        internal bool IsOutsideFinalArena(Vector2 position)
+        {
+            return HasFinalArena && (position - finalArenaCenter).sqrMagnitude > finalArenaRadius * finalArenaRadius;
+        }
+
         public void RegisterKill(Enemy enemy)
         {
             if (ending || (!isLive && !uiLevelUp.IsOpen))
@@ -219,7 +251,7 @@ namespace Goldmetal.UndeadSurvivor
                     GainExperience(enemy.ExperienceReward);
 
                 if (enemy.Boss == BossType.Mid && treasureChestSprite)
-                    TreasureChest.Drop(position, treasureChestSprite);
+                    unopenedTreasure = TreasureChest.Drop(position, treasureChestSprite);
             }
 
             if (clockBoss != enemy)

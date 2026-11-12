@@ -42,7 +42,7 @@ namespace Goldmetal.UndeadSurvivor
         void Update()
         {
             GameManager game = GameManager.instance;
-            if (!game.isLive)
+            if (!game.isLive || game.HasFinalArena)
                 return;
 
             timer += Time.deltaTime;

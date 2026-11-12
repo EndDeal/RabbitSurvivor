@@ -8,7 +8,7 @@ namespace Goldmetal.UndeadSurvivor
 
         Transform spriteTransform;
 
-        public static void Drop(Vector3 position, Sprite sprite)
+        public static TreasureChest Drop(Vector3 position, Sprite sprite)
         {
             TreasureChest chest = new GameObject("Treasure Chest").AddComponent<TreasureChest>();
             chest.transform.position = position;
@@ -21,6 +21,7 @@ namespace Goldmetal.UndeadSurvivor
             renderer.transform.localScale = Vector3.one * 1.25f;
 
             GameManager.instance.uiLevelUp.Notify("보물상자 등장!");
+            return chest;
         }
 
         void Update()
