@@ -5,6 +5,11 @@ namespace Goldmetal.UndeadSurvivor
 {
     public class Enemy : MonoBehaviour
     {
+        const float BarrierLifetime = 24f;
+        const float ShotRange = 3.8f;
+        const float ShotWindup = 0.45f;
+        const float ShotCooldown = 2.1f;
+
         public float speed;
         public float health;
         public float maxHealth;
@@ -16,26 +21,42 @@ namespace Goldmetal.UndeadSurvivor
         public bool IsAlive => isLive;
         public int SpriteType { get; private set; }
         public int ExperienceReward { get; private set; }
+        public EnemyBehavior Behavior { get; private set; }
+        public bool IsBarrier => Behavior == EnemyBehavior.Barrier;
+
+        internal float ContactDamage => Boss == BossType.Final ? 24f : Boss == BossType.Mid ? 16f :
+            IsBarrier ? 8f : Behavior == EnemyBehavior.Shooter ? 4f : 10f;
 
         bool isLive;
         Rigidbody2D rigid;
-        Collider2D coll;
+        CapsuleCollider2D coll;
         Animator anim;
         SpriteRenderer spriter;
         WaitForFixedUpdate wait;
         Vector3 defaultScale;
+        Vector2 defaultColliderSize;
+        RigidbodyConstraints2D defaultConstraints;
         Color defaultColor;
         SpriteHitFlash hitFlash;
         float recycleAt;
+        float barrierExpiresAt;
+        Sprite attackPose;
+        Camera sceneCamera;
+        int projectileIndex;
+        Vector2 shotDirection;
+        float windupRemaining;
+        float nextShotAt;
 
         void Awake()
         {
             rigid = GetComponent<Rigidbody2D>();
-            coll = GetComponent<Collider2D>();
+            coll = GetComponent<CapsuleCollider2D>();
             anim = GetComponent<Animator>();
             spriter = GetComponent<SpriteRenderer>();
             wait = new WaitForFixedUpdate();
             defaultScale = transform.localScale;
+            defaultColliderSize = coll.size;
+            defaultConstraints = rigid.constraints;
             defaultColor = spriter.color;
         }
 
@@ -44,10 +65,19 @@ namespace Goldmetal.UndeadSurvivor
             if (!GameManager.instance.isLive || !isLive)
                 return;
 
+            if (IsBarrier) {
+                if (Time.time >= barrierExpiresAt)
+                    gameObject.SetActive(false);
+                return;
+            }
+
             if (!IsBoss && anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
                 return;
 
             Vector2 direction = target.position - rigid.position;
+            if (Behavior == EnemyBehavior.Shooter && AimOrShoot(direction))
+                return;
+
             Vector2 movement = direction.normalized * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + movement);
             rigid.velocity = Vector2.zero;
@@ -60,8 +90,11 @@ namespace Goldmetal.UndeadSurvivor
                 return;
             }
 
-            if (GameManager.instance.isLive && isLive)
-                spriter.flipX = target.position.x < rigid.position.x;
+            if (GameManager.instance.isLive && isLive && !IsBarrier) {
+                spriter.flipX = windupRemaining > 0f ? shotDirection.x < 0f : target.position.x < rigid.position.x;
+                if (windupRemaining > 0f && attackPose)
+                    spriter.sprite = attackPose;
+            }
 
             hitFlash?.Refresh();
         }
@@ -89,10 +122,54 @@ namespace Goldmetal.UndeadSurvivor
             health = maxHealth;
             Boss = boss;
             SpriteType = data.spriteType;
+            Behavior = data.behavior;
+            attackPose = data.attackPose;
+            projectileIndex = data.projectile ? System.Array.IndexOf(GameManager.instance.pool.prefabs, data.projectile) : -1;
+            sceneCamera = Behavior == EnemyBehavior.Shooter ? Camera.main : null;
+            windupRemaining = 0f;
+            nextShotAt = Time.time;
+            barrierExpiresAt = Time.time + BarrierLifetime;
+            rigid.velocity = Vector2.zero;
+            rigid.constraints = IsBarrier ? RigidbodyConstraints2D.FreezeAll : defaultConstraints;
+            coll.size = IsBarrier ? new Vector2(8.5f, 8.5f) :
+                Behavior == EnemyBehavior.Shooter ? new Vector2(5.2f, 4.5f) : defaultColliderSize;
+            spriter.flipX = false;
             ExperienceReward = Mathf.Max(1, data.experience);
             float scale = boss == BossType.Final ? 2.1f : IsBoss ? 1.7f : 1f;
             transform.localScale = defaultScale * scale;
             spriter.color = IsBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
+        }
+
+        bool AimOrShoot(Vector2 direction)
+        {
+            if (windupRemaining > 0f) {
+                windupRemaining -= Time.fixedDeltaTime;
+                if (windupRemaining <= 0f) {
+                    var projectile = GameManager.instance.pool.Get(projectileIndex).GetComponent<EnemyProjectile>();
+                    projectile.Launch(rigid.position + shotDirection * 0.32f, shotDirection);
+                    nextShotAt = Time.time + ShotCooldown;
+                }
+                return true;
+            }
+
+            if (projectileIndex < 0 || direction.sqrMagnitude > ShotRange * ShotRange || !IsInView())
+                return false;
+
+            rigid.velocity = Vector2.zero;
+            if (Time.time >= nextShotAt) {
+                shotDirection = direction.normalized;
+                windupRemaining = ShotWindup;
+            }
+            return true;
+        }
+
+        bool IsInView()
+        {
+            if (!sceneCamera)
+                return true;
+
+            Vector3 view = sceneCamera.WorldToViewportPoint(transform.position);
+            return view.z > 0f && view.x > 0.04f && view.x < 0.96f && view.y > 0.04f && view.y < 0.96f;
         }
 
         void OnTriggerEnter2D(Collider2D collision)
@@ -108,13 +185,17 @@ namespace Goldmetal.UndeadSurvivor
 
             GameManager game = GameManager.instance;
             health -= damage;
+            if (windupRemaining > 0f) {
+                windupRemaining = 0f;
+                nextShotAt = Time.time + ShotCooldown;
+            }
             if (game.isLive) {
                 hitFlash ??= new SpriteHitFlash(spriter);
                 hitFlash.Show(game.HitFlashMaterial, health <= 0f);
             }
 
             if (health > 0f) {
-                if (!IsBoss)
+                if (!IsBoss && !IsBarrier)
                     StartCoroutine(KnockBack());
                 anim.SetTrigger("Hit");
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);

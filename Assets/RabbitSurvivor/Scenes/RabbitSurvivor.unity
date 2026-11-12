@@ -16760,6 +16760,8 @@ MonoBehaviour:
   regularLaughSprites:
   - {fileID: 816231001, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
   - {fileID: 816231002, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
+  - {fileID: 814210005, guid: f1c23932cebd53e57d4371c56e8179f4, type: 3}
+  - {fileID: 814211005, guid: 7b2f9a62c50341a91a79053dc4caf37a, type: 3}
   captainLaughSprite: {fileID: 816231003, guid: c23c8ef18fa84840894c20c6ca840007, type: 3}
   finalLaughSprite: {fileID: 816230001, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
   font: {fileID: 12800000, guid: e715fcabbb6163e48b780b3b92979f8e, type: 3}
@@ -17399,6 +17401,7 @@ MonoBehaviour:
   - {fileID: 8995485532009590293, guid: 731a50f9cefda2d4d95f127db144b33b, type: 3}
   - {fileID: 7308793349900079891, guid: fe2a05f2bb2a19c418e2015e390757a0, type: 3}
   - {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
+  - {fileID: 4122565992612807282, guid: de6029ce1993bdd4b8b79da5d1c39a46, type: 3}
 --- !u!4 &994102859
 Transform:
   m_ObjectHideFlags: 0
@@ -20931,6 +20934,8 @@ MonoBehaviour:
   enemyAnimations:
   - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cc, type: 2}
   - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cd, type: 2}
+  - {fileID: 22100000, guid: 01437ec486283a27c9b9de93639ec173, type: 2}
+  - {fileID: 22100000, guid: 8f7db7262a86d0f54cfff1e3606a6760, type: 2}
   midBossAnimation: {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100ce, type: 2}
   finalBossAnimation: {fileID: 22100000, guid: c23c8ef18fa84840894c20c6ca840004, type: 2}
   midBoss:
@@ -20942,6 +20947,24 @@ MonoBehaviour:
     spriteType: 1
     health: 525
     speed: 1.7
+    experience: 1
+  barrierStart: 90
+  barrierWave:
+    spawnTime: 30
+    spriteType: 2
+    health: 48
+    speed: 0
+    behavior: 1
+    experience: 2
+  shooterStart: 180
+  shooterWave:
+    spawnTime: 7.5
+    spriteType: 3
+    health: 10
+    speed: 1.65
+    behavior: 2
+    attackPose: {fileID: 814211003, guid: 7b2f9a62c50341a91a79053dc4caf37a, type: 3}
+    projectile: {fileID: 4122565992612807282, guid: de6029ce1993bdd4b8b79da5d1c39a46, type: 3}
     experience: 1
 --- !u!1 &1453797367
 GameObject:

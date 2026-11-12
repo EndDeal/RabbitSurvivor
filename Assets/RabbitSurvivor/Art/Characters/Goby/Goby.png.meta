@@ -1,0 +1,195 @@
+fileFormatVersion: 2
+guid: 7b2f9a62c50341a91a79053dc4caf37a
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  textureFormat: 1
+  maxTextureSize: 1024
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 54
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  swizzle: 50462976
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Goby Swim
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 589
+        width: 453
+        height: 327
+      alignment: 9
+      pivot: {x: 0.545254, y: 0.486239}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b692e9947f198ce043703064df637a2
+      internalID: 814211001
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Goby Tail Flick
+      rect:
+        serializedVersion: 2
+        x: 536
+        y: 591
+        width: 457
+        height: 325
+      alignment: 9
+      pivot: {x: 0.544858, y: 0.489231}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c287ae79c65792f4090a999a049b02e
+      internalID: 814211002
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Goby Windup
+      rect:
+        serializedVersion: 2
+        x: 1046
+        y: 585
+        width: 469
+        height: 333
+      alignment: 9
+      pivot: {x: 0.543710, y: 0.477477}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1555918cad576e578aad54ce2660fe0
+      internalID: 814211003
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Goby Down
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 105
+        width: 449
+        height: 291
+      alignment: 9
+      pivot: {x: 0.545657, y: 0.546392}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d3a4d2fe0103a27b66083e6ecf1de17e
+      internalID: 814211004
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Goby Laugh
+      rect:
+        serializedVersion: 2
+        x: 536
+        y: 91
+        width: 453
+        height: 331
+      alignment: 9
+      pivot: {x: 0.545254, y: 0.480363}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9bff9514be7ecf2e79ae8973ab34ae8b
+      internalID: 814211005
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Goby Water Shot
+      rect:
+        serializedVersion: 2
+        x: 1204
+        y: 157
+        width: 163
+        height: 163
+      alignment: 9
+      pivot: {x: 0.500000, y: 0.500000}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d3848b2735b9f6075d687846a065452
+      internalID: 814211006
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Goby Swim: 814211001
+      Goby Tail Flick: 814211002
+      Goby Windup: 814211003
+      Goby Down: 814211004
+      Goby Laugh: 814211005
+      Goby Water Shot: 814211006
+  userData:
+  assetBundleName:
+  assetBundleVariant:

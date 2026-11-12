@@ -1,0 +1,173 @@
+fileFormatVersion: 2
+guid: f1c23932cebd53e57d4371c56e8179f4
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  textureFormat: 1
+  maxTextureSize: 1024
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 47
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  swizzle: 50462976
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Barrier Idle
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 601
+        width: 445
+        height: 251
+      alignment: 9
+      pivot: {x: 0.568539, y: 0.490040}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8dc30aa76f553d85c6c12ba80d358b40
+      internalID: 814210001
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Barrier Blink
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 601
+        width: 445
+        height: 261
+      alignment: 9
+      pivot: {x: 0.568539, y: 0.471264}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0671138200a68d857f3b551804153e30
+      internalID: 814210002
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Barrier Hit
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 603
+        width: 453
+        height: 303
+      alignment: 9
+      pivot: {x: 0.567329, y: 0.405941}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e0ed10ae4c6600f0b7f04c721fd43f8
+      internalID: 814210003
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Barrier Down
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 115
+        width: 457
+        height: 245
+      alignment: 9
+      pivot: {x: 0.566740, y: 0.502041}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b79306601976dee4e45ebf2f60c8a79a
+      internalID: 814210004
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Barrier Laugh
+      rect:
+        serializedVersion: 2
+        x: 538
+        y: 117
+        width: 455
+        height: 299
+      alignment: 9
+      pivot: {x: 0.567033, y: 0.411371}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48ad2130f928558e23d9e7bc2219f377
+      internalID: 814210005
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Barrier Idle: 814210001
+      Barrier Blink: 814210002
+      Barrier Hit: 814210003
+      Barrier Down: 814210004
+      Barrier Laugh: 814210005
+  userData:
+  assetBundleName:
+  assetBundleVariant:

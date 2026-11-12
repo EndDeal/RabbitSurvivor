@@ -80,14 +80,17 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnCollisionStay2D(Collision2D collision)
         {
+            float damage = collision.gameObject.TryGetComponent(out Enemy enemy) ? enemy.ContactDamage : 10f;
+            TakeDamage(Time.deltaTime * damage);
+        }
+
+        internal void TakeDamage(float amount)
+        {
             GameManager game = GameManager.instance;
             if (!game.isLive)
                 return;
 
-            float damage = 10f;
-            if (collision.gameObject.TryGetComponent(out Enemy enemy) && enemy.IsBoss)
-                damage = enemy.Boss == BossType.Final ? 24f : 16f;
-            game.health = Mathf.Max(0f, game.health - Time.deltaTime * damage);
+            game.health = Mathf.Max(0f, game.health - amount);
             bool lethal = game.health <= 0f;
             hitFlash ??= new SpriteHitFlash(spriter);
             hitFlash.Show(game.HitFlashMaterial, lethal);
