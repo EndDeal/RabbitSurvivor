@@ -14,9 +14,11 @@ namespace Goldmetal.UndeadSurvivor
         public RuntimeAnimatorController[] animCon;
 
         Rigidbody2D rigid;
+        Collider2D hitbox;
         SpriteRenderer spriter;
         Animator anim;
         float baseMoveSpeed;
+        SpriteHitFlash hitFlash;
 
         public float AttackHaste { get; internal set; }
         public float AttackPower { get; internal set; }
@@ -25,6 +27,7 @@ namespace Goldmetal.UndeadSurvivor
         void Awake()
         {
             rigid = GetComponent<Rigidbody2D>();
+            hitbox = GetComponent<Collider2D>();
             spriter = GetComponent<SpriteRenderer>();
             anim = GetComponent<Animator>();
             scanner = GetComponent<Scanner>();
@@ -35,6 +38,8 @@ namespace Goldmetal.UndeadSurvivor
         void OnEnable()
         {
             SetMoveSpeedBonus(0);
+            hitbox.enabled = true;
+            hitFlash?.Reset();
             anim.runtimeAnimatorController = animCon[GameManager.instance.playerId];
         }
 
@@ -63,33 +68,46 @@ namespace Goldmetal.UndeadSurvivor
 
         void LateUpdate()
         {
-            if (!GameManager.instance.isLive)
-                return;
-
-            anim.SetFloat("Speed", inputVec.magnitude);
-
-
-            if (inputVec.x != 0) {
-                spriter.flipX = inputVec.x < 0;
+            if (GameManager.instance.isLive) {
+                anim.SetFloat("Speed", inputVec.magnitude);
+                if (inputVec.x != 0)
+                    spriter.flipX = inputVec.x < 0;
             }
+
+            hitFlash?.Refresh();
         }
 
         void OnCollisionStay2D(Collision2D collision)
         {
-            if (!GameManager.instance.isLive)
+            GameManager game = GameManager.instance;
+            if (!game.isLive)
                 return;
 
             float damage = collision.gameObject.TryGetComponent(out Enemy enemy) && enemy.IsMidBoss ? 16f : 10f;
-            GameManager.instance.health -= Time.deltaTime * damage;
+            game.health = Mathf.Max(0f, game.health - Time.deltaTime * damage);
+            bool lethal = game.health <= 0f;
+            hitFlash ??= new SpriteHitFlash(spriter);
+            hitFlash.Show(game.HitFlashMaterial, lethal);
 
-            if (GameManager.instance.health < 0) {
-                for (int index = 2; index < transform.childCount; index++) {
-                    transform.GetChild(index).gameObject.SetActive(false);
-                }
+            if (!lethal)
+                return;
 
-                anim.SetTrigger("Dead");
-                GameManager.instance.GameOver();
-            }
+            rigid.velocity = Vector2.zero;
+            hitbox.enabled = false;
+            foreach (Hand hand in hands)
+                hand.gameObject.SetActive(false);
+            foreach (Weapon weapon in GetComponentsInChildren<Weapon>())
+                weapon.gameObject.SetActive(false);
+
+            anim.SetTrigger("Dead");
+            StartCoroutine(HideCorpse(game.CorpseLifetime));
+            game.GameOver();
+        }
+
+        IEnumerator HideCorpse(float lifetime)
+        {
+            yield return new WaitForSecondsRealtime(lifetime);
+            gameObject.SetActive(false);
         }
 
         void OnMove(InputValue value)

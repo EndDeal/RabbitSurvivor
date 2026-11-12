@@ -21,6 +21,8 @@ namespace Goldmetal.UndeadSurvivor
         WaitForFixedUpdate wait;
         Vector3 defaultScale;
         Color defaultColor;
+        SpriteHitFlash hitFlash;
+        float recycleAt;
 
         void Awake()
         {
@@ -49,14 +51,22 @@ namespace Goldmetal.UndeadSurvivor
 
         void LateUpdate()
         {
+            if (!isLive && Time.unscaledTime >= recycleAt) {
+                gameObject.SetActive(false);
+                return;
+            }
+
             if (GameManager.instance.isLive && isLive)
                 spriter.flipX = target.position.x < rigid.position.x;
+
+            hitFlash?.Refresh();
         }
 
         void OnEnable()
         {
             target = GameManager.instance.player.GetComponent<Rigidbody2D>();
             isLive = true;
+            hitFlash?.Reset();
             coll.enabled = true;
             rigid.simulated = true;
             spriter.sortingOrder = 2;
@@ -85,10 +95,16 @@ namespace Goldmetal.UndeadSurvivor
 
         public void TakeDamage(float damage)
         {
-            if (!isLive)
+            if (!isLive || damage <= 0f)
                 return;
 
+            GameManager game = GameManager.instance;
             health -= damage;
+            if (game.isLive) {
+                hitFlash ??= new SpriteHitFlash(spriter);
+                hitFlash.Show(game.HitFlashMaterial, health <= 0f);
+            }
+
             if (health > 0f) {
                 if (!IsMidBoss)
                     StartCoroutine(KnockBack());
@@ -98,12 +114,12 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             isLive = false;
+            recycleAt = Time.unscaledTime + game.CorpseLifetime;
             coll.enabled = false;
             rigid.simulated = false;
             spriter.sortingOrder = 1;
             anim.SetBool("Dead", true);
 
-            GameManager game = GameManager.instance;
             game.RegisterKill(transform.position, IsMidBoss);
 
             if (game.isLive)
@@ -118,9 +134,5 @@ namespace Goldmetal.UndeadSurvivor
             rigid.AddForce(direction.normalized * 3f, ForceMode2D.Impulse);
         }
 
-        void Dead()
-        {
-            gameObject.SetActive(false);
-        }
     }
 }

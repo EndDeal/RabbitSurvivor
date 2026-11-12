@@ -29,6 +29,11 @@ namespace Goldmetal.UndeadSurvivor
         public GameObject enemyCleaner;
         public Sprite treasureChestSprite;
         [SerializeField] LootDrops lootDrops;
+        [SerializeField] Material hitFlashMaterial;
+        [SerializeField, Min(0f)] float corpseLifetime = 2f;
+
+        public Material HitFlashMaterial => hitFlashMaterial;
+        public float CorpseLifetime => corpseLifetime;
 
         float baseMaxHealth;
 

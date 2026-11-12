@@ -16703,6 +16703,8 @@ MonoBehaviour:
   enemyCleaner: {fileID: 2029806073}
   treasureChestSprite: {fileID: 813450073, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   lootDrops: {fileID: 861663793}
+  hitFlashMaterial: {fileID: 2100000, guid: 2af380a5935b4d56ab53749053572d03, type: 2}
+  corpseLifetime: 2
 --- !u!114 &861663793
 MonoBehaviour:
   m_ObjectHideFlags: 0
