@@ -60,22 +60,39 @@ namespace Goldmetal.UndeadSurvivor
 
         void FixedUpdate()
         {
-            if (!GameManager.instance.isLive)
+            GameManager game = GameManager.instance;
+            if (!game.isLive)
                 return;
 
             Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
-            rigid.MovePosition(rigid.position + nextVec);
+            rigid.MovePosition(game.ConstrainPlayerPosition(rigid.position + nextVec));
         }
 
         void LateUpdate()
         {
-            if (GameManager.instance.isLive) {
+            GameManager game = GameManager.instance;
+            if (game.isLive) {
+                KeepInsideArena(game);
                 anim.SetFloat("Speed", inputVec.magnitude);
                 if (inputVec.x != 0)
                     spriter.flipX = inputVec.x < 0;
             }
 
             hitFlash?.Refresh();
+        }
+
+        void KeepInsideArena(GameManager game)
+        {
+            Vector2 position = rigid.position;
+            Vector2 constrained = game.ConstrainPlayerPosition(position);
+            Vector2 overshoot = position - constrained;
+            if (overshoot.sqrMagnitude <= 0.000001f)
+                return;
+
+            Vector2 outward = overshoot.normalized;
+            rigid.velocity -= outward * Mathf.Max(0f, Vector2.Dot(rigid.velocity, outward));
+            rigid.position = constrained;
+            transform.position = new Vector3(constrained.x, constrained.y, transform.position.z);
         }
 
         void OnCollisionStay2D(Collision2D collision)

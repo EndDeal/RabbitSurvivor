@@ -6,6 +6,9 @@ namespace Goldmetal.UndeadSurvivor
 {
     public class GameManager : MonoBehaviour
     {
+        const int ArenaBorderSegments = 96;
+        const float ArenaPlayerInset = 0.15f;
+
         public static GameManager instance;
 
         [Header("# Game Control")]
@@ -14,6 +17,8 @@ namespace Goldmetal.UndeadSurvivor
         public float maxGameTime = 600f;
         [SerializeField, Min(0f)] float midBossTime = 300f;
         [SerializeField] Spawner encounterSpawner;
+        [SerializeField, Min(4f)] float finalArenaRadius = 6.5f;
+        [SerializeField] Material finalArenaBorderMaterial;
 
         [Header("# Player Info")]
         public int playerId;
@@ -39,6 +44,8 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField, Min(0f)] float corpseLifetime = 2f;
 
         Enemy clockBoss;
+        LineRenderer finalArenaBorder;
+        Vector2 finalArenaCenter;
         bool midBossStarted;
         bool finalBossStarted;
         bool ending;
@@ -112,6 +119,7 @@ namespace Goldmetal.UndeadSurvivor
             ending = true;
             isLive = false;
             clockBoss = null;
+            ClearFinalArena();
             uiLevelUp.Dismiss();
             Time.timeScale = 1f;
         }
@@ -147,6 +155,51 @@ namespace Goldmetal.UndeadSurvivor
             finalBossStarted = type == BossType.Final;
             midBossStarted = true;
             clockBoss = encounterSpawner.SpawnBoss(type);
+            if (type == BossType.Final)
+                OpenFinalArena(clockBoss.transform.position);
+        }
+
+        void OpenFinalArena(Vector3 center)
+        {
+            finalArenaCenter = center;
+            finalArenaBorder = new GameObject("Dragon Arena Border").AddComponent<LineRenderer>();
+            finalArenaBorder.transform.SetParent(transform, false);
+            finalArenaBorder.transform.position = center;
+            finalArenaBorder.useWorldSpace = false;
+            finalArenaBorder.loop = true;
+            finalArenaBorder.sortingOrder = 1;
+            finalArenaBorder.widthMultiplier = 0.16f;
+            finalArenaBorder.startColor = new Color32(255, 226, 156, 220);
+            finalArenaBorder.endColor = finalArenaBorder.startColor;
+            if (finalArenaBorderMaterial)
+                finalArenaBorder.sharedMaterial = finalArenaBorderMaterial;
+
+            finalArenaBorder.positionCount = ArenaBorderSegments;
+            for (int index = 0; index < ArenaBorderSegments; index++) {
+                float angle = index * (2f * Mathf.PI / ArenaBorderSegments);
+                finalArenaBorder.SetPosition(index, new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * finalArenaRadius);
+            }
+        }
+
+        void ClearFinalArena()
+        {
+            if (!finalArenaBorder)
+                return;
+
+            finalArenaBorder.enabled = false;
+            Destroy(finalArenaBorder.gameObject);
+            finalArenaBorder = null;
+        }
+
+        internal Vector2 ConstrainPlayerPosition(Vector2 position)
+        {
+            if (!finalArenaBorder)
+                return position;
+
+            Vector2 offset = position - finalArenaCenter;
+            float limit = finalArenaRadius - ArenaPlayerInset;
+            return offset.sqrMagnitude <= limit * limit ? position :
+                finalArenaCenter + offset.normalized * limit;
         }
 
         public void RegisterKill(Enemy enemy)
