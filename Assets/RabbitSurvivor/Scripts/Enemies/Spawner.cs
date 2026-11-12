@@ -9,6 +9,8 @@ namespace Goldmetal.UndeadSurvivor
         public float levelTime;
 
         [SerializeField] float[] midBossTimes = System.Array.Empty<float>();
+        [SerializeField] RuntimeAnimatorController[] enemyAnimations = System.Array.Empty<RuntimeAnimatorController>();
+        [SerializeField] RuntimeAnimatorController midBossAnimation;
 
         int nextMidBoss;
         float timer;
@@ -57,7 +59,9 @@ namespace Goldmetal.UndeadSurvivor
         {
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
-            enemy.GetComponent<Enemy>().Init(data, midBoss);
+            RuntimeAnimatorController animation = midBoss ? midBossAnimation :
+                (data.spriteType < enemyAnimations.Length ? enemyAnimations[data.spriteType] : null);
+            enemy.GetComponent<Enemy>().Init(data, midBoss, animation);
         }
     }
 

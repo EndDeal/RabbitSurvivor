@@ -70,6 +70,7 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             renderer.sprite = sprite;
+            renderer.transform.localScale = Vector3.one * (kind == Kind.Experience ? 0.56f : 1f);
             renderer.sortingOrder = kind == Kind.Experience ? 1 : 4;
             renderer.transform.position = position;
             renderer.gameObject.SetActive(true);

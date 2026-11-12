@@ -16,7 +16,6 @@ namespace Goldmetal.UndeadSurvivor
 
             SpriteRenderer renderer = new GameObject("Chest Sprite").AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
-            renderer.color = new Color(1f, 0.84f, 0.5f);
             renderer.sortingOrder = 4;
             chest.spriteTransform = renderer.transform;
             renderer.transform.SetParent(chest.transform, false);

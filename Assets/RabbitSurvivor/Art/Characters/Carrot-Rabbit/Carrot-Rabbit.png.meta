@@ -1,0 +1,173 @@
+fileFormatVersion: 2
+guid: b4d72cba99f14ab4a0380ffbe6d10067
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  textureFormat: 1
+  maxTextureSize: 512
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 79
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  swizzle: 50462976
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Stand
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 83
+        width: 397
+        height: 557
+      alignment: 9
+      pivot: {x: 0.5, y: 0.423698}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4d72cba99f14ab4a0380ffbe6d1014a
+      internalID: 813450030
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Run A
+      rect:
+        serializedVersion: 2
+        x: 607
+        y: 103
+        width: 413
+        height: 537
+      alignment: 9
+      pivot: {x: 0.5, y: 0.424581}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4d72cba99f14ab4a0380ffbe6d1014b
+      internalID: 813450031
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Run B
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 91
+        width: 401
+        height: 545
+      alignment: 9
+      pivot: {x: 0.5, y: 0.423853}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4d72cba99f14ab4a0380ffbe6d1014c
+      internalID: 813450032
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Down
+      rect:
+        serializedVersion: 2
+        x: 1665
+        y: 87
+        width: 473
+        height: 421
+      alignment: 9
+      pivot: {x: 0.5, y: 0.56057}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4d72cba99f14ab4a0380ffbe6d1014d
+      internalID: 813450033
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stand Raised
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 83
+        width: 397
+        height: 557
+      alignment: 9
+      pivot: {x: 0.5, y: 0.40395}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4d72cba99f14ab4a0380ffbe6d1014e
+      internalID: 813450034
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Stand: 813450030
+      Run A: 813450031
+      Run B: 813450032
+      Down: 813450033
+      Stand Raised: 813450034
+  userData:
+  assetBundleName:
+  assetBundleVariant:

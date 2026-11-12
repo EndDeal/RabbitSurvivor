@@ -64,15 +64,17 @@ namespace Goldmetal.UndeadSurvivor
             health = maxHealth;
         }
 
-        public void Init(SpawnData data, bool midBoss = false)
+        public void Init(SpawnData data, bool midBoss = false, RuntimeAnimatorController animation = null)
         {
-            anim.runtimeAnimatorController = animCon[data.spriteType];
+            anim.runtimeAnimatorController = animation ? animation : animCon[data.spriteType];
+            anim.ResetTrigger("Hit");
+            anim.Play("Run", 0, 0f);
             speed = data.speed;
             maxHealth = data.health;
             health = maxHealth;
             IsMidBoss = midBoss;
             transform.localScale = midBoss ? defaultScale * 1.7f : defaultScale;
-            spriter.color = midBoss ? new Color(1f, 0.77f, 0.38f) : defaultColor;
+            spriter.color = midBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
         }
 
         void OnTriggerEnter2D(Collider2D collision)

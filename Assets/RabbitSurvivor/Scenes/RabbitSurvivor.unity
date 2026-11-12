@@ -1001,9 +1001,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
+  m_Sprite: {fileID: 813450030, guid: b4d72cba99f14ab4a0380ffbe6d10067, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1360,9 +1360,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1442216141, guid: 8f7a60065e3984c489b9c4d41bc3dc4e, type: 3}
+  m_Sprite: {fileID: 813450020, guid: b4d72cba99f14ab4a0380ffbe6d10066, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -6737,7 +6737,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
-  m_Sprite: {fileID: 978012912, guid: 99a24620d31e5ce4e823c32d11e17c2c, type: 3}
+  m_Sprite: {fileID: 813450000, guid: b4d72cba99f14ab4a0380ffbe6d10064, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6820,10 +6820,10 @@ MonoBehaviour:
   scanner: {fileID: 0}
   hands: []
   animCon:
-  - {fileID: 9100000, guid: 039196402ecb866408d103d4f5acbe39, type: 2}
-  - {fileID: 22100000, guid: 5c3a4256bda87544c9adcb9e28fe8ee3, type: 2}
-  - {fileID: 22100000, guid: 378ba95c09851b342ac5dbb12b63716d, type: 2}
-  - {fileID: 22100000, guid: b52ad9b3ff3c2ff4dbcfc14125649ca7, type: 2}
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100c8, type: 2}
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100c9, type: 2}
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100ca, type: 2}
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cb, type: 2}
 --- !u!95 &539536291
 Animator:
   serializedVersion: 5
@@ -6834,7 +6834,7 @@ Animator:
   m_GameObject: {fileID: 539536285}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 039196402ecb866408d103d4f5acbe39, type: 2}
+  m_Controller: {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100c8, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -16701,7 +16701,7 @@ MonoBehaviour:
   uiResult: {fileID: 387327577}
   uiJoy: {fileID: 1748462469}
   enemyCleaner: {fileID: 2029806073}
-  treasureChestSprite: {fileID: -38345435, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  treasureChestSprite: {fileID: 813450073, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   lootDrops: {fileID: 861663793}
 --- !u!114 &861663793
 MonoBehaviour:
@@ -16716,9 +16716,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   spawner: {fileID: 1453284998}
-  experienceSprite: {fileID: 362616440, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
-  magnetSprite: {fileID: 1997828774, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
-  potionSprite: {fileID: 934571490, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  experienceSprite: {fileID: 813450070, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
+  magnetSprite: {fileID: 813450071, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
+  potionSprite: {fileID: 813450072, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   potionDropChance: 0.02
   potionHealFraction: 0.25
 --- !u!4 &861663792
@@ -18479,9 +18479,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -150523396, guid: 0c187a32c5bde4747be8d00770b07403, type: 3}
+  m_Sprite: {fileID: 813450010, guid: b4d72cba99f14ab4a0380ffbe6d10065, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -18830,9 +18830,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 978012912, guid: 99a24620d31e5ce4e823c32d11e17c2c, type: 3}
+  m_Sprite: {fileID: 813450000, guid: b4d72cba99f14ab4a0380ffbe6d10064, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -18958,9 +18958,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
+  m_Sprite: {fileID: 813450030, guid: b4d72cba99f14ab4a0380ffbe6d10067, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -20551,9 +20551,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
+  m_Sprite: {fileID: 813450030, guid: b4d72cba99f14ab4a0380ffbe6d10067, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -20858,6 +20858,10 @@ MonoBehaviour:
   - 75
   - 150
   - 240
+  enemyAnimations:
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cc, type: 2}
+  - {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100cd, type: 2}
+  midBossAnimation: {fileID: 22100000, guid: b4d72cba99f14ab4a0380ffbe6d100ce, type: 2}
 --- !u!1 &1453797367
 GameObject:
   m_ObjectHideFlags: 0
@@ -26826,9 +26830,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1442216141, guid: 8f7a60065e3984c489b9c4d41bc3dc4e, type: 3}
+  m_Sprite: {fileID: 813450020, guid: b4d72cba99f14ab4a0380ffbe6d10066, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -27082,9 +27086,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1442216141, guid: 8f7a60065e3984c489b9c4d41bc3dc4e, type: 3}
+  m_Sprite: {fileID: 813450020, guid: b4d72cba99f14ab4a0380ffbe6d10066, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
