@@ -1,38 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
 {
     public class Bullet : MonoBehaviour
     {
+        public const int InfinitePierce = -100;
+
         public float damage;
         public int per;
 
         Rigidbody2D rigid;
+        SpriteRenderer spriteRenderer;
+        Sprite defaultSprite;
 
         void Awake()
         {
             rigid = GetComponent<Rigidbody2D>();
+            if (TryGetComponent(out spriteRenderer))
+                defaultSprite = spriteRenderer.sprite;
         }
 
-        public void Init(float damage, int per, Vector3 dir)
+        public void Init(float damage, int per, Vector2 direction, Sprite sprite, Color color)
         {
             this.damage = damage;
             this.per = per;
-
-            if (per >= 0) {
-                rigid.velocity = dir * 15f;
-            }
+            spriteRenderer.sprite = sprite ? sprite : defaultSprite;
+            spriteRenderer.color = color;
+            if (per != InfinitePierce)
+                rigid.velocity = direction * 15f;
         }
 
         void OnTriggerEnter2D(Collider2D collision)
         {
-            if (!collision.CompareTag("Enemy") || per == -100)
+            if (!collision.CompareTag("Enemy") || per == InfinitePierce)
                 return;
 
             per--;
-
             if (per < 0) {
                 rigid.velocity = Vector2.zero;
                 gameObject.SetActive(false);
@@ -41,10 +44,8 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnTriggerExit2D(Collider2D collision)
         {
-            if (!collision.CompareTag("Area") || per == -100)
-                return;
-
-            gameObject.SetActive(false);
+            if (collision.CompareTag("Area") && per != InfinitePierce)
+                gameObject.SetActive(false);
         }
     }
 }

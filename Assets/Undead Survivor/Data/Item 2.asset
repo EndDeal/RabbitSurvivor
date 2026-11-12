@@ -15,16 +15,16 @@ MonoBehaviour:
   itemType: 2
   itemId: 2
   itemName: "\uD14C\uD06C\uB2C8\uCEEC \uC7A5\uAC11"
-  itemDesc: "\uC5F0\uC0AC\uC18D\uB3C4 {0}% \uC99D\uAC00"
-  itemIcon: {fileID: -201829820, guid: d71a3dc7aa20fad4f9a99fc76a9254ba, type: 3}
+  itemDesc: "\uACF5\uACA9 \uAC04\uACA9 -{0}%"
+  itemIcon: {fileID: 712346112, guid: 695c0ade77f84385a31c7d15aa5b0002, type: 3}
   baseDamage: 0
   baseCount: 0
   damages:
-  - 0.1
-  - 0.2
-  - 0.35
-  - 0.5
-  - 0.75
+  - 0.06
+  - 0.12
+  - 0.18
+  - 0.24
+  - 0.3
   counts: 0000000000000000000000000000000000000000
   projectile: {fileID: 0}
   hand: {fileID: 0}

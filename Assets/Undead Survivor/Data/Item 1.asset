@@ -15,16 +15,25 @@ MonoBehaviour:
   itemType: 1
   itemId: 1
   itemName: "\uC5FD\uCD1D"
-  itemDesc: "\uB370\uBBF8\uC9C0 {0}% \uC99D\uAC00\n\uAD00\uD1B5\uB825 {1} \uCD94\uAC00"
-  itemIcon: {fileID: -205726582, guid: d71a3dc7aa20fad4f9a99fc76a9254ba, type: 3}
-  baseDamage: 3
+  itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uAD00\uD1B5 +{1}"
+  itemIcon: {fileID: 712346111, guid: 695c0ade77f84385a31c7d15aa5b0002, type: 3}
+  pickupDescription: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC5D0\uAC8C \uBC1C\uC0AC"
+  baseDamage: 4
   baseCount: 0
   damages:
+  - 0
   - 0.35
   - 0.7
-  - 1
-  - 1.4
-  - 2
-  counts: 0100000001000000020000000300000004000000
+  - 1.1
+  - 1.5
+  counts: 0000000001000000010000000100000001000000
   projectile: {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
   hand: {fileID: -353751291, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  requiredPassive: {fileID: 11400000, guid: be08f7760324bdd4bad0178a05a4aa5b, type: 2}
+  evolutionName: "\uD3ED\uD48D \uC5FD\uCD1D"
+  evolutionIcon: {fileID: 712346113, guid: 695c0ade77f84385a31c7d15aa5b0002, type: 3}
+  evolutionDescription: "\uBC1C\uC0AC \uAC04\uACA9 -25% \u00B7 \uAD00\uD1B5 +2"
+  evolutionDamage: 1.4
+  evolutionCount: 2
+  evolutionInterval: 0.75
+  evolutionArea: 1

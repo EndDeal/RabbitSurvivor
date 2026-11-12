@@ -5,17 +5,19 @@
 ## 실행
 
 1. Unity Hub에서 이 저장소의 루트 폴더를 Unity `2022.3.57f1`로 엽니다.
-2. `Assets/RabbitSurvivor/Scenes/RabbitSurvivor.unity`를 열고 Play를 누릅니다.
-3. 캐릭터를 선택한 뒤 `WASD` 또는 방향키로 이동합니다.
+2. `Assets/RabbitSurvivor/Scenes/Title.unity`를 열고 Play를 누릅니다.
+3. 로딩이 끝나면 `게임 시작!`을 누르고 캐릭터를 선택합니다. 오프닝은 왼쪽 위 `스킵` 버튼으로 건너뛸 수 있습니다.
+4. 게임에 들어가면 `WASD` 또는 방향키로 이동합니다.
 
-`File > Build Settings`에는 `RabbitSurvivor`가 시작 씬으로 등록되어 있습니다.
+`File > Build Settings`에는 `Title`과 `RabbitSurvivor`가 순서대로 등록되어 있습니다. 스토리 이미지와 대사는 `RabbitSurvivor` 씬의 `Story Canvas`에서 바꿀 수 있습니다.
 
 ## 프로젝트 구조
 
 ```text
 Assets/
   RabbitSurvivor/
-    Scenes/             메인 플레이 씬
+    Art/Story/          오프닝 스토리 이미지
+    Scenes/             타이틀과 메인 플레이 씬
     Settings/           URP 2D 렌더러 설정
     Scripts/
       Core/             게임 진행, 오디오, 오브젝트 풀

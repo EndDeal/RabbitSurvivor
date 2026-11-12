@@ -16,6 +16,11 @@ namespace Goldmetal.UndeadSurvivor
         Rigidbody2D rigid;
         SpriteRenderer spriter;
         Animator anim;
+        float baseMoveSpeed;
+
+        public float AttackHaste { get; internal set; }
+        public float AttackPower { get; internal set; }
+        public float AttackArea { get; internal set; }
 
         void Awake()
         {
@@ -24,12 +29,18 @@ namespace Goldmetal.UndeadSurvivor
             anim = GetComponent<Animator>();
             scanner = GetComponent<Scanner>();
             hands = GetComponentsInChildren<Hand>(true);
+            baseMoveSpeed = speed;
         }
 
         void OnEnable()
         {
-            speed *= Character.Speed;
+            SetMoveSpeedBonus(0);
             anim.runtimeAnimatorController = animCon[GameManager.instance.playerId];
+        }
+
+        public void SetMoveSpeedBonus(float rate)
+        {
+            speed = baseMoveSpeed * Character.Speed * (1f + rate);
         }
 
         void Update()
@@ -68,7 +79,8 @@ namespace Goldmetal.UndeadSurvivor
             if (!GameManager.instance.isLive)
                 return;
 
-            GameManager.instance.health -= Time.deltaTime * 10;
+            float damage = collision.gameObject.TryGetComponent(out Enemy enemy) && enemy.IsMidBoss ? 16f : 10f;
+            GameManager.instance.health -= Time.deltaTime * damage;
 
             if (GameManager.instance.health < 0) {
                 for (int index = 2; index < transform.childCount; index++) {

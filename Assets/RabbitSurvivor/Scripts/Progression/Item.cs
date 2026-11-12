@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,81 +14,83 @@ namespace Goldmetal.UndeadSurvivor
         Text textLevel;
         Text textName;
         Text textDesc;
+        ItemData partner;
 
-        void Awake()
+        public bool IsMaxLevel => level >= data.MaxLevel;
+
+        public void Bind(LevelUp menu, ItemData evolutionPartner)
         {
-            icon = GetComponentsInChildren<Image>()[1];
-            icon.sprite = data.itemIcon;
+            partner = evolutionPartner;
+            icon = GetComponentsInChildren<Image>(true)[1];
+            icon.color = data.iconColor;
+            icon.preserveAspect = true;
 
-            Text[] texts = GetComponentsInChildren<Text>();
+            Text[] texts = GetComponentsInChildren<Text>(true);
             textLevel = texts[0];
             textName = texts[1];
             textDesc = texts[2];
-            textName.text = data.itemName;
+
+            Button button = GetComponent<Button>();
+            button.onClick = new Button.ButtonClickedEvent();
+            button.onClick.AddListener(() => menu.Choose(this));
         }
 
-        void OnEnable()
+        public void ShowOffer(bool evolution)
         {
-            textLevel.text = "Lv." + (level + 1);
+            bool evolved = weapon && weapon.IsEvolved;
+            bool showEvolution = evolution || evolved;
+            icon.sprite = showEvolution && data.evolutionIcon ? data.evolutionIcon : data.itemIcon;
+            textName.text = showEvolution ? data.evolutionName : data.itemName;
 
-            switch (data.itemType) {
-                case ItemData.ItemType.Melee:
-                case ItemData.ItemType.Range:
-                    textDesc.text = string.Format(data.itemDesc, data.damages[level] * 100, data.counts[level]);
-                    break;
-                case ItemData.ItemType.Glove:
-                case ItemData.ItemType.Shoe:
-                    textDesc.text = string.Format(data.itemDesc, data.damages[level] * 100);
-                    break;
-                default:
-                    textDesc.text = string.Format(data.itemDesc);
-                    break;
+            if (evolution) {
+                textLevel.text = "진화";
+                textDesc.text = data.evolutionDescription;
             }
+            else if (data.itemType == ItemData.ItemType.Heal) {
+                textLevel.text = "회복";
+                textDesc.text = data.itemDesc;
+            }
+            else {
+                textLevel.text = level == 0 ? (data.IsWeapon ? "액티브" : "패시브") : $"Lv.{level + 1}/{data.MaxLevel}";
+                string effect = level == 0 && !string.IsNullOrEmpty(data.pickupDescription) ?
+                    data.pickupDescription : string.Format(data.itemDesc, Mathf.RoundToInt(data.damages[level] * 100), data.counts[level]);
+                if (partner && !evolved) {
+                    string recipe = data.IsWeapon ? $"{partner.itemName} Lv.{partner.MaxLevel}" : partner.itemName;
+                    effect += $"\n진화: {recipe}";
+                }
+                textDesc.text = effect;
+            }
+
+            gameObject.SetActive(true);
         }
 
-        public void OnClick()
+        public void Upgrade()
         {
-            switch (data.itemType) {
-                case ItemData.ItemType.Melee:
-                case ItemData.ItemType.Range:
-                    if (level == 0) {
-                        GameObject newWeapon = new GameObject();
-                        weapon = newWeapon.AddComponent<Weapon>();
-                        weapon.Init(data);
-                    }
-                    else {
-                        float nextDamage = data.baseDamage;
-                        int nextCount = 0;
-
-                        nextDamage += data.baseDamage * data.damages[level];
-                        nextCount += data.counts[level];
-
-                        weapon.LevelUp(nextDamage, nextCount);
-                    }
-
-                    level++;
-                    break;
-                case ItemData.ItemType.Glove:
-                case ItemData.ItemType.Shoe:
-                    if (level == 0) {
-                        GameObject newGear = new GameObject();
-                        gear = newGear.AddComponent<Gear>();
-                        gear.Init(data);
-                    }
-                    else {
-                        float nextRate = data.damages[level];
-                        gear.LevelUp(nextRate);
-                    }
-
-                    level++;
-                    break;
-                case ItemData.ItemType.Heal:
-                    GameManager.instance.health = GameManager.instance.maxHealth;
-                    break;
+            if (data.itemType == ItemData.ItemType.Heal) {
+                GameManager game = GameManager.instance;
+                game.health = game.maxHealth;
+                return;
             }
 
-            if (level == data.damages.Length) {
-                GetComponent<Button>().interactable = false;
+            if (IsMaxLevel)
+                return;
+
+            level++;
+            if (data.IsWeapon) {
+                if (level == 1) {
+                    weapon = new GameObject(data.itemName).AddComponent<Weapon>();
+                    weapon.Init(data);
+                }
+                else {
+                    weapon.LevelUp(level);
+                }
+            }
+            else if (level == 1) {
+                gear = new GameObject(data.itemName).AddComponent<Gear>();
+                gear.Init(data);
+            }
+            else {
+                gear.LevelUp(data.damages[level - 1]);
             }
         }
     }

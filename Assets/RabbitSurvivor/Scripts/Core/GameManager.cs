@@ -27,10 +27,17 @@ namespace Goldmetal.UndeadSurvivor
         public Result uiResult;
         public Transform uiJoy;
         public GameObject enemyCleaner;
+        public Sprite treasureChestSprite;
+        [SerializeField] LootDrops lootDrops;
+
+        float baseMaxHealth;
+
+        public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
 
         void Awake()
         {
             instance = this;
+            baseMaxHealth = maxHealth;
             Application.targetFrameRate = 60;
         }
 
@@ -88,7 +95,7 @@ namespace Goldmetal.UndeadSurvivor
 
         public void GameRetry()
         {
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene("RabbitSurvivor");
         }
 
         public void GameQuit()
@@ -109,18 +116,36 @@ namespace Goldmetal.UndeadSurvivor
             }
         }
 
-        public void GetExp()
+        public void RegisterKill(Vector3 position, bool midBoss)
         {
-            if (!isLive)
+            kill++;
+            if (!isLive && !uiLevelUp.IsOpen)
                 return;
 
-            exp++;
+            if (lootDrops)
+                lootDrops.DropFromEnemy(position, midBoss);
+            else
+                GainExperience(1);
 
-            if (exp == nextExp[Mathf.Min(level, nextExp.Length - 1)]) {
+            if (midBoss && treasureChestSprite)
+                TreasureChest.Drop(position, treasureChestSprite);
+        }
+
+        public void GainExperience(int amount)
+        {
+            exp += amount;
+            while (exp >= ExperienceToNextLevel) {
+                exp -= ExperienceToNextLevel;
                 level++;
-                exp = 0;
                 uiLevelUp.Show();
             }
+        }
+
+        public void SetMaxHealthBonus(float rate)
+        {
+            float newMax = baseMaxHealth * (1f + rate);
+            health = Mathf.Min(health + newMax - maxHealth, newMax);
+            maxHealth = newMax;
         }
 
         public void Stop()

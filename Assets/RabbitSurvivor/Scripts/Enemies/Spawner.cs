@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
@@ -10,8 +8,13 @@ namespace Goldmetal.UndeadSurvivor
         public SpawnData[] spawnData;
         public float levelTime;
 
-        int level;
+        [SerializeField] float[] midBossTimes = System.Array.Empty<float>();
+
+        int nextMidBoss;
         float timer;
+
+        public SpawnData CurrentWave => spawnData[Mathf.Min(
+            Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), spawnData.Length - 1)];
 
         void Awake()
         {
@@ -25,19 +28,36 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             timer += Time.deltaTime;
-            level = Mathf.Min(Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), spawnData.Length - 1);
+            float gameTime = GameManager.instance.gameTime;
+            SpawnData wave = CurrentWave;
 
-            if (timer > spawnData[level].spawnTime) {
+            if (nextMidBoss < midBossTimes.Length && gameTime >= midBossTimes[nextMidBoss]) {
+                SpawnMidBoss(wave);
+                nextMidBoss++;
+            }
+
+            if (timer > wave.spawnTime) {
                 timer = 0;
-                Spawn();
+                Spawn(wave, false);
             }
         }
 
-        void Spawn()
+        void SpawnMidBoss(SpawnData wave)
+        {
+            SpawnData boss = new SpawnData {
+                spriteType = spawnData[spawnData.Length - 1].spriteType,
+                health = wave.health * (5 + nextMidBoss),
+                speed = wave.speed * 0.8f
+            };
+            Spawn(boss, true);
+            GameManager.instance.uiLevelUp.Notify("중간 보스 출현!");
+        }
+
+        void Spawn(SpawnData data, bool midBoss)
         {
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = spawnPoint[Random.Range(1, spawnPoint.Length)].position;
-            enemy.GetComponent<Enemy>().Init(spawnData[level]);
+            enemy.GetComponent<Enemy>().Init(data, midBoss);
         }
     }
 
@@ -48,5 +68,6 @@ namespace Goldmetal.UndeadSurvivor
         public int spriteType;
         public int health;
         public float speed;
+        [Min(1)] public int killsPerMagnet = 100;
     }
 }

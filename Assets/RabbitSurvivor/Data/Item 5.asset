@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
+  m_Name: "\uBB3C\uAC70\uD488 \uC644\uB4DC"
+  m_EditorClassIdentifier: 
+  itemType: 5
+  itemId: 5
+  itemName: "\uBB3C\uAC70\uD488 \uC644\uB4DC"
+  itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uBB3C\uAC70\uD488 +{1}"
+  itemIcon: {fileID: 712346121, guid: 695c0ade77f84385a31c7d15aa5b0003, type: 3}
+  pickupDescription: "\uBB3C\uAC70\uD488\uC744 \uBD80\uCC44\uAF34\uB85C \uBC1C\uC0AC"
+  baseDamage: 3.5
+  baseCount: 3
+  damages:
+  - 0
+  - 0.25
+  - 0.5
+  - 0.8
+  - 1.1
+  counts: 0000000000000000010000000000000001000000
+  projectile: {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
+  hand: {fileID: 0}
+  projectileSprite: {fileID: 762804792, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  attackColor: {r: 0.6, g: 0.9, b: 1, a: 1}
+  attackInterval: 1.15
+  requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a4, type: 2}
+  evolutionName: "\uD574\uC77C \uC644\uB4DC"
+  evolutionIcon: {fileID: 712346123, guid: 695c0ade77f84385a31c7d15aa5b0003, type: 3}
+  evolutionDescription: "\uBB3C\uAC70\uD488 +2 \u00B7 \uC801 1\uB9C8\uB9AC \uAD00\uD1B5"
+  evolutionDamage: 1.35
+  evolutionCount: 2
+  evolutionInterval: 0.85
+  evolutionArea: 1

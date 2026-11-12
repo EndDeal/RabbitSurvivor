@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
@@ -7,7 +5,7 @@ namespace Goldmetal.UndeadSurvivor
     [CreateAssetMenu(fileName = "Item", menuName = "Scriptble Object/ItemData")]
     public class ItemData : ScriptableObject
     {
-        public enum ItemType { Melee, Range, Glove, Shoe, Heal }
+        public enum ItemType { Melee, Range, Glove, Shoe, Heal, Spread, Pulse, Burst, Power, Area, Vitality }
 
         [Header("# Main Info")]
         public ItemType itemType;
@@ -16,6 +14,8 @@ namespace Goldmetal.UndeadSurvivor
         [TextArea]
         public string itemDesc;
         public Sprite itemIcon;
+        public Color iconColor = Color.white;
+        public string pickupDescription;
 
         [Header("# Level Data")]
         public float baseDamage;
@@ -26,5 +26,40 @@ namespace Goldmetal.UndeadSurvivor
         [Header("# Weapon")]
         public GameObject projectile;
         public Sprite hand;
+        public Sprite projectileSprite;
+        public Material pulseMaterial;
+        public Color attackColor = Color.white;
+        public float attackInterval = 0.5f;
+        public float attackRadius = 1.5f;
+
+        [Header("# Evolution")]
+        public ItemData requiredPassive;
+        public string evolutionName;
+        public Sprite evolutionIcon;
+        public string evolutionDescription;
+        public float evolutionDamage = 1f;
+        public int evolutionCount;
+        public float evolutionInterval = 1f;
+        public float evolutionArea = 1f;
+
+        public int MaxLevel => damages.Length;
+        public bool IsWeapon => itemType == ItemType.Melee || itemType == ItemType.Range ||
+                                itemType == ItemType.Spread || itemType == ItemType.Pulse ||
+                                itemType == ItemType.Burst;
+        public bool IsPassive => !IsWeapon && itemType != ItemType.Heal;
+
+        public float WeaponDamageAt(int level)
+        {
+            return baseDamage * (1f + damages[level - 1]);
+        }
+
+        public int WeaponCountAt(int level)
+        {
+            int count = baseCount;
+            for (int index = 1; index < level; index++) {
+                count += counts[index];
+            }
+            return count;
+        }
     }
 }

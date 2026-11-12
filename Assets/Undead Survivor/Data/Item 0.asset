@@ -15,16 +15,25 @@ MonoBehaviour:
   itemType: 0
   itemId: 0
   itemName: "\uC0BD"
-  itemDesc: "\uB370\uBBF8\uC9C0 {0}% \uC99D\uAC00\n\uD68C\uC804\uCCB4 {1}\uAC1C \uCD94\uAC00"
-  itemIcon: {fileID: -181907988, guid: d71a3dc7aa20fad4f9a99fc76a9254ba, type: 3}
+  itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uD68C\uC804\uCCB4 +{1}"
+  itemIcon: {fileID: 712346101, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
+  pickupDescription: "\uBAB8 \uC8FC\uC704\uB97C \uB3C4\uB294 \uC0BD"
   baseDamage: 4.5
   baseCount: 3
   damages:
-  - 0.5
+  - 0
+  - 0.3
+  - 0.65
   - 1
-  - 1.5
-  - 2
-  - 3
-  counts: 0100000001000000010000000100000002000000
+  - 1.4
+  counts: 0000000001000000000000000100000001000000
   projectile: {fileID: 7308793349900079891, guid: fe2a05f2bb2a19c418e2015e390757a0, type: 3}
   hand: {fileID: 143021600, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
+  requiredPassive: {fileID: 11400000, guid: 96a539ae1d8b5ab49b46e3de0117ddb7, type: 2}
+  evolutionName: "\uD30C\uB3C4 \uC0BD"
+  evolutionIcon: {fileID: 712346103, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
+  evolutionDescription: "\uD68C\uC804\uCCB4 +2 \u00B7 \uBC94\uC704 +25%"
+  evolutionDamage: 1.4
+  evolutionCount: 2
+  evolutionInterval: 0.9
+  evolutionArea: 1.25
