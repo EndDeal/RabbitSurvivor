@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
-  m_Name: "\uC0B0\uD638 \uBD80\uC801"
+  m_Name: "물뿌리개"
   m_EditorClassIdentifier: 
   itemType: 9
   itemId: 9
-  itemName: "\uC0B0\uD638 \uBD80\uC801"
-  itemDesc: "\uD68C\uC804\u00B7\uD30C\uB3D9 \uBC94\uC704 +{0}%"
-  itemIcon: {fileID: 712346132, guid: 695c0ade77f84385a31c7d15aa5b0004, type: 3}
+  itemName: "물뿌리개"
+  itemDesc: "근접 공격 범위 +{0}%"
+  itemIcon: {fileID: 814220104, guid: 00f24ec73e0b9c79b106204eb60cd430, type: 3}
   baseDamage: 0
   baseCount: 0
   damages:

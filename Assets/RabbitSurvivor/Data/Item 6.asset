@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
-  m_Name: "\uC0B0\uD638 \uC885"
+  m_Name: "괭이"
   m_EditorClassIdentifier: 
-  itemType: 6
+  itemType: 12
   itemId: 6
-  itemName: "\uC0B0\uD638 \uC885"
-  itemDesc: "\uD30C\uB3D9 \uACF5\uACA9\uB825 +{0}%"
-  itemIcon: {fileID: 712346131, guid: 695c0ade77f84385a31c7d15aa5b0004, type: 3}
-  pickupDescription: "\uC8FC\uBCC0 \uC801 \uBAA8\uB450\uC5D0\uAC8C \uD30C\uB3D9"
-  baseDamage: 8
+  itemName: "괭이"
+  itemDesc: "피해 증가"
+  itemIcon: {fileID: 814220002, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  pickupDescription: "가까운 적을 찍어 주변도 타격"
+  baseDamage: 11
   baseCount: 0
   damages:
   - 0
@@ -29,15 +29,17 @@ MonoBehaviour:
   counts: 0000000000000000000000000000000000000000
   projectile: {fileID: 0}
   hand: {fileID: 0}
+  projectileSprite: {fileID: 814220002, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
   pulseMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
-  attackColor: {r: 1, g: 0.58, b: 0.53, a: 1}
-  attackInterval: 2.35
-  attackRadius: 2.45
+  attackColor: {r: 1, g: 1, b: 1, a: 1}
+  attackInterval: 1.95
+  attackRadius: 3
+  strikeWidth: 0.9
   requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a5, type: 2}
-  evolutionName: "\uC2EC\uD574\uC758 \uC885"
-  evolutionIcon: {fileID: 712346133, guid: 695c0ade77f84385a31c7d15aa5b0004, type: 3}
-  evolutionDescription: "\uD30C\uB3D9 \uBC94\uC704 +45% \u00B7 \uACF5\uACA9\uB825 +50%"
-  evolutionDamage: 1.5
+  evolutionName: "대지 괭이"
+  evolutionIcon: {fileID: 814220002, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionDescription: "사거리·충격 범위 +35%"
+  evolutionDamage: 1.45
   evolutionCount: 0
-  evolutionInterval: 0.85
-  evolutionArea: 1.45
+  evolutionInterval: 0.9
+  evolutionArea: 1.35

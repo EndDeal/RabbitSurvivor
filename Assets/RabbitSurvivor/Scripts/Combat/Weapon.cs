@@ -29,6 +29,9 @@ namespace Goldmetal.UndeadSurvivor
         float pulseTime;
         Vector3 pulseCenter;
         readonly List<Collider2D> pulseHits = new List<Collider2D>();
+        ContactFilter2D enemyFilter;
+        SpriteRenderer swing;
+        float swingRemaining;
 
         public void Init(ItemData item)
         {
@@ -36,6 +39,8 @@ namespace Goldmetal.UndeadSurvivor
             player = GameManager.instance.player;
             transform.SetParent(player.transform, true);
             transform.localPosition = Vector3.zero;
+            enemyFilter.SetLayerMask(player.scanner.targetLayer);
+            enemyFilter.useTriggers = false;
 
             if (data.projectile) {
                 prefabId = System.Array.IndexOf(GameManager.instance.pool.prefabs, data.projectile);
@@ -48,6 +53,15 @@ namespace Goldmetal.UndeadSurvivor
 
             if (data.itemType == ItemData.ItemType.Pulse)
                 CreatePulse();
+            if ((data.IsToolStrike || data.itemType == ItemData.ItemType.Pulse) && data.projectileSprite) {
+                swing = new GameObject("Tool Swing").AddComponent<SpriteRenderer>();
+                swing.transform.SetParent(transform, false);
+                swing.sortingOrder = player.GetComponent<SpriteRenderer>().sortingOrder + 1;
+                if (data.pulseMaterial)
+                    swing.sharedMaterial = data.pulseMaterial;
+                swing.sprite = data.projectileSprite;
+                swing.enabled = false;
+            }
 
             LevelUp(1);
         }
@@ -72,7 +86,7 @@ namespace Goldmetal.UndeadSurvivor
         {
             Damage = DamageAtLevel(rank);
             Count = data.WeaponCountAt(rank);
-            if (data.itemType != ItemData.ItemType.Pulse)
+            if (data.itemType != ItemData.ItemType.Pulse && !data.IsToolStrike)
                 Count += Character.Count;
             attackInterval = data.attackInterval * Character.WeaponRate * (1f - player.AttackHaste);
             attackAreaMultiplier = (1f + player.AttackArea) * (IsEvolved ? data.evolutionArea : 1f);
@@ -110,6 +124,8 @@ namespace Goldmetal.UndeadSurvivor
 
             if (pulse && pulse.enabled)
                 UpdatePulse();
+            if (swing && swing.enabled)
+                UpdateSwing();
 
             if (burstShots > 0) {
                 burstCooldown -= Time.deltaTime;
@@ -139,6 +155,11 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             Vector2 direction = AimAt(nearest);
+            if (data.IsToolStrike) {
+                if (Strike(nearest, direction))
+                    cooldown = attackInterval;
+                return;
+            }
             cooldown = attackInterval;
             switch (data.itemType) {
                 case ItemData.ItemType.Range:
@@ -194,7 +215,7 @@ namespace Goldmetal.UndeadSurvivor
 
         void CreatePulse()
         {
-            pulse = new GameObject("Coral Pulse").AddComponent<LineRenderer>();
+            pulse = new GameObject("Weapon Pulse").AddComponent<LineRenderer>();
             pulse.transform.SetParent(transform, false);
             pulse.useWorldSpace = false;
             pulse.loop = true;
@@ -210,11 +231,55 @@ namespace Goldmetal.UndeadSurvivor
             }
         }
 
+        bool Strike(Transform target, Vector2 direction)
+        {
+            Vector2 origin = transform.position;
+            Vector2 destination = target.position;
+            if (direction.sqrMagnitude < 0.01f)
+                direction = player.GetComponent<SpriteRenderer>().flipX ? Vector2.left : Vector2.right;
+
+            float length = attackRadius;
+            float width = data.strikeWidth * attackAreaMultiplier;
+            Vector2 impact = origin + direction * (length * 0.55f);
+            if (data.itemType == ItemData.ItemType.GroundStrike) {
+                if (Vector2.Distance(origin, destination) > length)
+                    return false;
+                impact = destination;
+                Physics2D.OverlapCircle(impact, width, enemyFilter, pulseHits);
+            }
+            else if (data.itemType == ItemData.ItemType.Furrow) {
+                impact = origin + direction * (length * 0.5f);
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                Physics2D.OverlapBox(impact, new Vector2(length, width), angle, enemyFilter, pulseHits);
+            }
+            else {
+                Physics2D.OverlapCircle(origin, length, enemyFilter, pulseHits);
+            }
+
+            bool hitAny = false;
+            foreach (Collider2D hit in pulseHits) {
+                if (!hit.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
+                    continue;
+                if (data.itemType == ItemData.ItemType.Jab && enemy.transform != target)
+                    continue;
+                if (data.itemType == ItemData.ItemType.Sweep &&
+                    Vector2.Dot(direction, ((Vector2)enemy.transform.position - origin).normalized) < 0.15f)
+                    continue;
+                enemy.TakeDamage(Damage);
+                hitAny = true;
+            }
+
+            if (hitAny) {
+                float displayLength = data.itemType == ItemData.ItemType.Furrow ? length : 1.3f * attackAreaMultiplier;
+                ShowSwing(impact, direction, displayLength);
+                AudioManager.instance.PlaySfx(AudioManager.Sfx.Melee);
+            }
+            return hitAny;
+        }
+
         bool EmitPulse()
         {
-            ContactFilter2D filter = new ContactFilter2D();
-            filter.SetLayerMask(player.scanner.targetLayer);
-            Physics2D.OverlapCircle(transform.position, attackRadius, filter, pulseHits);
+            Physics2D.OverlapCircle(transform.position, attackRadius, enemyFilter, pulseHits);
             if (pulseHits.Count == 0)
                 return false;
 
@@ -222,6 +287,7 @@ namespace Goldmetal.UndeadSurvivor
             pulseTime = 0f;
             pulse.enabled = true;
             UpdatePulse();
+            ShowSwing(pulseCenter + Vector3.up * 0.65f, Vector2.right, 1.45f * attackAreaMultiplier);
 
             foreach (Collider2D hit in pulseHits) {
                 if (hit.TryGetComponent(out Enemy enemy))
@@ -229,6 +295,27 @@ namespace Goldmetal.UndeadSurvivor
             }
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Melee);
             return true;
+        }
+
+        void ShowSwing(Vector2 position, Vector2 direction, float length)
+        {
+            if (!swing)
+                return;
+
+            swing.transform.SetPositionAndRotation(position, Quaternion.FromToRotation(Vector3.up, direction));
+            swing.transform.localScale = Vector3.one * (length / (swing.sprite.bounds.size.y * transform.lossyScale.y));
+            swingRemaining = PulseDuration;
+            swing.color = attackColor;
+            swing.enabled = true;
+        }
+
+        void UpdateSwing()
+        {
+            swingRemaining -= Time.deltaTime;
+            Color color = attackColor;
+            color.a *= Mathf.Clamp01(swingRemaining / (PulseDuration * 0.5f));
+            swing.color = color;
+            swing.enabled = swingRemaining > 0f;
         }
 
         void UpdatePulse()

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
+  m_Name: "도리깨"
+  m_EditorClassIdentifier:
+  itemType: 6
+  itemId: 12
+  itemName: "도리깨"
+  itemDesc: "피해 증가"
+  itemIcon: {fileID: 814220005, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  pickupDescription: "몸 주위 모든 적을 한 번에 쳐요"
+  baseDamage: 9
+  baseCount: 0
+  damages:
+  - 0
+  - 0.25
+  - 0.5
+  - 0.8
+  - 1.1
+  counts: 0000000000000000000000000000000000000000
+  projectile: {fileID: 0}
+  hand: {fileID: 0}
+  projectileSprite: {fileID: 814220005, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  pulseMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  attackColor: {r: 1, g: 1, b: 1, a: 1}
+  attackInterval: 2.15
+  attackRadius: 2.45
+  strikeWidth: 1
+  requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a6, type: 2}
+  evolutionName: "풍년 도리깨"
+  evolutionIcon: {fileID: 814220005, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionDescription: "타격 반경 +35% · 간격 −15%"
+  evolutionDamage: 1.4
+  evolutionCount: 0
+  evolutionInterval: 0.85
+  evolutionArea: 1.35

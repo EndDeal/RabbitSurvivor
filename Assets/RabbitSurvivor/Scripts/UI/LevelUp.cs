@@ -66,13 +66,15 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             foreach (Item item in items) {
-                ItemData partner = item.data.requiredPassive;
+                ItemData passive = item.data.requiredPassive;
+                string recipe = passive ? $"{passive.itemName} Lv.{passive.MaxLevel}" : "";
                 if (item.data.IsPassive) {
-                    partner = items.Find(candidate => candidate.data.requiredPassive == item.data)?.data;
+                    var weapons = items.FindAll(candidate => candidate.data.requiredPassive == item.data);
+                    recipe = string.Join(" · ", weapons.ConvertAll(candidate => candidate.data.itemName));
                 }
                 if (item.data.itemType == ItemData.ItemType.Heal)
                     recovery = item;
-                item.Bind(this, partner);
+                item.Bind(this, recipe);
             }
 
             if (title) {

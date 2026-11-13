@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
-  m_Name: "\uC9C4\uC8FC \uBAA9\uAC78\uC774"
+  m_Name: "숫돌"
   m_EditorClassIdentifier: 
   itemType: 8
   itemId: 8
-  itemName: "\uC9C4\uC8FC \uBAA9\uAC78\uC774"
+  itemName: "숫돌"
   itemDesc: "\uC804\uCCB4 \uACF5\uACA9\uB825 +{0}%"
-  itemIcon: {fileID: 712346122, guid: 695c0ade77f84385a31c7d15aa5b0003, type: 3}
+  itemIcon: {fileID: 814220103, guid: 00f24ec73e0b9c79b106204eb60cd430, type: 3}
   baseDamage: 0
   baseCount: 0
   damages:

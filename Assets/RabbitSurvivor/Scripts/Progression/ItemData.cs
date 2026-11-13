@@ -5,7 +5,8 @@ namespace Goldmetal.UndeadSurvivor
     [CreateAssetMenu(fileName = "Item", menuName = "Scriptble Object/ItemData")]
     public class ItemData : ScriptableObject
     {
-        public enum ItemType { Melee, Range, Glove, Shoe, Heal, Spread, Pulse, Burst, Power, Area, Vitality }
+        public enum ItemType { Melee, Range, Glove, Shoe, Heal, Spread, Pulse, Burst, Power, Area, Vitality,
+                               Sweep, GroundStrike, Jab, Furrow }
 
         [Header("# Main Info")]
         public ItemType itemType;
@@ -31,6 +32,7 @@ namespace Goldmetal.UndeadSurvivor
         public Color attackColor = Color.white;
         public float attackInterval = 0.5f;
         public float attackRadius = 1.5f;
+        public float strikeWidth = 1f;
 
         [Header("# Evolution")]
         public ItemData requiredPassive;
@@ -45,7 +47,9 @@ namespace Goldmetal.UndeadSurvivor
         public int MaxLevel => damages.Length;
         public bool IsWeapon => itemType == ItemType.Melee || itemType == ItemType.Range ||
                                 itemType == ItemType.Spread || itemType == ItemType.Pulse ||
-                                itemType == ItemType.Burst;
+                                itemType == ItemType.Burst || IsToolStrike;
+        internal bool IsToolStrike => itemType == ItemType.Sweep || itemType == ItemType.GroundStrike ||
+                                      itemType == ItemType.Jab || itemType == ItemType.Furrow;
         public bool IsPassive => !IsWeapon && itemType != ItemType.Heal;
 
         public float WeaponDamageAt(int level)

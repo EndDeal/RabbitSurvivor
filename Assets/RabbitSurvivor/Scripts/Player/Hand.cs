@@ -21,8 +21,11 @@ namespace Goldmetal.UndeadSurvivor
         {
             spriter.sprite = sprite;
             gameObject.SetActive(true);
-            if (isLeft && player.sprite)
-                transform.localScale = Vector3.one * (player.sprite.bounds.size.y * 0.55f / sprite.bounds.size.y);
+            if (player.sprite) {
+                float size = isLeft ? sprite.bounds.size.y : sprite.bounds.size.x;
+                float proportion = isLeft ? 0.55f : 0.70f;
+                transform.localScale = Vector3.one * (player.sprite.bounds.size.y * proportion / size);
+            }
         }
 
         void LateUpdate()

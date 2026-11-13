@@ -10,33 +10,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83984a6d1af8c174c869ca6daf0aa713, type: 3}
-  m_Name: "\uBB3C\uAC70\uD488 \uC644\uB4DC"
+  m_Name: "낫"
   m_EditorClassIdentifier: 
-  itemType: 5
+  itemType: 11
   itemId: 5
-  itemName: "\uBB3C\uAC70\uD488 \uC644\uB4DC"
-  itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uBB3C\uAC70\uD488 +{1}"
-  itemIcon: {fileID: 712346121, guid: 695c0ade77f84385a31c7d15aa5b0003, type: 3}
-  pickupDescription: "\uBB3C\uAC70\uD488\uC744 \uBD80\uCC44\uAF34\uB85C \uBC1C\uC0AC"
-  baseDamage: 3.5
-  baseCount: 3
+  itemName: "낫"
+  itemDesc: "피해 증가"
+  itemIcon: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  pickupDescription: "앞쪽을 넓게 베어요"
+  baseDamage: 6.5
+  baseCount: 0
   damages:
   - 0
   - 0.25
   - 0.5
   - 0.8
   - 1.1
-  counts: 0000000000000000010000000000000001000000
-  projectile: {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
+  counts: 0000000000000000000000000000000000000000
+  projectile: {fileID: 0}
   hand: {fileID: 0}
-  projectileSprite: {fileID: 762804792, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
-  attackColor: {r: 0.6, g: 0.9, b: 1, a: 1}
-  attackInterval: 1.15
+  projectileSprite: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  pulseMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  attackColor: {r: 1, g: 1, b: 1, a: 1}
+  attackInterval: 0.95
+  attackRadius: 2.1
+  strikeWidth: 1
   requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a4, type: 2}
-  evolutionName: "\uD574\uC77C \uC644\uB4DC"
-  evolutionIcon: {fileID: 712346123, guid: 695c0ade77f84385a31c7d15aa5b0003, type: 3}
-  evolutionDescription: "\uBB3C\uAC70\uD488 +2 \u00B7 \uC801 1\uB9C8\uB9AC \uAD00\uD1B5"
+  evolutionName: "황금 낫"
+  evolutionIcon: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionDescription: "베기 범위 +25% · 간격 −15%"
   evolutionDamage: 1.35
-  evolutionCount: 2
+  evolutionCount: 0
   evolutionInterval: 0.85
-  evolutionArea: 1
+  evolutionArea: 1.25

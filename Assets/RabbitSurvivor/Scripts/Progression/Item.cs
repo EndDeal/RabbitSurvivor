@@ -15,16 +15,16 @@ namespace Goldmetal.UndeadSurvivor
         Text textLevel;
         Text textName;
         Text textDesc;
-        ItemData partner;
+        string recipe;
         LevelUp menu;
 
         public bool IsMaxLevel => level >= data.MaxLevel;
         internal Button Button { get; private set; }
 
-        public void Bind(LevelUp menu, ItemData evolutionPartner)
+        public void Bind(LevelUp menu, string evolutionRecipe)
         {
             this.menu = menu;
-            partner = evolutionPartner;
+            recipe = evolutionRecipe;
             icon = GetComponentsInChildren<Image>(true)[1];
             icon.color = data.iconColor;
             icon.preserveAspect = true;
@@ -83,10 +83,8 @@ namespace Goldmetal.UndeadSurvivor
                 string effect = weapon ? WeaponUpgradeDescription() :
                     level == 0 && !string.IsNullOrEmpty(data.pickupDescription) ? data.pickupDescription :
                     string.Format(data.itemDesc, Mathf.RoundToInt(data.damages[level] * 100), data.counts[level]);
-                if (partner && !evolved) {
-                    string recipe = data.IsWeapon ? $"{partner.itemName} Lv.{partner.MaxLevel}" : partner.itemName;
+                if (!string.IsNullOrEmpty(recipe) && !evolved)
                     effect += $"\n진화: {recipe}";
-                }
                 textDesc.text = effect;
             }
 

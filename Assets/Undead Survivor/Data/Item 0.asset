@@ -31,9 +31,9 @@ MonoBehaviour:
   hand: {fileID: 712346104, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
   projectileSprite: {fileID: 712346101, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
   requiredPassive: {fileID: 11400000, guid: 96a539ae1d8b5ab49b46e3de0117ddb7, type: 2}
-  evolutionName: "\uD30C\uB3C4 \uC0BD"
+  evolutionName: "풍년 삽"
   evolutionIcon: {fileID: 712346103, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
-  evolutionDescription: "\uD68C\uC804\uCCB4 +2 \u00B7 \uBC94\uC704 +25%"
+  evolutionDescription: "회전 삽 +2 · 크기·반경 +25%"
   evolutionDamage: 1.4
   evolutionCount: 2
   evolutionInterval: 0.9
