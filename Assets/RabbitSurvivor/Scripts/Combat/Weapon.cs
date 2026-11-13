@@ -20,6 +20,7 @@ namespace Goldmetal.UndeadSurvivor
         float cooldown;
         float attackInterval;
         float attackRadius;
+        float attackAreaMultiplier;
         Color attackColor;
         int burstShots;
         float burstCooldown;
@@ -74,13 +75,13 @@ namespace Goldmetal.UndeadSurvivor
             if (data.itemType != ItemData.ItemType.Pulse)
                 Count += Character.Count;
             attackInterval = data.attackInterval * Character.WeaponRate * (1f - player.AttackHaste);
-            attackRadius = data.attackRadius * (1f + player.AttackArea);
+            attackAreaMultiplier = (1f + player.AttackArea) * (IsEvolved ? data.evolutionArea : 1f);
+            attackRadius = data.attackRadius * attackAreaMultiplier;
             attackColor = data.attackColor;
 
             if (IsEvolved) {
                 Count += data.evolutionCount;
                 attackInterval *= data.evolutionInterval;
-                attackRadius *= data.evolutionArea;
                 attackColor = Color.Lerp(attackColor, new Color(1f, 0.77f, 0.29f), 0.65f);
             }
 
@@ -175,7 +176,8 @@ namespace Goldmetal.UndeadSurvivor
                 blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, data.projectileSprite, attackColor);
                 if (data.projectileSprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
                     Bounds art = data.projectileSprite.bounds;
-                    blade.localScale = Vector3.one / (art.size.y * transform.lossyScale.y);
+                    // Scale the visible blade and its attached hitbox along with the orbit.
+                    blade.localScale = Vector3.one * (attackAreaMultiplier / (art.size.y * transform.lossyScale.y));
                     hitbox.size = art.size;
                     hitbox.offset = art.center;
                     blade.GetComponent<SpriteRenderer>().flipY = true;
