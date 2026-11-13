@@ -18,7 +18,7 @@ MonoBehaviour:
   itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uAD00\uD1B5 +{1}"
   itemIcon: {fileID: 712346111, guid: 695c0ade77f84385a31c7d15aa5b0002, type: 3}
   pickupDescription: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC5D0\uAC8C \uBC1C\uC0AC"
-  baseDamage: 4
+  baseDamage: 3.4
   baseCount: 0
   damages:
   - 0

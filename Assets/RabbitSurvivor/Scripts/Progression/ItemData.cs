@@ -33,6 +33,7 @@ namespace Goldmetal.UndeadSurvivor
         public float attackInterval = 0.5f;
         public float attackRadius = 1.5f;
         public float strikeWidth = 1f;
+        [Range(0.1f, 1f)] public float startingAttackArea = 1f;
 
         [Header("# Evolution")]
         public ItemData requiredPassive;

@@ -100,7 +100,7 @@ namespace Goldmetal.UndeadSurvivor
             rock.transform.position = position;
             rock.sprite = sprites[(int)((value >> 24) % (uint)sprites.Length)];
             rock.flipX = (value & 256) != 0;
-            float width = Mathf.Lerp(1.3f, 2.1f, ((value >> 26) & 63) / 63f);
+            float width = Mathf.Lerp(1.1f, 1.75f, ((value >> 26) & 63) / 63f);
             rock.transform.localScale = Vector3.one * (width / rock.sprite.bounds.size.x);
             var footprint = rock.GetComponent<CapsuleCollider2D>();
             footprint.size = new Vector2(rock.sprite.bounds.size.x * 0.82f, rock.sprite.bounds.size.y * 0.62f);

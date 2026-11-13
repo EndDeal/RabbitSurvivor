@@ -46,9 +46,8 @@ namespace Goldmetal.UndeadSurvivor
                 prefabId = System.Array.IndexOf(GameManager.instance.pool.prefabs, data.projectile);
             }
 
-            if (data.hand) {
-                Hand hand = player.hands[data.itemType == ItemData.ItemType.Melee ? 0 : 1];
-                hand.Equip(data.hand);
+            if (data.itemType == ItemData.ItemType.Melee && data.hand) {
+                player.hands[0].Equip(data.hand);
             }
 
             if (data.itemType == ItemData.ItemType.Pulse)
@@ -79,12 +78,8 @@ namespace Goldmetal.UndeadSurvivor
 
             IsEvolved = true;
             name = data.evolutionName;
-            if (data.evolutionIcon) {
-                if (swing)
-                    swing.sprite = data.evolutionIcon;
-                if (data.itemType == ItemData.ItemType.Range && data.hand)
-                    player.hands[1].Equip(data.evolutionIcon);
-            }
+            if (swing && data.evolutionIcon)
+                swing.sprite = data.evolutionIcon;
             RefreshStats();
         }
 
@@ -92,10 +87,13 @@ namespace Goldmetal.UndeadSurvivor
         {
             Damage = DamageAtLevel(rank);
             Count = data.WeaponCountAt(rank);
-            if (data.itemType != ItemData.ItemType.Pulse && !data.IsToolStrike)
+            if (data.itemType == ItemData.ItemType.Range || data.itemType == ItemData.ItemType.Spread ||
+                data.itemType == ItemData.ItemType.Burst)
                 Count += Character.Count;
             attackInterval = data.attackInterval * Character.WeaponRate * (1f - player.AttackHaste);
             attackAreaMultiplier = (1f + player.AttackArea) * (IsEvolved ? data.evolutionArea : 1f);
+            float rankProgress = (rank - 1f) / Mathf.Max(1, data.MaxLevel - 1);
+            attackAreaMultiplier *= Mathf.Lerp(data.startingAttackArea, 1f, rankProgress);
             attackRadius = data.attackRadius * attackAreaMultiplier;
             attackColor = data.attackColor;
 

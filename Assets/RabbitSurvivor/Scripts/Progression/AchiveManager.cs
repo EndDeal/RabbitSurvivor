@@ -17,6 +17,16 @@ namespace Goldmetal.UndeadSurvivor
         Achive[] achives;
         WaitForSecondsRealtime wait;
 
+        internal static bool IsCharacterUnlocked(int index)
+        {
+            return index < 2 || PlayerPrefs.GetInt(index == 2 ? nameof(Achive.UnlockPotato) : nameof(Achive.UnlockBean)) == 1;
+        }
+
+        internal static string CharacterRequirement(int index)
+        {
+            return index == 2 ? $"적 {PotatoKillRequirement}마리 처치 시 합류" : "용왕 처치 시 합류";
+        }
+
         void Awake()
         {
             achives = (Achive[])Enum.GetValues(typeof(Achive));

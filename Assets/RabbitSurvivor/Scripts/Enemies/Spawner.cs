@@ -8,22 +8,28 @@ namespace Goldmetal.UndeadSurvivor
 
     public class Spawner : MonoBehaviour
     {
-        const int BarrierCount = 10;
-        const float BarrierRadius = 2.7f;
+        const int BarrierPositions = 24;
+        const int BarrierGapCount = 3;
+        const int BarrierCount = BarrierPositions - BarrierGapCount * 2;
+        const float BarrierRadius = 4.3f;
         const float CleanupInterval = 0.5f;
+        const float MinimumSpawnHalfHeight = 14f;
+        const int MaxEarlyShooters = 2;
 
-        public Transform[] spawnPoint;
         public SpawnData[] spawnData;
         public float levelTime;
 
         [SerializeField] RuntimeAnimatorController[] enemyAnimations = System.Array.Empty<RuntimeAnimatorController>();
         [SerializeField] RuntimeAnimatorController midBossAnimation;
         [SerializeField] RuntimeAnimatorController finalBossAnimation;
-        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 145, speed = 1.3f, experience = 24 };
+        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 145, speed = 1.3f, experience = 45 };
         [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 525 };
         [SerializeField] Material dashGuideMaterial;
         [SerializeField, Min(0f)] float barrierStart = 90f;
         [SerializeField] SpawnData barrierWave;
+        [SerializeField, Min(0f)] float earlyShooterStart = 45f;
+        [SerializeField, Min(0f)] float earlyShooterEnd = 120f;
+        [SerializeField, Min(0.1f)] float earlyShooterInterval = 16f;
         [SerializeField, Min(0f)] float shooterStart = 180f;
         [SerializeField] SpawnData shooterWave;
         [SerializeField, Min(12f)] float recycleDistance = 24f;
@@ -42,7 +48,6 @@ namespace Goldmetal.UndeadSurvivor
 
         void Awake()
         {
-            spawnPoint = GetComponentsInChildren<Transform>();
             levelTime = GameManager.instance.maxGameTime / spawnData.Length;
             sceneCamera = Camera.main;
         }
@@ -70,20 +75,37 @@ namespace Goldmetal.UndeadSurvivor
                     SpawnBarrierRing(game.player.transform.position);
             }
 
-            if (shooterWave != null && shooterWave.spawnTime > 0f && game.gameTime >= shooterStart && Time.time >= nextShooterAt) {
-                nextShooterAt = Time.time + shooterWave.spawnTime;
-                if (waveEnemies.Count < maxWaveEnemies - BarrierCount)
+            bool earlyShooters = game.gameTime >= earlyShooterStart && game.gameTime < earlyShooterEnd;
+            if (shooterWave != null && shooterWave.spawnTime > 0f &&
+                (earlyShooters || game.gameTime >= shooterStart) && Time.time >= nextShooterAt) {
+                nextShooterAt = Time.time + (earlyShooters ? earlyShooterInterval : shooterWave.spawnTime);
+                if (waveEnemies.Count < maxWaveEnemies - BarrierCount && (!earlyShooters || CanAddEarlyShooter()))
                     SpawnWaveEnemy(shooterWave, RandomSpawnPoint());
             }
         }
 
+        bool CanAddEarlyShooter()
+        {
+            int activeShooters = 0;
+            foreach (Enemy enemy in waveEnemies) {
+                if (enemy && enemy.isActiveAndEnabled && enemy.IsAlive && enemy.Behavior == EnemyBehavior.Shooter &&
+                    ++activeShooters >= MaxEarlyShooters)
+                    return false;
+            }
+            return true;
+        }
+
         void SpawnBarrierRing(Vector2 center)
         {
-            float startAngle = Random.Range(0f, 2f * Mathf.PI / BarrierCount);
-            for (int index = 0; index < BarrierCount; index++) {
-                float angle = startAngle + index * (2f * Mathf.PI / BarrierCount);
+            float startAngle = Random.Range(0f, 2f * Mathf.PI);
+            int placed = 0;
+            for (int index = 0; index < BarrierPositions; index++) {
+                if (index % (BarrierPositions / BarrierGapCount) < 2)
+                    continue;
+
+                float angle = startAngle + index * (2f * Mathf.PI / BarrierPositions);
                 Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BarrierRadius;
-                barrierFootprints[index] = SpawnWaveEnemy(barrierWave, center + offset).GetComponent<Collider2D>();
+                barrierFootprints[placed++] = SpawnWaveEnemy(barrierWave, center + offset).GetComponent<Collider2D>();
             }
             GameManager.instance.Rocks?.BreakOverlapping(barrierFootprints);
         }
@@ -127,7 +149,7 @@ namespace Goldmetal.UndeadSurvivor
         {
             GameManager game = GameManager.instance;
             bool isFinal = type == BossType.Final;
-            Vector3 position = isFinal ? DragonPosition(game.player) : RandomSpawnPoint();
+            Vector3 position = isFinal ? DragonPosition(game.player) : game.player.transform.position + (Vector3)(RandomDirection() * 4.8f);
             Enemy boss = Spawn(isFinal ? finalBoss : midBoss, type, position);
             boss.ConfigureBossAttacks(this, dashGuideMaterial);
             if (game.BossPresentation)
@@ -153,7 +175,18 @@ namespace Goldmetal.UndeadSurvivor
 
         Vector3 RandomSpawnPoint()
         {
-            return spawnPoint[Random.Range(1, spawnPoint.Length)].position;
+            Vector2 direction = RandomDirection();
+            float radius = sceneCamera && sceneCamera.orthographic
+                ? Mathf.Max(MinimumSpawnHalfHeight, sceneCamera.orthographicSize) /
+                    Mathf.Max(Mathf.Abs(direction.x) / sceneCamera.aspect, Mathf.Abs(direction.y))
+                : 7f;
+            return (Vector2)GameManager.instance.player.transform.position + direction * (radius + 0.85f);
+        }
+
+        static Vector2 RandomDirection()
+        {
+            float angle = Random.value * 2f * Mathf.PI;
+            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
         }
 
         Enemy Spawn(SpawnData data, BossType bossType, Vector3 position)
@@ -183,6 +216,7 @@ namespace Goldmetal.UndeadSurvivor
         public int spriteType;
         public int health;
         public float speed;
+        [Min(0f)] public float contactDamage = 10f;
         public EnemyBehavior behavior;
         public Sprite attackPose;
         public GameObject projectile;

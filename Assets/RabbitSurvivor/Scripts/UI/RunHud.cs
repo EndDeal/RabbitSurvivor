@@ -27,20 +27,45 @@ namespace Goldmetal.UndeadSurvivor
         Slider volume;
         GameObject previousSelection;
         int gearVersion = -1;
+        FloatingStick stick;
+        Image healthFill;
+        Text healthLabel;
+        Text gearDetails;
+        int shownSlot = -1;
+        int shownHealth = -1;
+        int shownMaxHealth = -1;
 
         struct GearSlot
         {
             public Image icon;
             public Image background;
             public Text rank;
+            public Item item;
+            public Button button;
         }
 
         internal void Initialize(GameManager manager, Font uiFont)
         {
             game = manager;
             font = uiFont;
+            RectTransform touchArea = Place(transform, "Touch Movement", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            touchArea.anchorMax = Vector2.one;
+            touchArea.SetAsFirstSibling();
+            AddImage(touchArea, Color.clear).raycastTarget = true;
+            stick = touchArea.gameObject.AddComponent<FloatingStick>();
+            stick.Initialize(game.player, (RectTransform)game.uiJoy);
+            BuildHealth();
             BuildGearRow("무기", 0, -45f);
             BuildGearRow("패시브", SlotsPerRow, -61f);
+            RectTransform detail = Place(transform, "Gear Details", TopLeft, TopLeft, new Vector2(3f, -78f), new Vector2(83f, 19f));
+            AddImage(detail, new Color32(Ink.r, Ink.g, Ink.b, 175));
+            gearDetails = AddLabel(Place(detail, "Description", Center, Center, Vector2.zero, detail.sizeDelta - new Vector2(6f, 3f)), "", 5);
+            gearDetails.resizeTextForBestFit = true;
+            gearDetails.resizeTextMinSize = 3;
+            gearDetails.resizeTextMaxSize = 5;
+            gearDetails.horizontalOverflow = HorizontalWrapMode.Wrap;
+            gearDetails.verticalOverflow = VerticalWrapMode.Truncate;
+            detail.gameObject.SetActive(false);
             settings = AddButton(transform, "Settings", "설정", TopRight, new Vector2(-3f, -28f), new Vector2(25f, 11f), OpenSettings);
             BuildSettings();
         }
@@ -50,6 +75,11 @@ namespace Goldmetal.UndeadSurvivor
             if (!game)
                 return;
 
+            RefreshHealth();
+            if (stick.gameObject.activeSelf != game.isLive)
+                stick.gameObject.SetActive(game.isLive);
+            if (!game.isLive && shownSlot >= 0)
+                ShowGear(-1);
             if (gearVersion != game.uiLevelUp.GearVersion) {
                 gearVersion = game.uiLevelUp.GearVersion;
                 RefreshGear();
@@ -78,11 +108,16 @@ namespace Goldmetal.UndeadSurvivor
             for (int index = 0; index < SlotsPerRow; index++) {
                 RectTransform tile = Place(row, "Gear Slot", TopLeft, TopLeft, new Vector2(18f + index * 16f, 0f), new Vector2(14f, 14f));
                 Image background = AddImage(tile, Ink);
+                background.raycastTarget = true;
+                Button button = tile.gameObject.AddComponent<Button>();
+                button.targetGraphic = background;
+                int slot = start + index;
+                button.onClick.AddListener(() => ShowGear(shownSlot == slot ? -1 : slot));
                 Image icon = AddImage(Place(tile, "Gear Icon", Center, Center, Vector2.zero, new Vector2(11f, 11f)), Color.white);
                 icon.preserveAspect = true;
                 Text rank = AddLabel(Place(tile, "Rank", Vector2.right, Vector2.right, new Vector2(-0.4f, 0f), new Vector2(5f, 5f)), "", 4);
                 rank.GetComponent<Outline>().effectDistance = new Vector2(0.5f, -0.5f);
-                slots[start + index] = new GearSlot { background = background, icon = icon, rank = rank };
+                slots[slot] = new GearSlot { background = background, icon = icon, rank = rank, button = button };
             }
         }
 
@@ -99,6 +134,8 @@ namespace Goldmetal.UndeadSurvivor
                     continue;
                 int index = item.data.IsWeapon ? weaponSlot++ : passiveSlot++;
                 GearSlot slot = slots[index];
+                slots[index].item = item;
+                slot.button.interactable = true;
                 bool evolved = item.weapon && item.weapon.IsEvolved;
                 slot.background.color = evolved ? Gold : Panel;
                 slot.icon.sprite = evolved && item.data.evolutionIcon ? item.data.evolutionIcon : item.data.itemIcon;
@@ -109,16 +146,65 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             for (int index = weaponSlot; index < SlotsPerRow; index++)
-                ClearSlot(slots[index]);
+                ClearSlot(index);
             for (int index = passiveSlot; index < slots.Length; index++)
-                ClearSlot(slots[index]);
+                ClearSlot(index);
+            if (shownSlot >= 0)
+                ShowGear(shownSlot);
         }
 
-        static void ClearSlot(GearSlot slot)
+        void ClearSlot(int index)
         {
+            GearSlot slot = slots[index];
+            slots[index].item = null;
+            slot.button.interactable = false;
             slot.background.color = Ink;
             slot.icon.enabled = false;
             slot.rank.text = "";
+        }
+
+        void ShowGear(int index)
+        {
+            Item item = index >= 0 ? slots[index].item : null;
+            shownSlot = item ? index : -1;
+            gearDetails.transform.parent.gameObject.SetActive(item);
+            if (!item)
+                return;
+
+            ItemData data = item.data;
+            bool evolved = item.weapon && item.weapon.IsEvolved;
+            string name = evolved ? data.evolutionName : data.itemName;
+            string effect = data.IsWeapon
+                ? (evolved ? data.evolutionDescription : data.pickupDescription)
+                : string.Format(data.itemDesc, Mathf.RoundToInt(data.damages[item.level - 1] * 100f), data.counts[item.level - 1]);
+            gearDetails.text = $"{(data.IsWeapon ? "무기" : "패시브")} · {name} Lv.{item.level}\n{effect}";
+        }
+
+        void BuildHealth()
+        {
+            RectTransform track = Place(transform, "Player Health", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(0f, 10f));
+            track.anchorMax = Vector2.right;
+            AddImage(track, Ink);
+            RectTransform fill = Place(track, "Health Fill", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            fill.anchorMax = Vector2.one;
+            fill.offsetMin = Vector2.one;
+            fill.offsetMax = -Vector2.one;
+            healthFill = AddImage(fill, new Color32(215, 77, 94, 255));
+            RectTransform label = Place(track, "Health Value", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            label.anchorMax = Vector2.one;
+            healthLabel = AddLabel(label, "", 6);
+        }
+
+        void RefreshHealth()
+        {
+            healthFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(game.health / game.maxHealth), 1f);
+            int current = Mathf.CeilToInt(game.health);
+            int maximum = Mathf.CeilToInt(game.maxHealth);
+            if (current == shownHealth && maximum == shownMaxHealth)
+                return;
+            shownHealth = current;
+            shownMaxHealth = maximum;
+            healthLabel.text = $"{current} / {maximum}";
         }
 
         void BuildSettings()

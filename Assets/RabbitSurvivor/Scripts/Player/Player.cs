@@ -20,6 +20,10 @@ namespace Goldmetal.UndeadSurvivor
         Animator anim;
         float baseMoveSpeed;
         SpriteHitFlash hitFlash;
+        readonly RaycastHit2D[] movementHits = new RaycastHit2D[12];
+        ContactFilter2D obstacleFilter;
+        float touchDamage;
+        float nextContactAt;
 
         public float AttackHaste { get; internal set; }
         public float AttackPower { get; internal set; }
@@ -36,12 +40,15 @@ namespace Goldmetal.UndeadSurvivor
             scanner = GetComponent<Scanner>();
             hands = GetComponentsInChildren<Hand>(true);
             baseMoveSpeed = speed;
+            obstacleFilter.SetLayerMask(scanner.targetLayer | (1 << SeafloorRocks.Layer));
+            obstacleFilter.useTriggers = false;
         }
 
         void OnEnable()
         {
             SetMoveSpeedBonus(0);
             hitbox.enabled = true;
+            nextContactAt = 0f;
             hitFlash?.Reset();
             anim.runtimeAnimatorController = animCon[GameManager.instance.playerId];
         }
@@ -51,23 +58,57 @@ namespace Goldmetal.UndeadSurvivor
             speed = baseMoveSpeed * Character.Speed * (1f + rate);
         }
 
-        void Update()
-        {
-            if (!GameManager.instance.isLive)
-                return;
-
-            //inputVec.x = Input.GetAxisRaw("Horizontal");
-            //inputVec.y = Input.GetAxisRaw("Vertical");
-        }
-
         void FixedUpdate()
         {
             GameManager game = GameManager.instance;
             if (!game.isLive)
                 return;
 
-            Vector2 nextVec = Vector2.ClampMagnitude(inputVec, 1f) * speed * Time.fixedDeltaTime;
-            rigid.MovePosition(game.ConstrainPlayerPosition(rigid.position + nextVec));
+            touchDamage = 0f;
+            Vector2 movement = Vector2.ClampMagnitude(inputVec, 1f) * speed * Time.fixedDeltaTime;
+            Vector2 destination = game.ConstrainPlayerPosition(rigid.position + movement);
+            Vector2 step = destination - rigid.position;
+            rigid.MovePosition(rigid.position + LimitMovement(step, true));
+            if (touchDamage > 0f)
+                TakeContactDamage(touchDamage);
+        }
+
+        Vector2 LimitMovement(Vector2 step, bool slide)
+        {
+            const float skin = 0.025f;
+            float length = step.magnitude;
+            if (length <= 0.0001f)
+                return Vector2.zero;
+
+            Vector2 direction = step / length;
+            int count = hitbox.Cast(direction, obstacleFilter, movementHits, length + skin);
+            float allowed = length;
+            Vector2 normal = Vector2.zero;
+            float contact = 0f;
+            for (int index = 0; index < count; index++) {
+                RaycastHit2D hit = movementHits[index];
+                bool isEnemy = hit.collider.TryGetComponent(out Enemy enemy);
+                if (isEnemy) {
+                    if (!enemy.IsAlive)
+                        continue;
+                    if (hit.distance <= skin &&
+                        Vector2.Dot(direction, rigid.position - (Vector2)enemy.transform.position) > 0f)
+                        continue;
+                }
+                if (Vector2.Dot(direction, hit.normal) >= -0.001f || hit.distance >= allowed + skin)
+                    continue;
+
+                allowed = Mathf.Max(0f, hit.distance - skin);
+                normal = hit.normal;
+                contact = isEnemy && !enemy.IsDashing ? enemy.ContactDamage : 0f;
+            }
+
+            touchDamage = Mathf.Max(touchDamage, contact);
+            if (!slide || normal == Vector2.zero)
+                return direction * allowed;
+
+            Vector2 tangent = step - normal * Vector2.Dot(step, normal);
+            return LimitMovement(tangent, false);
         }
 
         void LateUpdate()
@@ -103,11 +144,21 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             if (collision.gameObject.TryGetComponent(out Enemy enemy)) {
-                if (!enemy.IsDashing)
-                    TakeDamage(Time.deltaTime * enemy.ContactDamage);
+                if (!enemy.IsDashing && touchDamage == 0f)
+                    TakeContactDamage(enemy.ContactDamage);
                 return;
             }
-            TakeDamage(Time.deltaTime * 10f);
+            TakeContactDamage(10f);
+        }
+
+        void TakeContactDamage(float damagePerSecond)
+        {
+            const float interval = 0.28f;
+            if (Time.time < nextContactAt)
+                return;
+
+            nextContactAt = Time.time + interval;
+            TakeDamage(damagePerSecond * interval);
         }
 
         internal void TakeDamage(float amount)

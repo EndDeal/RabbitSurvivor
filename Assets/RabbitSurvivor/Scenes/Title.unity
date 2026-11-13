@@ -230,7 +230,7 @@ RectTransform:
   - {fileID: 1578204165}
   m_Father: {fileID: 387512329}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.815}
+  m_AnchorMin: {x: 0, y: 0.64}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -246,9 +246,8 @@ GameObject:
   - component: {fileID: 121984076}
   - component: {fileID: 121984079}
   - component: {fileID: 121984078}
-  - component: {fileID: 121984077}
   m_Layer: 5
-  m_Name: Moonlit ocean
+  m_Name: Undersea chase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -269,24 +268,10 @@ RectTransform:
   m_Father: {fileID: 387512329}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &121984077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 121984075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_AspectMode: 4
-  m_AspectRatio: 0.6669922
 --- !u!114 &121984078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,7 +292,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 8127b3d161c998f48aa591c6df2928df, type: 3}
+  m_Texture: {fileID: 2800000, guid: 377aaec439cb40b4a97d7cff43d09360, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -339,7 +324,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &155398603
 RectTransform:
   m_ObjectHideFlags: 0
@@ -372,7 +357,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.88235295}
+  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.14}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -406,8 +391,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 387512329}
-  - component: {fileID: 387512331}
-  - component: {fileID: 387512330}
   m_Layer: 5
   m_Name: Portrait Layout
   m_TagString: Untagged
@@ -434,38 +417,10 @@ RectTransform:
   m_Father: {fileID: 1418167890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &387512330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387512328}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Padding: {x: 0, y: 0, z: 0, w: 0}
-  m_Softness: {x: 0, y: 0}
---- !u!114 &387512331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387512328}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_AspectMode: 3
-  m_AspectRatio: 0.5
 --- !u!1 &442585530
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,7 +700,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.9411765}
+  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.48}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -781,7 +736,6 @@ GameObject:
   - component: {fileID: 919354470}
   - component: {fileID: 919354473}
   - component: {fileID: 919354472}
-  - component: {fileID: 919354471}
   m_Layer: 5
   m_Name: Game Title
   m_TagString: Untagged
@@ -803,26 +757,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 85575895}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.04, y: 0.12}
-  m_AnchorMax: {x: 0.96, y: 0.86}
+  m_AnchorMin: {x: 0.12, y: 0.06}
+  m_AnchorMax: {x: 0.88, y: 0.55}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &919354471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919354469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: 3, y: -3}
-  m_UseGraphicAlpha: 1
 --- !u!114 &919354472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -832,31 +771,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 919354469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.94509804, b: 0.81960785, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 12800000, guid: e715fcabbb6163e48b780b3b92979f8e, type: 3}
-    m_FontSize: 43
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 1
-    m_VerticalOverflow: 1
-    m_LineSpacing: 1
-  m_Text: Rabbit Survivor
+  m_Texture: {fileID: 2800000, guid: 8ae9db2b78e748d78f16f2d94ed6c9c3, type: 3}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0.11
+    width: 1
+    height: 0.78
 --- !u!222 &919354473
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -897,7 +829,7 @@ RectTransform:
   - {fileID: 1256794200}
   m_Father: {fileID: 1503160011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.15, y: 0.27}
+  m_AnchorMin: {x: 0.15, y: 0.18}
   m_AnchorMax: {x: 0.85, y: 0.78}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -1081,8 +1013,8 @@ RectTransform:
   - {fileID: 1544342854}
   m_Father: {fileID: 1180193552}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.08}
-  m_AnchorMax: {x: 1, y: 0.29}
+  m_AnchorMin: {x: 0, y: 0.14}
+  m_AnchorMax: {x: 1, y: 0.31}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1257,7 +1189,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.20392157}
+  m_Color: {r: 0.023529412, g: 0.09019608, b: 0.13725491, a: 0.04}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1407,6 +1339,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   gameScene: RabbitSurvivor
+  titleArtwork: {fileID: 919354470}
+  chaseArtwork: {fileID: 121984078}
   loadingPanel: {fileID: 1180193551}
   loadingFill: {fileID: 503408456}
   loadingGlint: {fileID: 79036206}
@@ -1565,8 +1499,8 @@ RectTransform:
   - {fileID: 1303266273}
   m_Father: {fileID: 1503160011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.18, y: 0.27}
-  m_AnchorMax: {x: 0.82, y: 0.7}
+  m_AnchorMin: {x: 0.18, y: 0.1}
+  m_AnchorMax: {x: 0.82, y: 0.53}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1637,7 +1571,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1578204165
 RectTransform:
   m_ObjectHideFlags: 0

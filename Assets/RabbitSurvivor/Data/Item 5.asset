@@ -18,7 +18,7 @@ MonoBehaviour:
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
   pickupDescription: "앞쪽을 넓게 베어요"
-  baseDamage: 6.5
+  baseDamage: 5.5
   baseCount: 0
   damages:
   - 0

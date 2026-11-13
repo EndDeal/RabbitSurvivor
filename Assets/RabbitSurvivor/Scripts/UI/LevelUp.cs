@@ -118,12 +118,7 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             FindEvolutions();
-            if (evolutionOffers.Count == 1) {
-                Evolve(evolutionOffers[0]);
-                evolutionOffers.Clear();
-                return;
-            }
-            if (evolutionOffers.Count > 1) {
+            if (evolutionOffers.Count > 0) {
                 ShowEvolutionOffers(EvolutionMenu.Chest);
                 Open();
                 return;

@@ -11,13 +11,16 @@ namespace Goldmetal.UndeadSurvivor
         const float ExperienceAttractRadius = 1.2f;
         const float ExperienceSpeed = 12f;
         const float ItemPickupRadius = 0.7f;
+        const int MagnetFlights = 32;
+        const float MagnetSpacing = 0.065f;
 
         [SerializeField] Spawner spawner;
         [SerializeField] Sprite experienceSprite;
         [SerializeField] Sprite magnetSprite;
         [SerializeField] Sprite potionSprite;
-        [SerializeField, Range(0f, 1f)] float potionDropChance = 0.0075f;
+        [SerializeField, Range(0f, 1f)] float potionDropChance = 0.003f;
         [SerializeField, Range(0f, 1f)] float potionHealFraction = 0.25f;
+        [SerializeField, Min(0f)] float potionCooldown = 18f;
 
         enum Kind { Experience, Magnet, Potion }
 
@@ -33,12 +36,15 @@ namespace Goldmetal.UndeadSurvivor
         readonly Stack<List<Pickup>> availableCells = new Stack<List<Pickup>>();
         readonly Stack<SpriteRenderer> availableSprites = new Stack<SpriteRenderer>();
         readonly List<Pickup> attracted = new List<Pickup>();
+        readonly List<Pickup> magnetQueue = new List<Pickup>();
         readonly List<Vector2Int> emptyCells = new List<Vector2Int>();
         GameManager game;
         Camera sceneCamera;
         RectInt visibleCells;
         int killsSinceMagnet;
         bool hasDroppedMagnet;
+        float nextPotionAt;
+        float nextFlightAt;
 
         void Awake()
         {
@@ -62,8 +68,11 @@ namespace Goldmetal.UndeadSurvivor
                 game.uiLevelUp.Notify("경험치 자석 등장!");
             }
 
-            if (Random.value < potionDropChance)
+            float potionChance = potionDropChance * Mathf.Min(1f, spawner.CurrentWave.spawnTime / 0.48f);
+            if (Time.time >= nextPotionAt && Random.value < potionChance) {
                 Drop(Kind.Potion, position + Vector3.right * 0.45f);
+                nextPotionAt = Time.time + potionCooldown;
+            }
         }
 
         void Drop(Kind kind, Vector2 position, int experience = 0)
@@ -141,7 +150,21 @@ namespace Goldmetal.UndeadSurvivor
                 }
             }
 
-            int experience = magnetCollected ? CollectMagnet() : MoveAttracted(playerPosition);
+            if (magnetCollected)
+                CollectMagnet();
+            if (magnetQueue.Count > 0 && Time.time >= nextFlightAt) {
+                Pickup pickup = magnetQueue[magnetQueue.Count - 1];
+                magnetQueue.RemoveAt(magnetQueue.Count - 1);
+                Vector2 offset = pickup.position - playerPosition;
+                if (offset.sqrMagnitude < 2.25f) {
+                    float angle = magnetQueue.Count * 2.39996f;
+                    offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 1.5f;
+                }
+                pickup.position = playerPosition + Vector2.ClampMagnitude(offset, 5f);
+                attracted.Add(pickup);
+                nextFlightAt = Time.time + MagnetSpacing;
+            }
+            int experience = MoveAttracted(playerPosition);
             if (experience > 0)
                 game.GainExperience(experience);
         }
@@ -203,32 +226,42 @@ namespace Goldmetal.UndeadSurvivor
             return experience;
         }
 
-        int CollectMagnet()
+        void CollectMagnet()
         {
-            int experience = 0;
-            foreach (Pickup pickup in attracted) {
-                Pickup collected = pickup;
-                experience += collected.experience;
-                Hide(ref collected);
-            }
-            attracted.Clear();
+            int total = 0;
+            foreach (List<Pickup> cell in cells.Values)
+                foreach (Pickup pickup in cell)
+                    if (pickup.kind == Kind.Experience)
+                        total++;
 
+            int perFlight = Mathf.Max(1, Mathf.CeilToInt(total / (float)MagnetFlights));
+            int groupCount = 0;
+            Pickup flight = default;
             foreach (var entry in cells) {
                 List<Pickup> pickups = entry.Value;
                 for (int index = pickups.Count - 1; index >= 0; index--) {
                     Pickup pickup = pickups[index];
                     if (pickup.kind != Kind.Experience)
                         continue;
-                    experience += pickup.experience;
+                    if (groupCount == 0) {
+                        flight.position = pickup.position;
+                        flight.experience = 0;
+                    }
+                    flight.experience += pickup.experience;
+                    if (++groupCount == perFlight) {
+                        magnetQueue.Add(flight);
+                        groupCount = 0;
+                    }
                     Hide(ref pickup);
                     RemoveAt(pickups, index);
                 }
                 if (pickups.Count == 0)
                     emptyCells.Add(entry.Key);
             }
+            if (groupCount != 0)
+                magnetQueue.Add(flight);
             RecycleEmptyCells();
             game.uiLevelUp.Notify("경험치 자석 발동!");
-            return experience;
         }
 
         void UpdateVisibility(Vector2 playerPosition)

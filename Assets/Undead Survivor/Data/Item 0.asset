@@ -18,15 +18,15 @@ MonoBehaviour:
   itemDesc: "\uACF5\uACA9\uB825 +{0}% \u00B7 \uD68C\uC804\uCCB4 +{1}"
   itemIcon: {fileID: 712346101, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
   pickupDescription: "\uBAB8 \uC8FC\uC704\uB97C \uB3C4\uB294 \uC0BD"
-  baseDamage: 4.5
-  baseCount: 3
+  baseDamage: 3.8
+  baseCount: 2
   damages:
   - 0
   - 0.3
   - 0.65
   - 1
   - 1.4
-  counts: 0000000001000000000000000100000001000000
+  counts: 0000000001000000010000000100000001000000
   projectile: {fileID: 7308793349900079891, guid: fe2a05f2bb2a19c418e2015e390757a0, type: 3}
   hand: {fileID: 712346104, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
   projectileSprite: {fileID: 712346101, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}

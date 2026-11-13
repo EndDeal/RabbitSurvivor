@@ -33,28 +33,28 @@ namespace Goldmetal.UndeadSurvivor
             textLevel = texts[0];
             textName = texts[1];
             textDesc = texts[2];
-            FitCardText(textLevel, 0.70f, 1f);
-            FitCardText(textName, 0.43f, 0.70f);
-            FitCardText(textDesc, 0f, 0.43f);
+            FitCardText(textLevel, 0.76f, 1f, 5);
+            FitCardText(textName, 0.53f, 0.76f, 6);
+            FitCardText(textDesc, 0f, 0.53f, 4);
 
             Button = GetComponent<Button>();
             Button.onClick = new Button.ButtonClickedEvent();
             Button.onClick.AddListener(() => menu.Choose(this));
         }
 
-        static void FitCardText(Text label, float bottom, float top)
+        static void FitCardText(Text label, float bottom, float top, int maxFontSize)
         {
             RectTransform rect = label.rectTransform;
             rect.anchorMin = new Vector2(0f, bottom);
             rect.anchorMax = new Vector2(1f, top);
-            rect.offsetMin = new Vector2(27f, 0f);
-            rect.offsetMax = new Vector2(-4f, 0f);
+            rect.offsetMin = new Vector2(27f, 1f);
+            rect.offsetMax = new Vector2(-5f, -1f);
             label.alignment = TextAnchor.MiddleLeft;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
             label.resizeTextForBestFit = true;
-            label.resizeTextMinSize = 3;
-            label.resizeTextMaxSize = Mathf.Max(4, label.fontSize);
+            label.resizeTextMinSize = 2;
+            label.resizeTextMaxSize = Mathf.Min(maxFontSize, label.fontSize);
             label.raycastTarget = false;
         }
 

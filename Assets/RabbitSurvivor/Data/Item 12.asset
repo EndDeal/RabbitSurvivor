@@ -18,7 +18,7 @@ MonoBehaviour:
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220005, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
   pickupDescription: "몸 주위 모든 적을 한 번에 쳐요"
-  baseDamage: 9
+  baseDamage: 7.6
   baseCount: 0
   damages:
   - 0
