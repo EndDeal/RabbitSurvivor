@@ -6,9 +6,12 @@ namespace Goldmetal.UndeadSurvivor
     public class Enemy : MonoBehaviour
     {
         const float BarrierLifetime = 24f;
+        const float BarrierScale = 1.25f;
         const float ShotRange = 3.8f;
         const float ShotWindup = 0.45f;
         const float ShotCooldown = 2.1f;
+        const float FurrowPushSpeed = 7.5f;
+        const float ObstacleLookAhead = 1.05f;
 
         public float speed;
         public float health;
@@ -50,9 +53,12 @@ namespace Goldmetal.UndeadSurvivor
         float windupRemaining;
         float nextShotAt;
         BossAttacks bossAttacks;
-        readonly RaycastHit2D[] rockHits = new RaycastHit2D[1];
-        ContactFilter2D rockFilter;
-        Vector2 rockDetour;
+        readonly RaycastHit2D[] obstacleHits = new RaycastHit2D[24];
+        ContactFilter2D obstacleFilter;
+        Vector2 detourDirection;
+        Vector2 detourHeading;
+        Vector2 pushDirection;
+        float pushRemaining;
 
         void Awake()
         {
@@ -65,8 +71,8 @@ namespace Goldmetal.UndeadSurvivor
             defaultColliderSize = coll.size;
             defaultConstraints = rigid.constraints;
             defaultColor = spriter.color;
-            rockFilter.SetLayerMask(1 << SeafloorRocks.Layer);
-            rockFilter.useTriggers = false;
+            obstacleFilter.SetLayerMask((1 << SeafloorRocks.Layer) | (1 << gameObject.layer));
+            obstacleFilter.useTriggers = false;
         }
 
         void FixedUpdate()
@@ -77,6 +83,17 @@ namespace Goldmetal.UndeadSurvivor
             if (IsBarrier) {
                 if (Time.time >= barrierExpiresAt)
                     gameObject.SetActive(false);
+                return;
+            }
+
+            if (pushRemaining > 0f) {
+                float step = Mathf.Min(FurrowPushSpeed * Time.fixedDeltaTime, pushRemaining);
+                if (FindObstacle(pushDirection, step + 0.025f, out RaycastHit2D obstacle)) {
+                    step = Mathf.Min(step, Mathf.Max(0f, obstacle.distance - 0.025f));
+                    pushRemaining = step;
+                }
+                pushRemaining -= step;
+                rigid.MovePosition(rigid.position + pushDirection * step);
                 return;
             }
 
@@ -91,28 +108,77 @@ namespace Goldmetal.UndeadSurvivor
             if (Behavior == EnemyBehavior.Shooter && AimOrShoot(direction))
                 return;
 
-            Vector2 movement = SteerAroundRocks(direction) * speed * Time.fixedDeltaTime;
+            Vector2 movement = SteerAroundObstacles(direction) * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + movement);
             rigid.velocity = Vector2.zero;
         }
 
-        Vector2 SteerAroundRocks(Vector2 toPlayer)
+        Vector2 SteerAroundObstacles(Vector2 toPlayer)
         {
             Vector2 forward = toPlayer.normalized;
             if (forward == Vector2.zero)
                 return forward;
 
-            const float lookAhead = 0.7f;
-            if (coll.Cast(forward, rockFilter, rockHits, lookAhead) == 0) {
-                rockDetour = Vector2.zero;
+            float clearDistance = detourHeading == Vector2.zero ?
+                Mathf.Min(toPlayer.magnitude, ObstacleLookAhead) : toPlayer.magnitude;
+            if (!FindObstacle(forward, clearDistance, out RaycastHit2D obstacle)) {
+                detourDirection = Vector2.zero;
+                detourHeading = Vector2.zero;
                 return forward;
             }
 
-            Vector2 tangent = Vector2.Perpendicular(rockHits[0].normal);
-            if (rockDetour != Vector2.zero ? Vector2.Dot(tangent, rockDetour) < 0f : Vector2.Dot(tangent, forward) < 0f)
-                tangent = -tangent;
-            rockDetour = tangent;
-            return (tangent + rockHits[0].normal * 0.12f).normalized;
+            Vector2 normal = obstacle.normal;
+            if (obstacle.distance <= 0.025f) {
+                ColliderDistance2D separation = coll.Distance(obstacle.collider);
+                if (separation.isValid && separation.isOverlapped)
+                    normal = -separation.normal;
+            }
+            Vector2 tangent = Vector2.Perpendicular(normal);
+            if (detourHeading == Vector2.zero) {
+                float alignment = Vector2.Dot(tangent, forward);
+                float side = Mathf.Abs(alignment) > 0.05f ? Mathf.Sign(alignment) : rigid.position.y < target.position.y ? -1f : 1f;
+                detourHeading = tangent * side;
+            }
+
+            if (!FindObstacle(detourHeading, 0.36f, out _)) {
+                detourDirection = detourHeading;
+                return detourHeading;
+            }
+
+            Vector2 reference = detourDirection == Vector2.zero ? detourHeading : detourDirection;
+            Vector2 around = Vector2.Dot(tangent, reference) < 0f ? -tangent : tangent;
+            for (int angle = 0; angle <= 90; angle += 30) {
+                float radians = angle * Mathf.Deg2Rad;
+                Vector2 candidate = around * Mathf.Cos(radians) + normal * Mathf.Sin(radians);
+                if (!FindObstacle(candidate, 0.36f, out _)) {
+                    detourDirection = candidate;
+                    return candidate;
+                }
+            }
+            return Vector2.zero;
+        }
+
+        bool FindObstacle(Vector2 direction, float distance, out RaycastHit2D nearest)
+        {
+            int count = coll.Cast(direction, obstacleFilter, obstacleHits, distance);
+            nearest = default;
+            float closest = float.PositiveInfinity;
+            for (int index = 0; index < count; index++) {
+                RaycastHit2D hit = obstacleHits[index];
+                if (hit.collider.gameObject.layer != SeafloorRocks.Layer &&
+                    (!hit.collider.TryGetComponent(out Enemy enemy) || !enemy.IsAlive || !enemy.IsBarrier))
+                    continue;
+                if (hit.distance <= 0.025f) {
+                    ColliderDistance2D separation = coll.Distance(hit.collider);
+                    if (separation.isValid && Vector2.Dot(direction, separation.normal) <= 0.001f)
+                        continue;
+                }
+                if (hit.distance >= closest)
+                    continue;
+                closest = hit.distance;
+                nearest = hit;
+            }
+            return nearest.collider;
         }
 
         void LateUpdate()
@@ -175,18 +241,20 @@ namespace Goldmetal.UndeadSurvivor
             nextShotAt = Time.time;
             barrierExpiresAt = Time.time + BarrierLifetime;
             rigid.velocity = Vector2.zero;
-            rockDetour = Vector2.zero;
+            detourDirection = Vector2.zero;
+            detourHeading = Vector2.zero;
+            pushRemaining = 0f;
             rigid.constraints = IsBarrier || Boss == BossType.Final ? RigidbodyConstraints2D.FreezeAll : defaultConstraints;
             coll.size = Boss == BossType.Final ? new Vector2(4.5f, 3.6f) :
                 Boss == BossType.Mid ? new Vector2(3.6f, 3.4f) :
-                IsBarrier ? new Vector2(9.2f, 9.2f) :
+                IsBarrier ? new Vector2(8.8f, 8.8f) :
                 Behavior == EnemyBehavior.Shooter ? new Vector2(5.2f, 4.5f) :
                 animation && data.spriteType == 0 ? new Vector2(9.4f, 7.2f) :
                 animation && data.spriteType == 1 ? new Vector2(8.5f, 8.2f) : defaultColliderSize;
             spriter.flipX = false;
             ExperienceReward = Mathf.Max(1, data.experience);
             float scale = boss == BossType.Final ? 4.2f : IsBoss ? 3.4f :
-                animation && Behavior == EnemyBehavior.Chase ? 0.7f : 1f;
+                IsBarrier ? BarrierScale : animation && Behavior == EnemyBehavior.Chase ? (data.spriteType == 0 ? 0.60f : 0.70f) : 1f;
             transform.localScale = defaultScale * scale;
             spriter.color = IsBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
         }
@@ -211,7 +279,8 @@ namespace Goldmetal.UndeadSurvivor
                 return true;
             }
 
-            if (projectileIndex < 0 || direction.sqrMagnitude > ShotRange * ShotRange || !IsInView())
+            if (projectileIndex < 0 || direction.sqrMagnitude > ShotRange * ShotRange || !IsInView() ||
+                FindObstacle(direction.normalized, direction.magnitude, out _))
                 return false;
 
             rigid.velocity = Vector2.zero;
@@ -237,7 +306,12 @@ namespace Goldmetal.UndeadSurvivor
                 TakeDamage(bullet.damage);
         }
 
-        public void TakeDamage(float damage)
+        public void TakeDamage(float damage) => ApplyDamage(damage, Vector2.zero, 0f);
+
+        internal void TakeFurrowDamage(float damage, Vector2 direction, float distance) =>
+            ApplyDamage(damage, direction, distance);
+
+        void ApplyDamage(float damage, Vector2 direction, float pushDistance)
         {
             if (!isLive || damage <= 0f)
                 return;
@@ -254,8 +328,16 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             if (health > 0f) {
-                if (!IsBoss && !IsBarrier)
-                    StartCoroutine(KnockBack());
+                if (!IsBoss && !IsBarrier) {
+                    if (pushDistance > 0f) {
+                        pushDirection = direction;
+                        pushRemaining = Mathf.Max(pushRemaining, pushDistance);
+                        rigid.velocity = Vector2.zero;
+                    }
+                    else if (pushRemaining <= 0f) {
+                        StartCoroutine(KnockBack());
+                    }
+                }
                 anim.SetTrigger("Hit");
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
                 return;
@@ -279,6 +361,8 @@ namespace Goldmetal.UndeadSurvivor
         IEnumerator KnockBack()
         {
             yield return wait;
+            if (!isLive || pushRemaining > 0f)
+                yield break;
             Vector3 playerPosition = GameManager.instance.player.transform.position;
             Vector3 direction = transform.position - playerPosition;
             rigid.AddForce(direction.normalized * 3f, ForceMode2D.Impulse);

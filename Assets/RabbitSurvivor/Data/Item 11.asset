@@ -17,7 +17,7 @@ MonoBehaviour:
   itemName: "가래"
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220004, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
-  pickupDescription: "앞쪽 일직선에 있는 적을 밀어 베어요"
+  pickupDescription: "앞쪽 일직선의 적을 멀리 밀쳐요"
   baseDamage: 7.2
   baseCount: 0
   damages:
@@ -39,7 +39,7 @@ MonoBehaviour:
   requiredPassive: {fileID: 11400000, guid: 4ba50445e88246b9ae54d2833e16c701, type: 2}
   evolutionName: "황소 가래"
   evolutionIcon: {fileID: 814230214, guid: 033ab902a23843baa7d4487eb3071421, type: 3}
-  evolutionDescription: "직선 길이·폭 +30%"
+  evolutionDescription: "직선 길이·폭 +30% · 밀치기 강화"
   evolutionDamage: 1.4
   evolutionCount: 0
   evolutionInterval: 0.9

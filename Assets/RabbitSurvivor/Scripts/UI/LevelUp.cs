@@ -73,7 +73,7 @@ namespace Goldmetal.UndeadSurvivor
 
             foreach (Item item in items) {
                 ItemData passive = item.data.requiredPassive;
-                string recipe = passive ? $"{passive.itemName} Lv.{passive.MaxLevel}" : "";
+                string recipe = passive ? $"무기 Lv.{item.data.MaxLevel} + {passive.itemName}" : "";
                 if (item.data.IsPassive) {
                     var weapons = items.FindAll(candidate => candidate.data.requiredPassive == item.data);
                     recipe = string.Join(" · ", weapons.ConvertAll(candidate => candidate.data.itemName));
@@ -152,11 +152,11 @@ namespace Goldmetal.UndeadSurvivor
 
         bool CanEvolve(Item item)
         {
-            if (!item.weapon || item.weapon.IsEvolved || !item.data.requiredPassive)
+            if (!item.weapon || !item.IsMaxLevel || item.weapon.IsEvolved || !item.data.requiredPassive)
                 return false;
 
             Item passive = items.Find(candidate => candidate.data == item.data.requiredPassive);
-            return passive && passive.IsMaxLevel;
+            return passive && passive.level > 0;
         }
 
         public void Choose(Item item)

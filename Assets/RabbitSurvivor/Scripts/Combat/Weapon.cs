@@ -8,6 +8,8 @@ namespace Goldmetal.UndeadSurvivor
         const float BurstShotInterval = 0.12f;
         const float PulseDuration = 0.25f;
         const int PulseSegments = 40;
+        const int ScytheSegments = 16;
+        const float ScytheSlashDuration = 0.18f;
 
         public float Damage { get; private set; }
         public int Count { get; private set; }
@@ -32,6 +34,11 @@ namespace Goldmetal.UndeadSurvivor
         ContactFilter2D enemyFilter;
         SpriteRenderer swing;
         float swingRemaining;
+        LineRenderer scytheSlash;
+        float scytheSlashRemaining;
+        float scytheSlashRadius;
+        Vector2 scytheOrigin;
+        float scytheHeading;
 
         public void Init(ItemData item)
         {
@@ -52,6 +59,8 @@ namespace Goldmetal.UndeadSurvivor
 
             if (data.itemType == ItemData.ItemType.Pulse)
                 CreatePulse();
+            if (data.itemType == ItemData.ItemType.Sweep)
+                CreateScytheSlash();
             if ((data.IsToolStrike || data.itemType == ItemData.ItemType.Pulse) && data.projectileSprite) {
                 swing = new GameObject("Tool Swing").AddComponent<SpriteRenderer>();
                 swing.transform.SetParent(transform, false);
@@ -130,6 +139,8 @@ namespace Goldmetal.UndeadSurvivor
                 UpdatePulse();
             if (swing && swing.enabled)
                 UpdateSwing();
+            if (scytheSlash && scytheSlash.enabled)
+                UpdateScytheSlash(Time.deltaTime);
 
             if (burstShots > 0) {
                 burstCooldown -= Time.deltaTime;
@@ -270,13 +281,29 @@ namespace Goldmetal.UndeadSurvivor
                 if (data.itemType == ItemData.ItemType.Sweep &&
                     Vector2.Dot(direction, ((Vector2)enemy.transform.position - origin).normalized) < 0.15f)
                     continue;
-                enemy.TakeDamage(Damage);
+                if (data.itemType == ItemData.ItemType.Furrow)
+                    enemy.TakeFurrowDamage(Damage, direction, IsEvolved ? 2.35f : 1.8f);
+                else
+                    enemy.TakeDamage(Damage);
                 hitAny = true;
             }
 
             if (hitAny) {
-                float displayLength = data.itemType == ItemData.ItemType.Furrow ? length : 1.3f * attackAreaMultiplier;
-                ShowSwing(impact, direction, displayLength);
+                if (data.itemType == ItemData.ItemType.Sweep) {
+                    scytheOrigin = origin;
+                    scytheSlashRadius = length * 0.82f;
+                    scytheHeading = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    scytheSlashRemaining = ScytheSlashDuration;
+                    scytheSlash.enabled = true;
+                    ShowSwing(impact, direction, 0.95f * attackAreaMultiplier);
+                    UpdateScytheSlash(0f);
+                }
+                else if (data.itemType == ItemData.ItemType.Furrow) {
+                    ShowSwing(origin + direction * 0.55f, direction, Mathf.Min(1.25f, 0.95f * attackAreaMultiplier));
+                }
+                else {
+                    ShowSwing(impact, direction, 1.3f * attackAreaMultiplier);
+                }
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Melee);
             }
             return hitAny;
@@ -321,6 +348,44 @@ namespace Goldmetal.UndeadSurvivor
             color.a *= Mathf.Clamp01(swingRemaining / (PulseDuration * 0.5f));
             swing.color = color;
             swing.enabled = swingRemaining > 0f;
+        }
+
+        void CreateScytheSlash()
+        {
+            scytheSlash = new GameObject("Scythe Slash").AddComponent<LineRenderer>();
+            scytheSlash.transform.SetParent(transform, false);
+            scytheSlash.sharedMaterial = data.pulseMaterial;
+            scytheSlash.sortingOrder = 7;
+            scytheSlash.positionCount = ScytheSegments + 1;
+            scytheSlash.widthCurve = new AnimationCurve(new Keyframe(0f, 0.12f),
+                new Keyframe(0.52f, 1f), new Keyframe(1f, 0.12f));
+            scytheSlash.enabled = false;
+        }
+
+        void UpdateScytheSlash(float deltaTime)
+        {
+            scytheSlashRemaining -= deltaTime;
+            float progress = 1f - Mathf.Clamp01(scytheSlashRemaining / ScytheSlashDuration);
+            if (progress >= 1f) {
+                scytheSlash.enabled = false;
+                return;
+            }
+
+            float edge = Mathf.Lerp(-76f, 76f, Mathf.Clamp01(progress * 2f + 0.24f));
+            float start = Mathf.Max(-76f, edge - 112f);
+            for (int index = 0; index <= ScytheSegments; index++) {
+                float angle = (scytheHeading + Mathf.Lerp(start, edge, index / (float)ScytheSegments)) * Mathf.Deg2Rad;
+                scytheSlash.SetPosition(index, scytheOrigin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * scytheSlashRadius);
+            }
+            Color color = IsEvolved ? new Color(1f, 0.84f, 0.38f) : new Color(0.82f, 1f, 0.94f);
+            color.a = Mathf.Lerp(0.9f, 0f, progress);
+            scytheSlash.startColor = scytheSlash.endColor = color;
+            scytheSlash.widthMultiplier = Mathf.Lerp(0.14f, 0.03f, progress) * attackAreaMultiplier;
+            if (swing && swing.enabled) {
+                swing.transform.position = scytheOrigin +
+                    (Vector2)(Quaternion.Euler(0f, 0f, scytheHeading + edge) * Vector3.right) * (scytheSlashRadius * 0.55f);
+                swing.transform.rotation = Quaternion.Euler(0f, 0f, scytheHeading + edge - 72f);
+            }
         }
 
         void UpdatePulse()
