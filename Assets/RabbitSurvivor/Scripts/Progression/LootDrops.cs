@@ -6,6 +6,7 @@ namespace Goldmetal.UndeadSurvivor
     public class LootDrops : MonoBehaviour
     {
         const int FirstMagnetKills = 100;
+        const float CellSize = 8f;
         const float ExperiencePickupRadius = 0.35f;
         const float ExperienceAttractRadius = 1.2f;
         const float ExperienceSpeed = 12f;
@@ -23,25 +24,31 @@ namespace Goldmetal.UndeadSurvivor
         struct Pickup
         {
             public Kind kind;
-            public SpriteRenderer sprite;
-            public bool attracted;
+            public Vector2 position;
+            public SpriteRenderer renderer;
             public int experience;
         }
 
-        readonly List<Pickup> pickups = new List<Pickup>();
+        readonly Dictionary<Vector2Int, List<Pickup>> cells = new Dictionary<Vector2Int, List<Pickup>>();
+        readonly Stack<List<Pickup>> availableCells = new Stack<List<Pickup>>();
         readonly Stack<SpriteRenderer> availableSprites = new Stack<SpriteRenderer>();
+        readonly List<Pickup> attracted = new List<Pickup>();
+        readonly List<Vector2Int> emptyCells = new List<Vector2Int>();
         GameManager game;
+        Camera sceneCamera;
+        RectInt visibleCells;
         int killsSinceMagnet;
         bool hasDroppedMagnet;
 
         void Awake()
         {
             game = GetComponent<GameManager>();
+            sceneCamera = Camera.main;
         }
 
         public void DropFromEnemy(Vector3 position, bool boss, int experience)
         {
-            Drop(Kind.Experience, experienceSprite, position, experience);
+            Drop(Kind.Experience, position, experience);
             if (boss)
                 return;
 
@@ -51,41 +58,58 @@ namespace Goldmetal.UndeadSurvivor
             if (killsSinceMagnet >= magnetInterval) {
                 killsSinceMagnet = 0;
                 hasDroppedMagnet = true;
-                Drop(Kind.Magnet, magnetSprite, position + Vector3.left * 0.45f);
+                Drop(Kind.Magnet, position + Vector3.left * 0.45f);
                 game.uiLevelUp.Notify("경험치 자석 등장!");
             }
 
             if (Random.value < potionDropChance)
-                Drop(Kind.Potion, potionSprite, position + Vector3.right * 0.45f);
+                Drop(Kind.Potion, position + Vector3.right * 0.45f);
         }
 
-        void Drop(Kind kind, Sprite sprite, Vector3 position, int experience = 0)
+        void Drop(Kind kind, Vector2 position, int experience = 0)
         {
-            if (game.IsOutsideFinalArena(position))
+            bool outside = game.IsOutsideFinalArena(position);
+            if (outside && kind != Kind.Experience)
                 return;
 
-            SpriteRenderer renderer;
-            if (availableSprites.Count > 0) {
-                renderer = availableSprites.Pop();
-            }
-            else {
-                renderer = new GameObject("Loot Pickup").AddComponent<SpriteRenderer>();
-                renderer.transform.SetParent(transform, true);
+            Vector2Int cell = CellAt(position);
+            if (!cells.TryGetValue(cell, out List<Pickup> pickups)) {
+                pickups = availableCells.Count > 0 ? availableCells.Pop() : new List<Pickup>();
+                cells.Add(cell, pickups);
             }
 
-            renderer.sprite = sprite;
-            renderer.transform.localScale = Vector3.one * (kind == Kind.Experience ? 0.56f : 1f);
-            renderer.sortingOrder = kind == Kind.Experience ? 1 : 4;
-            renderer.transform.position = position;
-            renderer.gameObject.SetActive(true);
-            pickups.Add(new Pickup { kind = kind, sprite = renderer, experience = experience });
+            var pickup = new Pickup { kind = kind, position = position, experience = experience };
+            if (!outside && visibleCells.Contains(cell))
+                Show(ref pickup);
+            pickups.Add(pickup);
         }
 
         internal void RecycleOutsideFinalArena()
         {
-            for (int index = pickups.Count - 1; index >= 0; index--) {
-                if (game.IsOutsideFinalArena(pickups[index].sprite.transform.position))
-                    RemoveAt(index);
+            foreach (var entry in cells) {
+                List<Pickup> pickups = entry.Value;
+                for (int index = pickups.Count - 1; index >= 0; index--) {
+                    Pickup pickup = pickups[index];
+                    if (!game.IsOutsideFinalArena(pickup.position))
+                        continue;
+
+                    Hide(ref pickup);
+                    if (pickup.kind == Kind.Experience)
+                        pickups[index] = pickup;
+                    else
+                        RemoveAt(pickups, index);
+                }
+                if (pickups.Count == 0)
+                    emptyCells.Add(entry.Key);
+            }
+            RecycleEmptyCells();
+
+            // Keep XP that was already flying when the arena closed.
+            for (int index = 0; index < attracted.Count; index++) {
+                Pickup pickup = attracted[index];
+                if (game.IsOutsideFinalArena(pickup.position))
+                    Hide(ref pickup);
+                attracted[index] = pickup;
             }
         }
 
@@ -95,64 +119,207 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             Vector2 playerPosition = game.player.transform.position;
-            float attractionRadius = ExperienceAttractRadius * (1f + game.player.PickupRange);
-            float itemRadius = ItemPickupRadius * (1f + game.player.PickupRange);
-            int collectedExperience = 0;
+            UpdateVisibility(playerPosition);
+
+            float multiplier = 1f + game.player.PickupRange;
+            float attractionRadius = ExperienceAttractRadius * multiplier;
+            float itemRadius = ItemPickupRadius * multiplier;
+            Vector2 reach = Vector2.one * Mathf.Max(attractionRadius, itemRadius);
+            Vector2Int minimum = CellAt(playerPosition - reach);
+            Vector2Int maximum = CellAt(playerPosition + reach);
+            bool magnetCollected = false;
+
+            for (int y = minimum.y; y <= maximum.y; y++) {
+                for (int x = minimum.x; x <= maximum.x; x++) {
+                    var cell = new Vector2Int(x, y);
+                    if (cells.TryGetValue(cell, out List<Pickup> pickups)) {
+                        CheckNearby(pickups, playerPosition, attractionRadius * attractionRadius,
+                            itemRadius * itemRadius, ref magnetCollected);
+                        if (pickups.Count == 0)
+                            RecycleCell(cell);
+                    }
+                }
+            }
+
+            int experience = magnetCollected ? CollectMagnet() : MoveAttracted(playerPosition);
+            if (experience > 0)
+                game.GainExperience(experience);
+        }
+
+        void CheckNearby(List<Pickup> pickups, Vector2 playerPosition, float attractionRangeSquared,
+            float itemRangeSquared, ref bool magnetCollected)
+        {
             for (int index = pickups.Count - 1; index >= 0; index--) {
                 Pickup pickup = pickups[index];
-                Vector2 position = pickup.sprite.transform.position;
-                float distance = (position - playerPosition).sqrMagnitude;
-
+                float distance = (pickup.position - playerPosition).sqrMagnitude;
                 if (pickup.kind == Kind.Experience) {
-                    if (pickup.attracted || distance <= attractionRadius * attractionRadius) {
-                        position = Vector2.MoveTowards(position, playerPosition, ExperienceSpeed * Time.deltaTime);
-                        pickup.sprite.transform.position = position;
-                        distance = (position - playerPosition).sqrMagnitude;
-                    }
-
-                    if (distance <= ExperiencePickupRadius * ExperiencePickupRadius) {
-                        collectedExperience += pickup.experience;
-                        RemoveAt(index);
+                    if (distance <= attractionRangeSquared && !game.IsOutsideFinalArena(pickup.position)) {
+                        Show(ref pickup);
+                        attracted.Add(pickup);
+                        RemoveAt(pickups, index);
                     }
                     continue;
                 }
 
-                if (distance > itemRadius * itemRadius)
+                if (distance > itemRangeSquared)
                     continue;
 
-                if (pickup.kind == Kind.Magnet) {
-                    RemoveAt(index);
-                    AttractExperience();
-                    game.uiLevelUp.Notify("경험치 자석 발동!");
-                }
+                if (pickup.kind == Kind.Magnet)
+                    magnetCollected = true;
                 else if (game.health < game.maxHealth) {
-                    RemoveAt(index);
                     game.health = Mathf.Min(game.health + game.maxHealth * potionHealFraction, game.maxHealth);
                     game.uiLevelUp.Notify("체력 회복");
                 }
-            }
+                else
+                    continue;
 
-            if (collectedExperience > 0)
-                game.GainExperience(collectedExperience);
+                Hide(ref pickup);
+                RemoveAt(pickups, index);
+            }
         }
 
-        void AttractExperience()
+        int MoveAttracted(Vector2 playerPosition)
         {
-            for (int index = 0; index < pickups.Count; index++) {
-                Pickup pickup = pickups[index];
-                if (pickup.kind == Kind.Experience) {
-                    pickup.attracted = true;
-                    pickups[index] = pickup;
+            int experience = 0;
+            float step = ExperienceSpeed * Time.deltaTime;
+            for (int index = attracted.Count - 1; index >= 0; index--) {
+                Pickup pickup = attracted[index];
+                pickup.position = Vector2.MoveTowards(pickup.position, playerPosition, step);
+                if ((pickup.position - playerPosition).sqrMagnitude <= ExperiencePickupRadius * ExperiencePickupRadius) {
+                    experience += pickup.experience;
+                    Hide(ref pickup);
+                    RemoveAt(attracted, index);
+                    continue;
+                }
+
+                if (!game.IsOutsideFinalArena(pickup.position) && visibleCells.Contains(CellAt(pickup.position))) {
+                    Show(ref pickup);
+                    pickup.renderer.transform.position = pickup.position;
+                }
+                else
+                    Hide(ref pickup);
+                attracted[index] = pickup;
+            }
+            return experience;
+        }
+
+        int CollectMagnet()
+        {
+            int experience = 0;
+            foreach (Pickup pickup in attracted) {
+                Pickup collected = pickup;
+                experience += collected.experience;
+                Hide(ref collected);
+            }
+            attracted.Clear();
+
+            foreach (var entry in cells) {
+                List<Pickup> pickups = entry.Value;
+                for (int index = pickups.Count - 1; index >= 0; index--) {
+                    Pickup pickup = pickups[index];
+                    if (pickup.kind != Kind.Experience)
+                        continue;
+                    experience += pickup.experience;
+                    Hide(ref pickup);
+                    RemoveAt(pickups, index);
+                }
+                if (pickups.Count == 0)
+                    emptyCells.Add(entry.Key);
+            }
+            RecycleEmptyCells();
+            game.uiLevelUp.Notify("경험치 자석 발동!");
+            return experience;
+        }
+
+        void UpdateVisibility(Vector2 playerPosition)
+        {
+            Vector2 center = sceneCamera ? (Vector2)sceneCamera.transform.position : playerPosition;
+            float height = sceneCamera ? sceneCamera.orthographicSize : 16f;
+            float width = sceneCamera ? height * sceneCamera.aspect : height;
+            Vector2 extents = new Vector2(width + 1f, height + 1f);
+            Vector2Int minimum = CellAt(center - extents);
+            Vector2Int maximum = CellAt(center + extents);
+            var next = new RectInt(minimum, maximum - minimum + Vector2Int.one);
+            if (next.Equals(visibleCells))
+                return;
+
+            UpdateVisibleCells(visibleCells, next, false);
+            UpdateVisibleCells(next, visibleCells, true);
+            visibleCells = next;
+        }
+
+        void UpdateVisibleCells(RectInt window, RectInt unchanged, bool show)
+        {
+            for (int y = window.yMin; y < window.yMax; y++) {
+                for (int x = window.xMin; x < window.xMax; x++) {
+                    var cell = new Vector2Int(x, y);
+                    if (unchanged.Contains(cell) || !cells.TryGetValue(cell, out List<Pickup> pickups))
+                        continue;
+
+                    for (int index = 0; index < pickups.Count; index++) {
+                        Pickup pickup = pickups[index];
+                        if (show && !game.IsOutsideFinalArena(pickup.position))
+                            Show(ref pickup);
+                        else
+                            Hide(ref pickup);
+                        pickups[index] = pickup;
+                    }
                 }
             }
         }
 
-        void RemoveAt(int index)
+        static Vector2Int CellAt(Vector2 position)
         {
-            SpriteRenderer sprite = pickups[index].sprite;
-            sprite.gameObject.SetActive(false);
-            availableSprites.Push(sprite);
+            return new Vector2Int(Mathf.FloorToInt(position.x / CellSize), Mathf.FloorToInt(position.y / CellSize));
+        }
 
+        void Show(ref Pickup pickup)
+        {
+            if (pickup.renderer)
+                return;
+
+            SpriteRenderer renderer;
+            if (availableSprites.Count > 0)
+                renderer = availableSprites.Pop();
+            else {
+                renderer = new GameObject("Loot Pickup").AddComponent<SpriteRenderer>();
+                renderer.transform.SetParent(transform, false);
+            }
+
+            renderer.sprite = pickup.kind == Kind.Experience ? experienceSprite :
+                pickup.kind == Kind.Magnet ? magnetSprite : potionSprite;
+            renderer.transform.localScale = Vector3.one * (pickup.kind == Kind.Experience ? 0.56f : 1f);
+            renderer.sortingOrder = pickup.kind == Kind.Experience ? 1 : 4;
+            renderer.transform.position = pickup.position;
+            renderer.gameObject.SetActive(true);
+            pickup.renderer = renderer;
+        }
+
+        void Hide(ref Pickup pickup)
+        {
+            if (!pickup.renderer)
+                return;
+
+            pickup.renderer.gameObject.SetActive(false);
+            availableSprites.Push(pickup.renderer);
+            pickup.renderer = null;
+        }
+
+        void RecycleEmptyCells()
+        {
+            foreach (Vector2Int cell in emptyCells)
+                RecycleCell(cell);
+            emptyCells.Clear();
+        }
+
+        void RecycleCell(Vector2Int cell)
+        {
+            availableCells.Push(cells[cell]);
+            cells.Remove(cell);
+        }
+
+        static void RemoveAt(List<Pickup> pickups, int index)
+        {
             int last = pickups.Count - 1;
             pickups[index] = pickups[last];
             pickups.RemoveAt(last);

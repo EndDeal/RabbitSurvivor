@@ -65,6 +65,7 @@ namespace Goldmetal.UndeadSurvivor
         public float CorpseLifetime => corpseLifetime;
         internal bool IsEnding => ending;
         internal bool HasFinalArena => finalArenaBorder;
+        internal SeafloorRocks Rocks => seafloorRocks;
         public bool IsBossClockHeld => clockBoss;
         internal bool HasWon { get; private set; }
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];

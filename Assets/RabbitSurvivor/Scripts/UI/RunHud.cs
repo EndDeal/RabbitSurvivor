@@ -26,6 +26,7 @@ namespace Goldmetal.UndeadSurvivor
         Button resume;
         Slider volume;
         GameObject previousSelection;
+        int gearVersion = -1;
 
         struct GearSlot
         {
@@ -49,7 +50,10 @@ namespace Goldmetal.UndeadSurvivor
             if (!game)
                 return;
 
-            RefreshGear();
+            if (gearVersion != game.uiLevelUp.GearVersion) {
+                gearVersion = game.uiLevelUp.GearVersion;
+                RefreshGear();
+            }
             if (game.IsEnding) {
                 settings.gameObject.SetActive(false);
                 overlay.SetActive(false);

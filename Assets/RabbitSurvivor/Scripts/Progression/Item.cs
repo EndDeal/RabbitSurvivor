@@ -136,6 +136,7 @@ namespace Goldmetal.UndeadSurvivor
             else {
                 gear.LevelUp(data.damages[level - 1]);
             }
+            menu?.GearChanged();
         }
     }
 }

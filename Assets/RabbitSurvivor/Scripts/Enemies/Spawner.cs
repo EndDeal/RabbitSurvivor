@@ -30,6 +30,7 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField, Min(BarrierCount + 2)] int maxWaveEnemies = 96;
 
         readonly List<Enemy> waveEnemies = new List<Enemy>();
+        readonly Collider2D[] barrierFootprints = new Collider2D[BarrierCount];
         Camera sceneCamera;
         float nextCleanupAt;
         float timer;
@@ -82,15 +83,17 @@ namespace Goldmetal.UndeadSurvivor
             for (int index = 0; index < BarrierCount; index++) {
                 float angle = startAngle + index * (2f * Mathf.PI / BarrierCount);
                 Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BarrierRadius;
-                SpawnWaveEnemy(barrierWave, center + offset);
+                barrierFootprints[index] = SpawnWaveEnemy(barrierWave, center + offset).GetComponent<Collider2D>();
             }
+            GameManager.instance.Rocks?.BreakOverlapping(barrierFootprints);
         }
 
-        void SpawnWaveEnemy(SpawnData data, Vector3 position)
+        Enemy SpawnWaveEnemy(SpawnData data, Vector3 position)
         {
             Enemy enemy = Spawn(data, BossType.None, position);
             if (!waveEnemies.Contains(enemy))
                 waveEnemies.Add(enemy);
+            return enemy;
         }
 
         void RecycleDistantEnemies(Vector2 playerPosition)
@@ -155,7 +158,7 @@ namespace Goldmetal.UndeadSurvivor
 
         Enemy Spawn(SpawnData data, BossType bossType, Vector3 position)
         {
-            if (bossType != BossType.Final)
+            if (bossType != BossType.Final && data.behavior != EnemyBehavior.Barrier)
                 position = SeafloorRocks.FreeSpawnPosition(position);
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = position;

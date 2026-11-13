@@ -9,28 +9,48 @@ namespace Goldmetal.UndeadSurvivor
         const float CellSize = 8f;
         const int ViewPadding = 2;
         const float SpawnClearance = 4.5f;
+        const float DebrisLifetime = 0.32f;
 
         [SerializeField] Sprite[] sprites;
         [SerializeField] Material unlitMaterial;
 
         readonly Dictionary<Vector2Int, SpriteRenderer> rocks = new Dictionary<Vector2Int, SpriteRenderer>();
+        readonly HashSet<Vector2Int> broken = new HashSet<Vector2Int>();
         readonly Stack<SpriteRenderer> available = new Stack<SpriteRenderer>();
         readonly List<Vector2Int> expired = new List<Vector2Int>();
+        readonly List<Collider2D> overlaps = new List<Collider2D>(2);
+        readonly List<Debris> debris = new List<Debris>(12);
+        readonly Stack<SpriteRenderer> availableDebris = new Stack<SpriteRenderer>();
+        ContactFilter2D rockFilter;
         Camera sceneCamera;
         Vector2Int lastCenter = new Vector2Int(int.MinValue, int.MinValue);
         Vector2Int lastRadius;
         uint seed;
 
+        struct Debris
+        {
+            public SpriteRenderer renderer;
+            public Vector2 start;
+            public Vector2 velocity;
+            public float until;
+        }
+
         void Awake()
         {
             sceneCamera = Camera.main;
             seed = (uint)System.Environment.TickCount;
+            rockFilter.SetLayerMask(1 << Layer);
+            rockFilter.useTriggers = false;
         }
 
         void LateUpdate()
         {
+            UpdateDebris();
             GameManager game = GameManager.instance;
-            if (!game || !game.isLive || game.HasFinalArena || !sceneCamera || sprites == null || sprites.Length == 0)
+            if (!game || !game.isLive)
+                return;
+
+            if (game.HasFinalArena || !sceneCamera || sprites == null || sprites.Length == 0)
                 return;
 
             Vector2 cameraPosition = sceneCamera.transform.position;
@@ -58,7 +78,7 @@ namespace Goldmetal.UndeadSurvivor
             for (int y = center.y - radius.y; y <= center.y + radius.y; y++) {
                 for (int x = center.x - radius.x; x <= center.x + radius.x; x++) {
                     var cell = new Vector2Int(x, y);
-                    if (!rocks.ContainsKey(cell))
+                    if (!rocks.ContainsKey(cell) && !broken.Contains(cell))
                         PlaceRock(cell);
                 }
             }
@@ -118,6 +138,67 @@ namespace Goldmetal.UndeadSurvivor
             foreach (SpriteRenderer rock in rocks.Values) {
                 if (((Vector2)rock.transform.position - center).sqrMagnitude <= distance * distance)
                     rock.gameObject.SetActive(false);
+            }
+        }
+
+        internal void BreakOverlapping(Collider2D[] footprints)
+        {
+            Physics2D.SyncTransforms();
+            foreach (Collider2D footprint in footprints) {
+                int count = footprint.OverlapCollider(rockFilter, overlaps);
+                for (int index = 0; index < count; index++) {
+                    Vector3 position = overlaps[index].transform.position;
+                    var cell = new Vector2Int(Mathf.FloorToInt(position.x / CellSize), Mathf.FloorToInt(position.y / CellSize));
+                    if (!rocks.TryGetValue(cell, out SpriteRenderer rock))
+                        continue;
+
+                    SpawnDebris(rock);
+                    rocks.Remove(cell);
+                    broken.Add(cell);
+                    rock.gameObject.SetActive(false);
+                    available.Push(rock);
+                }
+            }
+        }
+
+        void SpawnDebris(SpriteRenderer rock)
+        {
+            for (int index = 0; index < 4; index++) {
+                SpriteRenderer chip = availableDebris.Count > 0 ? availableDebris.Pop() :
+                    new GameObject("Rock Debris").AddComponent<SpriteRenderer>();
+                chip.transform.SetParent(transform, false);
+                chip.transform.position = rock.transform.position;
+                chip.transform.localScale = rock.transform.localScale * (index % 2 == 0 ? 0.14f : 0.20f);
+                chip.sprite = rock.sprite;
+                chip.sharedMaterial = rock.sharedMaterial;
+                chip.sortingOrder = rock.sortingOrder + 1;
+                chip.color = Color.white;
+                chip.gameObject.SetActive(true);
+                debris.Add(new Debris {
+                    renderer = chip,
+                    start = rock.transform.position,
+                    velocity = new Vector2((index - 1.5f) * 2.1f, 1.8f + index % 2),
+                    until = Time.unscaledTime + DebrisLifetime
+                });
+            }
+        }
+
+        void UpdateDebris()
+        {
+            float now = Time.unscaledTime;
+            for (int index = debris.Count - 1; index >= 0; index--) {
+                Debris chip = debris[index];
+                float remaining = chip.until - now;
+                if (remaining <= 0f) {
+                    chip.renderer.gameObject.SetActive(false);
+                    availableDebris.Push(chip.renderer);
+                    debris.RemoveAt(index);
+                    continue;
+                }
+
+                float age = DebrisLifetime - remaining;
+                chip.renderer.transform.position = chip.start + chip.velocity * age + Vector2.down * (8f * age * age);
+                chip.renderer.color = new Color(1f, 1f, 1f, remaining / DebrisLifetime);
             }
         }
 

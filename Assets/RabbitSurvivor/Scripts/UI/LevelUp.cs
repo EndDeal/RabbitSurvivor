@@ -40,6 +40,12 @@ namespace Goldmetal.UndeadSurvivor
         public bool HasEvolved { get; private set; }
         public bool HasEvolutionTicket { get; private set; }
         internal IReadOnlyList<Item> Items => items;
+        internal int GearVersion { get; private set; }
+
+        internal void GearChanged()
+        {
+            GearVersion++;
+        }
 
         internal void RememberSelection(Item item)
         {
@@ -253,6 +259,7 @@ namespace Goldmetal.UndeadSurvivor
         void Evolve(Item item)
         {
             item.weapon.Evolve();
+            GearChanged();
             HasEvolved = true;
             HasEvolutionTicket = false;
             Notify($"{item.data.evolutionName} 진화!");
