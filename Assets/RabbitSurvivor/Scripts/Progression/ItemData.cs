@@ -6,7 +6,7 @@ namespace Goldmetal.UndeadSurvivor
     public class ItemData : ScriptableObject
     {
         public enum ItemType { Melee, Range, Glove, Shoe, Heal, Spread, Pulse, Burst, Power, Area, Vitality,
-                               Sweep, GroundStrike, Jab, Furrow }
+                               Sweep, GroundStrike, Jab, Furrow, Padding, Harvest }
 
         [Header("# Main Info")]
         public ItemType itemType;

@@ -35,9 +35,9 @@ MonoBehaviour:
   attackInterval: 1.4
   attackRadius: 3.6
   strikeWidth: 1.12
-  requiredPassive: {fileID: 11400000, guid: 96a539ae1d8b5ab49b46e3de0117ddb7, type: 2}
+  requiredPassive: {fileID: 11400000, guid: 4ba50445e88246b9ae54d2833e16c701, type: 2}
   evolutionName: "황소 가래"
-  evolutionIcon: {fileID: 814220004, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionIcon: {fileID: 814230214, guid: 033ab902a23843baa7d4487eb3071421, type: 3}
   evolutionDescription: "직선 길이·폭 +30%"
   evolutionDamage: 1.4
   evolutionCount: 0

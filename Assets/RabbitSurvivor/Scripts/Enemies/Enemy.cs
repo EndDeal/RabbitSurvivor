@@ -49,6 +49,9 @@ namespace Goldmetal.UndeadSurvivor
         float windupRemaining;
         float nextShotAt;
         BossAttacks bossAttacks;
+        readonly RaycastHit2D[] rockHits = new RaycastHit2D[1];
+        ContactFilter2D rockFilter;
+        Vector2 rockDetour;
 
         void Awake()
         {
@@ -61,6 +64,8 @@ namespace Goldmetal.UndeadSurvivor
             defaultColliderSize = coll.size;
             defaultConstraints = rigid.constraints;
             defaultColor = spriter.color;
+            rockFilter.SetLayerMask(1 << SeafloorRocks.Layer);
+            rockFilter.useTriggers = false;
         }
 
         void FixedUpdate()
@@ -85,9 +90,28 @@ namespace Goldmetal.UndeadSurvivor
             if (Behavior == EnemyBehavior.Shooter && AimOrShoot(direction))
                 return;
 
-            Vector2 movement = direction.normalized * speed * Time.fixedDeltaTime;
+            Vector2 movement = SteerAroundRocks(direction) * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + movement);
             rigid.velocity = Vector2.zero;
+        }
+
+        Vector2 SteerAroundRocks(Vector2 toPlayer)
+        {
+            Vector2 forward = toPlayer.normalized;
+            if (forward == Vector2.zero)
+                return forward;
+
+            const float lookAhead = 0.7f;
+            if (coll.Cast(forward, rockFilter, rockHits, lookAhead) == 0) {
+                rockDetour = Vector2.zero;
+                return forward;
+            }
+
+            Vector2 tangent = Vector2.Perpendicular(rockHits[0].normal);
+            if (rockDetour != Vector2.zero ? Vector2.Dot(tangent, rockDetour) < 0f : Vector2.Dot(tangent, forward) < 0f)
+                tangent = -tangent;
+            rockDetour = tangent;
+            return (tangent + rockHits[0].normal * 0.12f).normalized;
         }
 
         void LateUpdate()
@@ -149,6 +173,7 @@ namespace Goldmetal.UndeadSurvivor
             nextShotAt = Time.time;
             barrierExpiresAt = Time.time + BarrierLifetime;
             rigid.velocity = Vector2.zero;
+            rockDetour = Vector2.zero;
             rigid.constraints = IsBarrier || Boss == BossType.Final ? RigidbodyConstraints2D.FreezeAll : defaultConstraints;
             coll.size = Boss == BossType.Final ? new Vector2(4.5f, 3.6f) :
                 Boss == BossType.Mid ? new Vector2(3.6f, 3.4f) :

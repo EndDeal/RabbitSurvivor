@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 512
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -24,7 +24,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 77
+  spritePixelsToUnits: 76
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
@@ -51,12 +51,12 @@ TextureImporter:
       name: Stand
       rect:
         serializedVersion: 2
-        x: 92
-        y: 103
-        width: 389
-        height: 533
+        x: 102
+        y: 110
+        width: 341
+        height: 520
       alignment: 9
-      pivot: {x: 0.5, y: 0.43152}
+      pivot: {x: 0.5, y: 0.433218}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -72,12 +72,12 @@ TextureImporter:
       name: Run A
       rect:
         serializedVersion: 2
-        x: 619
-        y: 107
-        width: 405
-        height: 529
+        x: 608
+        y: 118
+        width: 376
+        height: 512
       alignment: 9
-      pivot: {x: 0.5, y: 0.41966}
+      pivot: {x: 0.5, y: 0.415416}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -93,12 +93,12 @@ TextureImporter:
       name: Run B
       rect:
         serializedVersion: 2
-        x: 1166
-        y: 103
-        width: 393
-        height: 537
+        x: 1153
+        y: 110
+        width: 375
+        height: 520
       alignment: 9
-      pivot: {x: 0.5, y: 0.418994}
+      pivot: {x: 0.503924, y: 0.420173}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -114,12 +114,12 @@ TextureImporter:
       name: Down
       rect:
         serializedVersion: 2
-        x: 1677
-        y: 123
-        width: 469
-        height: 397
+        x: 1665
+        y: 129
+        width: 457
+        height: 388
       alignment: 9
-      pivot: {x: 0.5, y: 0.579345}
+      pivot: {x: 0.502178, y: 0.58097}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: Stand Raised
       rect:
         serializedVersion: 2
-        x: 92
-        y: 103
-        width: 389
-        height: 533
+        x: 102
+        y: 110
+        width: 341
+        height: 520
       alignment: 9
-      pivot: {x: 0.5, y: 0.410882}
+      pivot: {x: 0.5, y: 0.41223}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

@@ -155,6 +155,8 @@ namespace Goldmetal.UndeadSurvivor
 
         Enemy Spawn(SpawnData data, BossType bossType, Vector3 position)
         {
+            if (bossType != BossType.Final)
+                position = SeafloorRocks.FreeSpawnPosition(position);
             GameObject enemy = GameManager.instance.pool.Get(0);
             enemy.transform.position = position;
             enemy.GetComponent<Rigidbody2D>().position = position;

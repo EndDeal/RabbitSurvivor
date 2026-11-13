@@ -79,6 +79,12 @@ namespace Goldmetal.UndeadSurvivor
 
             IsEvolved = true;
             name = data.evolutionName;
+            if (data.evolutionIcon) {
+                if (swing)
+                    swing.sprite = data.evolutionIcon;
+                if (data.itemType == ItemData.ItemType.Range && data.hand)
+                    player.hands[1].Equip(data.evolutionIcon);
+            }
             RefreshStats();
         }
 
@@ -188,15 +194,16 @@ namespace Goldmetal.UndeadSurvivor
 
         void ArrangeOrbit()
         {
+            Sprite sprite = IsEvolved && data.evolutionIcon ? data.evolutionIcon : data.projectileSprite;
             for (int index = 0; index < Count; index++) {
                 Transform blade = index < transform.childCount ? transform.GetChild(index) :
                     GameManager.instance.pool.Get(prefabId).transform;
                 blade.SetParent(transform, true);
                 blade.localRotation = Quaternion.Euler(0f, 0f, 360f * index / Count);
                 blade.position = transform.position + blade.up * attackRadius;
-                blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, data.projectileSprite, attackColor);
-                if (data.projectileSprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
-                    Bounds art = data.projectileSprite.bounds;
+                blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, sprite, attackColor);
+                if (sprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
+                    Bounds art = sprite.bounds;
                     // Scale the visible blade and its attached hitbox along with the orbit.
                     blade.localScale = Vector3.one * (attackAreaMultiplier / (art.size.y * transform.lossyScale.y));
                     hitbox.size = art.size;

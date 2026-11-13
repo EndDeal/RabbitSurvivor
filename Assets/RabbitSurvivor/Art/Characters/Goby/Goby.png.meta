@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 1024
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -24,7 +24,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 54
+  spritePixelsToUnits: 53
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
@@ -51,12 +51,12 @@ TextureImporter:
       name: Goby Swim
       rect:
         serializedVersion: 2
-        x: 20
-        y: 589
-        width: 453
-        height: 327
+        x: 26
+        y: 583
+        width: 444
+        height: 328
       alignment: 9
-      pivot: {x: 0.545254, y: 0.486239}
+      pivot: {x: 0.544822, y: 0.487958}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -72,12 +72,12 @@ TextureImporter:
       name: Goby Tail Flick
       rect:
         serializedVersion: 2
-        x: 536
-        y: 591
-        width: 457
-        height: 325
+        x: 530
+        y: 583
+        width: 452
+        height: 328
       alignment: 9
-      pivot: {x: 0.544858, y: 0.489231}
+      pivot: {x: 0.544445, y: 0.487882}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -93,12 +93,12 @@ TextureImporter:
       name: Goby Windup
       rect:
         serializedVersion: 2
-        x: 1046
-        y: 585
-        width: 469
-        height: 333
+        x: 1040
+        y: 574
+        width: 470
+        height: 339
       alignment: 9
-      pivot: {x: 0.543710, y: 0.477477}
+      pivot: {x: 0.543333, y: 0.477876}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -114,12 +114,12 @@ TextureImporter:
       name: Goby Down
       rect:
         serializedVersion: 2
-        x: 38
-        y: 105
-        width: 449
-        height: 291
+        x: 42
+        y: 98
+        width: 439
+        height: 297
       alignment: 9
-      pivot: {x: 0.545657, y: 0.546392}
+      pivot: {x: 0.54501, y: 0.543925}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -136,11 +136,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 536
-        y: 91
-        width: 453
-        height: 331
+        y: 80
+        width: 454
+        height: 327
       alignment: 9
-      pivot: {x: 0.545254, y: 0.480363}
+      pivot: {x: 0.544649, y: 0.482162}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -156,12 +156,12 @@ TextureImporter:
       name: Goby Water Shot
       rect:
         serializedVersion: 2
-        x: 1204
-        y: 157
-        width: 163
-        height: 163
+        x: 1198
+        y: 143
+        width: 173
+        height: 174
       alignment: 9
-      pivot: {x: 0.500000, y: 0.500000}
+      pivot: {x: 0.497017, y: 0.502984}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

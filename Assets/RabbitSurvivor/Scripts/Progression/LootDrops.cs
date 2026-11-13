@@ -95,6 +95,8 @@ namespace Goldmetal.UndeadSurvivor
                 return;
 
             Vector2 playerPosition = game.player.transform.position;
+            float attractionRadius = ExperienceAttractRadius * (1f + game.player.PickupRange);
+            float itemRadius = ItemPickupRadius * (1f + game.player.PickupRange);
             int collectedExperience = 0;
             for (int index = pickups.Count - 1; index >= 0; index--) {
                 Pickup pickup = pickups[index];
@@ -102,7 +104,7 @@ namespace Goldmetal.UndeadSurvivor
                 float distance = (position - playerPosition).sqrMagnitude;
 
                 if (pickup.kind == Kind.Experience) {
-                    if (pickup.attracted || distance <= ExperienceAttractRadius * ExperienceAttractRadius) {
+                    if (pickup.attracted || distance <= attractionRadius * attractionRadius) {
                         position = Vector2.MoveTowards(position, playerPosition, ExperienceSpeed * Time.deltaTime);
                         pickup.sprite.transform.position = position;
                         distance = (position - playerPosition).sqrMagnitude;
@@ -115,7 +117,7 @@ namespace Goldmetal.UndeadSurvivor
                     continue;
                 }
 
-                if (distance > ItemPickupRadius * ItemPickupRadius)
+                if (distance > itemRadius * itemRadius)
                     continue;
 
                 if (pickup.kind == Kind.Magnet) {

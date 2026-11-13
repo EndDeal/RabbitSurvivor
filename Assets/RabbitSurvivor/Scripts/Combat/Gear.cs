@@ -33,6 +33,12 @@ namespace Goldmetal.UndeadSurvivor
                 case ItemData.ItemType.Vitality:
                     GameManager.instance.SetMaxHealthBonus(rate);
                     return;
+                case ItemData.ItemType.Padding:
+                    player.DamageReduction = rate;
+                    return;
+                case ItemData.ItemType.Harvest:
+                    player.PickupRange = rate;
+                    return;
             }
 
             foreach (Weapon weapon in player.GetComponentsInChildren<Weapon>()) {

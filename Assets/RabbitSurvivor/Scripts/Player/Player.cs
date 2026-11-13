@@ -24,6 +24,8 @@ namespace Goldmetal.UndeadSurvivor
         public float AttackHaste { get; internal set; }
         public float AttackPower { get; internal set; }
         public float AttackArea { get; internal set; }
+        public float DamageReduction { get; internal set; }
+        public float PickupRange { get; internal set; }
 
         void Awake()
         {
@@ -97,6 +99,9 @@ namespace Goldmetal.UndeadSurvivor
 
         void OnCollisionStay2D(Collision2D collision)
         {
+            if (collision.gameObject.layer == SeafloorRocks.Layer)
+                return;
+
             if (collision.gameObject.TryGetComponent(out Enemy enemy)) {
                 if (!enemy.IsDashing)
                     TakeDamage(Time.deltaTime * enemy.ContactDamage);
@@ -111,7 +116,7 @@ namespace Goldmetal.UndeadSurvivor
             if (!game.isLive)
                 return;
 
-            game.health = Mathf.Max(0f, game.health - amount);
+            game.health = Mathf.Max(0f, game.health - amount * (1f - DamageReduction));
             bool lethal = game.health <= 0f;
             hitFlash ??= new SpriteHitFlash(spriter);
             hitFlash.Show(game.HitFlashMaterial, lethal);

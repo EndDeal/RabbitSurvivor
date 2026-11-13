@@ -35,9 +35,9 @@ MonoBehaviour:
   attackInterval: 0.42
   attackRadius: 1.65
   strikeWidth: 1
-  requiredPassive: {fileID: 11400000, guid: be08f7760324bdd4bad0178a05a4aa5b, type: 2}
+  requiredPassive: {fileID: 11400000, guid: 4ba50445e88246b9ae54d2833e16c700, type: 2}
   evolutionName: "송곳 호미"
-  evolutionIcon: {fileID: 814220003, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionIcon: {fileID: 814230213, guid: 033ab902a23843baa7d4487eb3071421, type: 3}
   evolutionDescription: "찌르기 사거리 +20% · 간격 −20%"
   evolutionDamage: 1.4
   evolutionCount: 0

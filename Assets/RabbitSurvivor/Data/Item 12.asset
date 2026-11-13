@@ -37,7 +37,7 @@ MonoBehaviour:
   strikeWidth: 1
   requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a6, type: 2}
   evolutionName: "풍년 도리깨"
-  evolutionIcon: {fileID: 814220005, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionIcon: {fileID: 814230215, guid: 033ab902a23843baa7d4487eb3071421, type: 3}
   evolutionDescription: "타격 반경 +35% · 간격 −15%"
   evolutionDamage: 1.4
   evolutionCount: 0

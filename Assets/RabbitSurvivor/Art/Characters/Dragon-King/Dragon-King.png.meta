@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 512
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -24,7 +24,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 43
+  spritePixelsToUnits: 44
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
@@ -51,12 +51,12 @@ TextureImporter:
       name: Run A
       rect:
         serializedVersion: 2
-        x: 36
-        y: 539
-        width: 485
-        height: 449
+        x: 50
+        y: 532
+        width: 441
+        height: 451
       alignment: 9
-      pivot: {x: 0.5, y: 0.463252}
+      pivot: {x: 0.5, y: 0.462736}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -72,12 +72,12 @@ TextureImporter:
       name: Run B
       rect:
         serializedVersion: 2
-        x: 548
-        y: 539
-        width: 457
-        height: 453
+        x: 542
+        y: 527
+        width: 429
+        height: 456
       alignment: 9
-      pivot: {x: 0.5, y: 0.459161}
+      pivot: {x: 0.49889, y: 0.461684}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -93,12 +93,12 @@ TextureImporter:
       name: Hit
       rect:
         serializedVersion: 2
-        x: 1032
-        y: 539
-        width: 461
-        height: 453
+        x: 1040
+        y: 532
+        width: 435
+        height: 450
       alignment: 9
-      pivot: {x: 0.5, y: 0.459161}
+      pivot: {x: 0.498895, y: 0.461874}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -114,12 +114,12 @@ TextureImporter:
       name: Down
       rect:
         serializedVersion: 2
-        x: 8
-        y: 83
-        width: 513
-        height: 297
+        x: 21
+        y: 87
+        width: 479
+        height: 294
       alignment: 9
-      pivot: {x: 0.5, y: 0.700337}
+      pivot: {x: 0.498022, y: 0.706034}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: Dragon Arrival
       rect:
         serializedVersion: 2
-        x: 552
-        y: 43
-        width: 457
-        height: 445
+        x: 555
+        y: 44
+        width: 448
+        height: 440
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.551064, y: 0.504578}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -156,12 +156,12 @@ TextureImporter:
       name: Dragon Defeated
       rect:
         serializedVersion: 2
-        x: 1040
-        y: 43
-        width: 457
-        height: 441
+        x: 1035
+        y: 44
+        width: 448
+        height: 440
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.496667, y: 0.5023}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

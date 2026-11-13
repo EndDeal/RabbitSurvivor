@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 512
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,10 +51,10 @@ TextureImporter:
       name: Captain Arrival
       rect:
         serializedVersion: 2
-        x: 279
-        y: 30
-        width: 519
-        height: 663
+        x: 244
+        y: 15
+        width: 543
+        height: 679
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -72,10 +72,10 @@ TextureImporter:
       name: Captain Defeated
       rect:
         serializedVersion: 2
-        x: 1365
-        y: 30
-        width: 519
-        height: 663
+        x: 1330
+        y: 15
+        width: 542
+        height: 679
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

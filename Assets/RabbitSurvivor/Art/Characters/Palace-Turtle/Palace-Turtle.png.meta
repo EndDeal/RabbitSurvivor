@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 512
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,12 +51,12 @@ TextureImporter:
       name: Run A
       rect:
         serializedVersion: 2
-        x: 48
-        y: 143
-        width: 461
-        height: 441
+        x: 63
+        y: 153
+        width: 432
+        height: 434
       alignment: 9
-      pivot: {x: 0.5, y: 0.47619}
+      pivot: {x: 0.5, y: 0.478058}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -72,12 +72,12 @@ TextureImporter:
       name: Run B
       rect:
         serializedVersion: 2
-        x: 607
-        y: 151
-        width: 445
-        height: 433
+        x: 612
+        y: 158
+        width: 422
+        height: 429
       alignment: 9
-      pivot: {x: 0.5, y: 0.466513}
+      pivot: {x: 0.501151, y: 0.465707}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -93,12 +93,12 @@ TextureImporter:
       name: Hit
       rect:
         serializedVersion: 2
-        x: 1142
-        y: 147
-        width: 429
-        height: 437
+        x: 1136
+        y: 154
+        width: 426
+        height: 434
       alignment: 9
-      pivot: {x: 0.5, y: 0.480549}
+      pivot: {x: 0.502388, y: 0.477741}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -114,12 +114,12 @@ TextureImporter:
       name: Down
       rect:
         serializedVersion: 2
-        x: 1641
-        y: 151
-        width: 493
-        height: 285
+        x: 1642
+        y: 155
+        width: 479
+        height: 268
       alignment: 9
-      pivot: {x: 0.5, y: 0.736842}
+      pivot: {x: 0.496902, y: 0.749828}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

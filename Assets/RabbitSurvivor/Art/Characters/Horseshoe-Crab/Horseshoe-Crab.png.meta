@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 1024
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -24,7 +24,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 47
+  spritePixelsToUnits: 52
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
@@ -51,12 +51,12 @@ TextureImporter:
       name: Barrier Idle
       rect:
         serializedVersion: 2
-        x: 42
-        y: 601
-        width: 445
-        height: 251
+        x: 57
+        y: 588
+        width: 425
+        height: 282
       alignment: 9
-      pivot: {x: 0.568539, y: 0.490040}
+      pivot: {x: 0.566559, y: 0.492152}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -72,12 +72,12 @@ TextureImporter:
       name: Barrier Blink
       rect:
         serializedVersion: 2
-        x: 540
-        y: 601
-        width: 445
-        height: 261
+        x: 538
+        y: 588
+        width: 424
+        height: 282
       alignment: 9
-      pivot: {x: 0.568539, y: 0.471264}
+      pivot: {x: 0.567818, y: 0.469844}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -93,12 +93,12 @@ TextureImporter:
       name: Barrier Hit
       rect:
         serializedVersion: 2
-        x: 1040
-        y: 603
-        width: 453
-        height: 303
+        x: 1017
+        y: 588
+        width: 445
+        height: 341
       alignment: 9
-      pivot: {x: 0.567329, y: 0.405941}
+      pivot: {x: 0.566393, y: 0.407418}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -114,12 +114,12 @@ TextureImporter:
       name: Barrier Down
       rect:
         serializedVersion: 2
-        x: 44
-        y: 115
-        width: 457
-        height: 245
+        x: 56
+        y: 109
+        width: 430
+        height: 283
       alignment: 9
-      pivot: {x: 0.566740, y: 0.502041}
+      pivot: {x: 0.565741, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: Barrier Laugh
       rect:
         serializedVersion: 2
-        x: 538
-        y: 117
-        width: 455
-        height: 299
+        x: 535
+        y: 109
+        width: 428
+        height: 339
       alignment: 9
-      pivot: {x: 0.567033, y: 0.411371}
+      pivot: {x: 0.567256, y: 0.410807}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

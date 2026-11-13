@@ -37,7 +37,7 @@ MonoBehaviour:
   strikeWidth: 1
   requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a4, type: 2}
   evolutionName: "황금 낫"
-  evolutionIcon: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
+  evolutionIcon: {fileID: 814230211, guid: 033ab902a23843baa7d4487eb3071421, type: 3}
   evolutionDescription: "베기 범위 +25% · 간격 −15%"
   evolutionDamage: 1.35
   evolutionCount: 0

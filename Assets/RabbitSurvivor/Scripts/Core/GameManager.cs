@@ -20,6 +20,7 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField] Spawner encounterSpawner;
         [SerializeField, Min(4f)] float finalArenaRadius = 6.5f;
         [SerializeField] Material finalArenaBorderMaterial;
+        [SerializeField] SeafloorRocks seafloorRocks;
 
         [Header("# Player Info")]
         public int playerId;
@@ -185,6 +186,8 @@ namespace Goldmetal.UndeadSurvivor
 
         void OpenFinalArena(Vector3 center)
         {
+            if (seafloorRocks)
+                seafloorRocks.ClearArena(center, finalArenaRadius);
             finalArenaCenter = center;
             finalArenaBorder = new GameObject("Dragon Arena Border").AddComponent<LineRenderer>();
             finalArenaBorder.transform.SetParent(transform, false);

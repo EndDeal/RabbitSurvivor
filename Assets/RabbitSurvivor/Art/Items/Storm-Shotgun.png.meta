@@ -12,7 +12,7 @@ TextureImporter:
   maxTextureSize: 512
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,10 +51,10 @@ TextureImporter:
       name: Hunting Shotgun
       rect:
         serializedVersion: 2
-        x: 45
-        y: 68
-        width: 571
-        height: 496
+        x: 74
+        y: 78
+        width: 539
+        height: 476
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -72,10 +72,10 @@ TextureImporter:
       name: Technical Glove
       rect:
         serializedVersion: 2
-        x: 837
-        y: 58
-        width: 461
-        height: 596
+        x: 865
+        y: 71
+        width: 454
+        height: 568
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -93,10 +93,10 @@ TextureImporter:
       name: Storm Shotgun
       rect:
         serializedVersion: 2
-        x: 1502
-        y: 68
-        width: 626
-        height: 566
+        x: 1495
+        y: 78
+        width: 612
+        height: 538
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
