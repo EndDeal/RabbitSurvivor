@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Goldmetal.UndeadSurvivor
 {
-    public class Item : MonoBehaviour
+    public class Item : MonoBehaviour, ISelectHandler
     {
         public ItemData data;
         public int level;
@@ -15,11 +16,14 @@ namespace Goldmetal.UndeadSurvivor
         Text textName;
         Text textDesc;
         ItemData partner;
+        LevelUp menu;
 
         public bool IsMaxLevel => level >= data.MaxLevel;
+        internal Button Button { get; private set; }
 
         public void Bind(LevelUp menu, ItemData evolutionPartner)
         {
+            this.menu = menu;
             partner = evolutionPartner;
             icon = GetComponentsInChildren<Image>(true)[1];
             icon.color = data.iconColor;
@@ -29,10 +33,34 @@ namespace Goldmetal.UndeadSurvivor
             textLevel = texts[0];
             textName = texts[1];
             textDesc = texts[2];
+            FitCardText(textLevel, 0.70f, 1f);
+            FitCardText(textName, 0.43f, 0.70f);
+            FitCardText(textDesc, 0f, 0.43f);
 
-            Button button = GetComponent<Button>();
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(() => menu.Choose(this));
+            Button = GetComponent<Button>();
+            Button.onClick = new Button.ButtonClickedEvent();
+            Button.onClick.AddListener(() => menu.Choose(this));
+        }
+
+        static void FitCardText(Text label, float bottom, float top)
+        {
+            RectTransform rect = label.rectTransform;
+            rect.anchorMin = new Vector2(0f, bottom);
+            rect.anchorMax = new Vector2(1f, top);
+            rect.offsetMin = new Vector2(27f, 0f);
+            rect.offsetMax = new Vector2(-4f, 0f);
+            label.alignment = TextAnchor.MiddleLeft;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 3;
+            label.resizeTextMaxSize = Mathf.Max(4, label.fontSize);
+            label.raycastTarget = false;
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            menu?.RememberSelection(this);
         }
 
         public void ShowOffer(bool evolution)
@@ -44,7 +72,7 @@ namespace Goldmetal.UndeadSurvivor
 
             if (evolution) {
                 textLevel.text = "진화";
-                textDesc.text = data.evolutionDescription;
+                textDesc.text = $"피해 {weapon.Damage:0.##} → {weapon.Damage * data.evolutionDamage:0.##}\n{data.evolutionDescription}";
             }
             else if (data.itemType == ItemData.ItemType.Heal) {
                 textLevel.text = "회복";
@@ -52,8 +80,9 @@ namespace Goldmetal.UndeadSurvivor
             }
             else {
                 textLevel.text = level == 0 ? (data.IsWeapon ? "액티브" : "패시브") : $"Lv.{level + 1}/{data.MaxLevel}";
-                string effect = level == 0 && !string.IsNullOrEmpty(data.pickupDescription) ?
-                    data.pickupDescription : string.Format(data.itemDesc, Mathf.RoundToInt(data.damages[level] * 100), data.counts[level]);
+                string effect = weapon ? WeaponUpgradeDescription() :
+                    level == 0 && !string.IsNullOrEmpty(data.pickupDescription) ? data.pickupDescription :
+                    string.Format(data.itemDesc, Mathf.RoundToInt(data.damages[level] * 100), data.counts[level]);
                 if (partner && !evolved) {
                     string recipe = data.IsWeapon ? $"{partner.itemName} Lv.{partner.MaxLevel}" : partner.itemName;
                     effect += $"\n진화: {recipe}";
@@ -62,6 +91,23 @@ namespace Goldmetal.UndeadSurvivor
             }
 
             gameObject.SetActive(true);
+        }
+
+        string WeaponUpgradeDescription()
+        {
+            string effect = $"피해 {weapon.Damage:0.##} → {weapon.DamageAtLevel(level + 1):0.##}";
+            int extra = data.counts[level];
+            if (extra == 0)
+                return effect;
+
+            string quantity = data.itemType switch {
+                ItemData.ItemType.Melee => "회전체",
+                ItemData.ItemType.Range => "관통",
+                ItemData.ItemType.Spread => "물거품",
+                ItemData.ItemType.Burst => "연속탄",
+                _ => ""
+            };
+            return string.IsNullOrEmpty(quantity) ? effect : $"{effect}\n{quantity} +{extra}";
         }
 
         public void Upgrade()

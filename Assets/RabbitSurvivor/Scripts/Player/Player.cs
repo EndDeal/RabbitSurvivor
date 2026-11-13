@@ -64,7 +64,7 @@ namespace Goldmetal.UndeadSurvivor
             if (!game.isLive)
                 return;
 
-            Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
+            Vector2 nextVec = Vector2.ClampMagnitude(inputVec, 1f) * speed * Time.fixedDeltaTime;
             rigid.MovePosition(game.ConstrainPlayerPosition(rigid.position + nextVec));
         }
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,32 +7,30 @@ namespace Goldmetal.UndeadSurvivor
     {
         public float scanRange;
         public LayerMask targetLayer;
-        public RaycastHit2D[] targets;
         public Transform nearestTarget;
+
+        readonly List<Collider2D> targets = new List<Collider2D>(128);
+        ContactFilter2D filter;
+
+        void Awake()
+        {
+            filter.SetLayerMask(targetLayer);
+            filter.useTriggers = false;
+        }
 
         void FixedUpdate()
         {
-            targets = Physics2D.CircleCastAll(transform.position, scanRange, Vector2.zero, 0, targetLayer);
-            nearestTarget = GetNearest();
-        }
-
-        Transform GetNearest()
-        {
-            Transform result = null;
-            float diff = 100;
-
-            foreach (RaycastHit2D target in targets) {
-                Vector3 myPos = transform.position;
-                Vector3 targetPos = target.transform.position;
-                float curDiff = Vector3.Distance(myPos, targetPos);
-
-                if (curDiff < diff) {
-                    diff = curDiff;
-                    result = target.transform;
+            Vector2 position = transform.position;
+            Physics2D.OverlapCircle(position, scanRange, filter, targets);
+            nearestTarget = null;
+            float bestDistance = float.PositiveInfinity;
+            foreach (Collider2D target in targets) {
+                float distance = ((Vector2)target.transform.position - position).sqrMagnitude;
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    nearestTarget = target.transform;
                 }
             }
-
-            return result;
         }
     }
 }

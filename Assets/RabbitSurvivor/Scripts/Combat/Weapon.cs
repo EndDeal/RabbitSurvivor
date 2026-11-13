@@ -69,7 +69,7 @@ namespace Goldmetal.UndeadSurvivor
 
         public void RefreshStats()
         {
-            Damage = data.WeaponDamageAt(rank) * Character.Damage * (1f + player.AttackPower);
+            Damage = DamageAtLevel(rank);
             Count = data.WeaponCountAt(rank);
             if (data.itemType != ItemData.ItemType.Pulse)
                 Count += Character.Count;
@@ -78,7 +78,6 @@ namespace Goldmetal.UndeadSurvivor
             attackColor = data.attackColor;
 
             if (IsEvolved) {
-                Damage *= data.evolutionDamage;
                 Count += data.evolutionCount;
                 attackInterval *= data.evolutionInterval;
                 attackRadius *= data.evolutionArea;
@@ -87,6 +86,12 @@ namespace Goldmetal.UndeadSurvivor
 
             if (data.itemType == ItemData.ItemType.Melee)
                 ArrangeOrbit();
+        }
+
+        internal float DamageAtLevel(int level)
+        {
+            return data.WeaponDamageAt(level) * Character.Damage * (1f + player.AttackPower) *
+                (IsEvolved ? data.evolutionDamage : 1f);
         }
 
         void Update()
@@ -168,6 +173,13 @@ namespace Goldmetal.UndeadSurvivor
                 blade.localRotation = Quaternion.Euler(0f, 0f, 360f * index / Count);
                 blade.position = transform.position + blade.up * attackRadius;
                 blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, data.projectileSprite, attackColor);
+                if (data.projectileSprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
+                    Bounds art = data.projectileSprite.bounds;
+                    blade.localScale = Vector3.one / (art.size.y * transform.lossyScale.y);
+                    hitbox.size = art.size;
+                    hitbox.offset = art.center;
+                    blade.GetComponent<SpriteRenderer>().flipY = true;
+                }
             }
         }
 

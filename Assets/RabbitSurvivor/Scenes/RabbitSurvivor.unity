@@ -2125,7 +2125,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6469,7 +6469,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 22
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -6507,7 +6507,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
   m_Name: 
@@ -6731,7 +6731,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7301,7 +7301,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11622,7 +11622,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &619394801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12149,7 +12149,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16462,7 +16462,7 @@ MonoBehaviour:
   m_Follow: {fileID: 539536288}
   m_Lens:
     FieldOfView: 40
-    OrthographicSize: 10
+    OrthographicSize: 22
     NearClipPlane: 0.1
     FarClipPlane: 5000
     Dutch: 0
@@ -16715,7 +16715,7 @@ MonoBehaviour:
   level: 0
   kill: 0
   exp: 0
-  nextExp: 030000000500000007000000090000000c0000000f0000001200000015000000180000001b0000001e0000002100000024000000270000002a0000002d000000300000003300000036000000390000003c0000003f0000004200000045000000480000004b0000004e0000005100000054000000
+  nextExp: 05000000080000000b0000000f00000013000000170000001b0000001f00000023000000270000002b0000002f00000033000000370000003b0000003f00000043000000470000004b0000004f00000053000000570000005b0000005f00000063000000670000006b0000006f00000073000000
   pool: {fileID: 994102858}
   player: {fileID: 539536290}
   uiLevelUp: {fileID: 603419247}
@@ -16727,6 +16727,8 @@ MonoBehaviour:
   hitFlashMaterial: {fileID: 2100000, guid: 2af380a5935b4d56ab53749053572d03, type: 2}
   bossPresentation: {fileID: 861663794}
   gameOverPresentation: {fileID: 861663795}
+  gameplayHud: {fileID: 1403873274}
+  hudFont: {fileID: 12800000, guid: e715fcabbb6163e48b780b3b92979f8e, type: 3}
   corpseLifetime: 2
 --- !u!114 &861663794
 MonoBehaviour:
@@ -16783,7 +16785,7 @@ MonoBehaviour:
   experienceSprite: {fileID: 813450070, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   magnetSprite: {fileID: 813450071, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   potionSprite: {fileID: 813450072, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
-  potionDropChance: 0.02
+  potionDropChance: 0.0075
   potionHealFraction: 0.25
 --- !u!4 &861663792
 Transform:
@@ -18203,7 +18205,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18441,7 +18443,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20111,7 +20113,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: "\uC5B8\uB370\uB4DC 10\uB9C8\uB9AC  \uCC98\uCE58 \uC2DC \uD569\uB958"
+  m_Text: "\uC801 20\uB9C8\uB9AC \uCC98\uCE58 \uC2DC \uD569\uB958"
 --- !u!222 &1336152350
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -21913,7 +21915,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -26216,7 +26218,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: "\uC5B4\uB290 \uB204\uAD6C\uB098 \uC0DD\uC874 \uC131\uACF5 \uC2DC \uD569\uB958"
+  m_Text: "\uC6A9\uC655 \uCC98\uCE58 \uC2DC \uD569\uB958"
 --- !u!222 &1597379069
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -27440,7 +27442,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

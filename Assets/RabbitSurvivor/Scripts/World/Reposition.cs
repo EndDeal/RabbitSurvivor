@@ -41,7 +41,7 @@ namespace Goldmetal.UndeadSurvivor
                 case "Enemy":
                     if (coll.enabled && !game.HasFinalArena) {
                         if (TryGetComponent(out Enemy enemy)) {
-                            if (enemy.Boss == BossType.Final)
+                            if (enemy.Boss == BossType.Final || (!enemy.IsBoss && !enemy.IsBarrier))
                                 break;
                             if (enemy.IsBarrier) {
                                 gameObject.SetActive(false);

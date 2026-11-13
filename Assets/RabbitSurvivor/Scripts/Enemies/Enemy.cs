@@ -153,10 +153,13 @@ namespace Goldmetal.UndeadSurvivor
             coll.size = Boss == BossType.Final ? new Vector2(4.5f, 3.6f) :
                 Boss == BossType.Mid ? new Vector2(3.6f, 3.4f) :
                 IsBarrier ? new Vector2(8.5f, 8.5f) :
-                Behavior == EnemyBehavior.Shooter ? new Vector2(5.2f, 4.5f) : defaultColliderSize;
+                Behavior == EnemyBehavior.Shooter ? new Vector2(5.2f, 4.5f) :
+                animation && data.spriteType == 0 ? new Vector2(9.4f, 7.2f) :
+                animation && data.spriteType == 1 ? new Vector2(8.5f, 8.2f) : defaultColliderSize;
             spriter.flipX = false;
             ExperienceReward = Mathf.Max(1, data.experience);
-            float scale = boss == BossType.Final ? 2.1f : IsBoss ? 1.7f : 1f;
+            float scale = boss == BossType.Final ? 2.1f : IsBoss ? 1.7f :
+                animation && Behavior == EnemyBehavior.Chase ? 0.7f : 1f;
             transform.localScale = defaultScale * scale;
             spriter.color = IsBoss && !animation ? new Color(1f, 0.77f, 0.38f) : defaultColor;
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
@@ -7,9 +8,9 @@ namespace Goldmetal.UndeadSurvivor
 
     public class Spawner : MonoBehaviour
     {
-        const int WallCount = 4;
-        const float WallSpacing = 0.72f;
-        const float WallDistance = 3.4f;
+        const int BarrierCount = 10;
+        const float BarrierRadius = 2.7f;
+        const float CleanupInterval = 0.5f;
 
         public Transform[] spawnPoint;
         public SpawnData[] spawnData;
@@ -25,7 +26,12 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField] SpawnData barrierWave;
         [SerializeField, Min(0f)] float shooterStart = 180f;
         [SerializeField] SpawnData shooterWave;
+        [SerializeField, Min(12f)] float recycleDistance = 24f;
+        [SerializeField, Min(BarrierCount + 2)] int maxWaveEnemies = 96;
 
+        readonly List<Enemy> waveEnemies = new List<Enemy>();
+        Camera sceneCamera;
+        float nextCleanupAt;
         float timer;
         float nextWallAt;
         float nextShooterAt;
@@ -37,6 +43,7 @@ namespace Goldmetal.UndeadSurvivor
         {
             spawnPoint = GetComponentsInChildren<Transform>();
             levelTime = GameManager.instance.maxGameTime / spawnData.Length;
+            sceneCamera = Camera.main;
         }
 
         void Update()
@@ -45,38 +52,72 @@ namespace Goldmetal.UndeadSurvivor
             if (!game.isLive || game.HasFinalArena)
                 return;
 
+            if (Time.time >= nextCleanupAt)
+                RecycleDistantEnemies(game.player.transform.position);
+
             timer += Time.deltaTime;
             SpawnData wave = CurrentWave;
             if (timer >= wave.spawnTime) {
                 timer -= wave.spawnTime;
-                Spawn(wave, BossType.None, RandomSpawnPoint());
+                if (waveEnemies.Count < maxWaveEnemies - BarrierCount - 1)
+                    SpawnWaveEnemy(wave, RandomSpawnPoint());
             }
 
             if (barrierWave != null && barrierWave.spawnTime > 0f && game.gameTime >= barrierStart && Time.time >= nextWallAt) {
                 nextWallAt = Time.time + barrierWave.spawnTime;
-                SpawnWall(game.player);
+                if (waveEnemies.Count <= maxWaveEnemies - BarrierCount)
+                    SpawnBarrierRing(game.player.transform.position);
             }
 
             if (shooterWave != null && shooterWave.spawnTime > 0f && game.gameTime >= shooterStart && Time.time >= nextShooterAt) {
                 nextShooterAt = Time.time + shooterWave.spawnTime;
-                Spawn(shooterWave, BossType.None, RandomSpawnPoint());
+                if (waveEnemies.Count < maxWaveEnemies - BarrierCount)
+                    SpawnWaveEnemy(shooterWave, RandomSpawnPoint());
             }
         }
 
-        void SpawnWall(Player player)
+        void SpawnBarrierRing(Vector2 center)
         {
-            Vector2 input = player.inputVec;
-            if (input.sqrMagnitude < 0.01f)
-                input = Quaternion.Euler(0f, 0f, Random.Range(0, 4) * 90f) * Vector3.right;
-
-            Vector2 forward = Mathf.Abs(input.x) >= Mathf.Abs(input.y) ?
-                new Vector2(Mathf.Sign(input.x), 0f) : new Vector2(0f, Mathf.Sign(input.y));
-            Vector2 center = (Vector2)player.transform.position + forward * WallDistance;
-            Vector2 across = Vector2.Perpendicular(forward);
-            for (int index = 0; index < WallCount; index++) {
-                float offset = (index - (WallCount - 1) * 0.5f) * WallSpacing;
-                Spawn(barrierWave, BossType.None, center + across * offset);
+            float startAngle = Random.Range(0f, 2f * Mathf.PI / BarrierCount);
+            for (int index = 0; index < BarrierCount; index++) {
+                float angle = startAngle + index * (2f * Mathf.PI / BarrierCount);
+                Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BarrierRadius;
+                SpawnWaveEnemy(barrierWave, center + offset);
             }
+        }
+
+        void SpawnWaveEnemy(SpawnData data, Vector3 position)
+        {
+            Enemy enemy = Spawn(data, BossType.None, position);
+            if (!waveEnemies.Contains(enemy))
+                waveEnemies.Add(enemy);
+        }
+
+        void RecycleDistantEnemies(Vector2 playerPosition)
+        {
+            nextCleanupAt = Time.time + CleanupInterval;
+            float limitSquared = recycleDistance * recycleDistance;
+            for (int index = waveEnemies.Count - 1; index >= 0; index--) {
+                Enemy enemy = waveEnemies[index];
+                if (enemy && enemy.gameObject.activeSelf && !enemy.IsBoss) {
+                    Vector3 position = enemy.transform.position;
+                    if (((Vector2)position - playerPosition).sqrMagnitude <= limitSquared || IsNearCameraView(position))
+                        continue;
+                    enemy.gameObject.SetActive(false);
+                }
+                waveEnemies[index] = waveEnemies[waveEnemies.Count - 1];
+                waveEnemies.RemoveAt(waveEnemies.Count - 1);
+            }
+        }
+
+        bool IsNearCameraView(Vector3 position)
+        {
+            if (!sceneCamera)
+                return false;
+
+            Vector3 viewport = sceneCamera.WorldToViewportPoint(position);
+            return viewport.z > 0f && viewport.x >= -0.03f && viewport.x <= 1.03f &&
+                viewport.y >= -0.05f && viewport.y <= 1.05f;
         }
 
         public Enemy SpawnBoss(BossType type)

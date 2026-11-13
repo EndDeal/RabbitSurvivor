@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 namespace Goldmetal.UndeadSurvivor
@@ -10,6 +10,8 @@ namespace Goldmetal.UndeadSurvivor
         public GameObject[] lockCharacter;
         public GameObject[] unlockCharacter;
         public GameObject uiNotice;
+
+        const int PotatoKillRequirement = 20;
 
         enum Achive { UnlockPotato, UnlockBean }
         Achive[] achives;
@@ -37,6 +39,9 @@ namespace Goldmetal.UndeadSurvivor
         void Start()
         {
             UnlockCharacter();
+            Text potatoRequirement = lockCharacter[0].GetComponentInChildren<Text>(true);
+            if (potatoRequirement)
+                potatoRequirement.text = $"적 {PotatoKillRequirement}마리 처치 시 합류";
         }
 
         void UnlockCharacter()
@@ -62,16 +67,16 @@ namespace Goldmetal.UndeadSurvivor
 
             switch (achive) {
                 case Achive.UnlockPotato:
-                    if (GameManager.instance.isLive)
-                        isAchive = GameManager.instance.kill >= 20;
+                    isAchive = GameManager.instance.kill >= PotatoKillRequirement;
                     break;
                 case Achive.UnlockBean:
-                    isAchive = GameManager.instance.gameTime == GameManager.instance.maxGameTime;
+                    isAchive = GameManager.instance.HasWon;
                     break;
             }
 
             if (isAchive && PlayerPrefs.GetInt(achive.ToString()) == 0) {
                 PlayerPrefs.SetInt(achive.ToString(), 1);
+                PlayerPrefs.Save();
 
                 for (int index = 0; index < uiNotice.transform.childCount; index++) {
                     bool isActive = index == (int)achive;

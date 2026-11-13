@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -30,6 +31,7 @@ namespace Goldmetal.UndeadSurvivor
         Vector2 itemGroupBottom;
         Button ticketButton;
         Text ticketLabel;
+        Item lastLevelSelection;
         string levelHeading;
         int pendingLevels;
         EvolutionMenu evolutionMenu;
@@ -37,6 +39,13 @@ namespace Goldmetal.UndeadSurvivor
         public bool IsOpen { get; private set; }
         public bool HasEvolved { get; private set; }
         public bool HasEvolutionTicket { get; private set; }
+        internal IReadOnlyList<Item> Items => items;
+
+        internal void RememberSelection(Item item)
+        {
+            if (evolutionMenu == EvolutionMenu.None && offered.Contains(item))
+                lastLevelSelection = item;
+        }
 
         void Awake()
         {
@@ -198,6 +207,7 @@ namespace Goldmetal.UndeadSurvivor
         void ShowNextLevel()
         {
             pendingLevels--;
+            lastLevelSelection = null;
             int weaponCount = items.FindAll(item => item.level > 0 && item.data.IsWeapon).Count;
             int passiveCount = items.FindAll(item => item.level > 0 && item.data.IsPassive).Count;
 
@@ -254,6 +264,7 @@ namespace Goldmetal.UndeadSurvivor
             ShowOffers(offered, false);
             bool ready = evolutionOffers.Count > 0;
             SetTicketButton(HasEvolutionTicket, ready ? "강화권 사용 · 무기 진화" : "강화권 보유 · 조건 미충족", ready);
+            FocusChoices(offered, lastLevelSelection);
         }
 
         void ShowEvolutionOffers(EvolutionMenu menu)
@@ -264,6 +275,33 @@ namespace Goldmetal.UndeadSurvivor
             HideOffers(offered);
             ShowOffers(evolutionOffers, true);
             SetTicketButton(menu == EvolutionMenu.Ticket, "레벨업 보상으로 돌아가기", true);
+            FocusChoices(evolutionOffers, null);
+        }
+
+        void FocusChoices(List<Item> choices, Item preferred)
+        {
+            bool ticketSelectable = ticketButton && ticketButton.isActiveAndEnabled && ticketButton.interactable;
+            for (int index = 0; index < choices.Count; index++) {
+                Button previous = index > 0 ? choices[index - 1].Button : null;
+                Button next = index + 1 < choices.Count ? choices[index + 1].Button :
+                    ticketSelectable ? ticketButton : null;
+                SetVerticalNavigation(choices[index].Button, previous, next);
+            }
+
+            if (ticketSelectable)
+                SetVerticalNavigation(ticketButton, choices[choices.Count - 1].Button, null);
+
+            if (EventSystem.current)
+                (preferred ? preferred : choices[0]).Button.Select();
+        }
+
+        static void SetVerticalNavigation(Button button, Button previous, Button next)
+        {
+            button.navigation = new Navigation {
+                mode = Navigation.Mode.Explicit,
+                selectOnUp = previous,
+                selectOnDown = next
+            };
         }
 
         static void ShowOffers(List<Item> offers, bool evolution)
@@ -282,6 +320,11 @@ namespace Goldmetal.UndeadSurvivor
 
         void ClearOffers()
         {
+            EventSystem events = EventSystem.current;
+            if (events && events.currentSelectedGameObject &&
+                events.currentSelectedGameObject.transform.IsChildOf(transform))
+                events.SetSelectedGameObject(null);
+
             HideOffers(offered);
             HideOffers(evolutionOffers);
             offered.Clear();

@@ -15,7 +15,7 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField] Sprite experienceSprite;
         [SerializeField] Sprite magnetSprite;
         [SerializeField] Sprite potionSprite;
-        [SerializeField, Range(0f, 1f)] float potionDropChance = 0.02f;
+        [SerializeField, Range(0f, 1f)] float potionDropChance = 0.0075f;
         [SerializeField, Range(0f, 1f)] float potionHealFraction = 0.25f;
 
         enum Kind { Experience, Magnet, Potion }

@@ -6,6 +6,7 @@ namespace Goldmetal.UndeadSurvivor
 {
     public class AudioManager : MonoBehaviour
     {
+        const string MasterVolumeKey = "MasterVolume";
         public static AudioManager instance;
 
         [Header("#BGM")]
@@ -26,6 +27,7 @@ namespace Goldmetal.UndeadSurvivor
         void Awake()
         {
             instance = this;
+            AudioListener.volume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, 1f));
             Init();
         }
 
@@ -52,6 +54,17 @@ namespace Goldmetal.UndeadSurvivor
                 sfxPlayers[index].bypassListenerEffects = true;
                 sfxPlayers[index].volume = sfxVolume;
             }
+        }
+
+        public static void SetMasterVolume(float volume)
+        {
+            AudioListener.volume = Mathf.Clamp01(volume);
+        }
+
+        public static void SaveMasterVolume()
+        {
+            PlayerPrefs.SetFloat(MasterVolumeKey, AudioListener.volume);
+            PlayerPrefs.Save();
         }
 
         public void PlayBgm(bool isPlay)

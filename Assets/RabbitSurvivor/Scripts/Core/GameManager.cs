@@ -28,7 +28,10 @@ namespace Goldmetal.UndeadSurvivor
         public int level;
         public int kill;
         public int exp;
-        public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
+        public int[] nextExp = {
+            5, 8, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59,
+            63, 67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111, 115
+        };
 
         [Header("# Game Object")]
         public PoolManager pool;
@@ -42,6 +45,8 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField] Material hitFlashMaterial;
         [SerializeField] BossPresentation bossPresentation;
         [SerializeField] GameOverPresentation gameOverPresentation;
+        [SerializeField] RectTransform gameplayHud;
+        [SerializeField] Font hudFont;
         [SerializeField, Min(0f)] float corpseLifetime = 2f;
 
         Enemy clockBoss;
@@ -60,6 +65,7 @@ namespace Goldmetal.UndeadSurvivor
         internal bool IsEnding => ending;
         internal bool HasFinalArena => finalArenaBorder;
         public bool IsBossClockHeld => clockBoss;
+        internal bool HasWon { get; private set; }
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
 
         void Awake()
@@ -75,6 +81,8 @@ namespace Goldmetal.UndeadSurvivor
             health = maxHealth;
             player.gameObject.SetActive(true);
             uiLevelUp.Select(playerId % 2);
+            if (gameplayHud && hudFont)
+                gameplayHud.gameObject.AddComponent<RunHud>().Initialize(this, hudFont);
             Resume();
 
             AudioManager.instance.PlayBgm(true);
@@ -106,6 +114,7 @@ namespace Goldmetal.UndeadSurvivor
 
         IEnumerator VictoryRoutine(float delay)
         {
+            HasWon = true;
             BeginResult();
             enemyCleaner.SetActive(true);
 
@@ -135,7 +144,11 @@ namespace Goldmetal.UndeadSurvivor
 
         public void GameQuit()
         {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
+#endif
         }
 
         void Update()
