@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class HUD : MonoBehaviour
     {

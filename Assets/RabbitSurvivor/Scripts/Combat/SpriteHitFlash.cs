@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     sealed class SpriteHitFlash
     {

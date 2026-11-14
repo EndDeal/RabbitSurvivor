@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class GameManager : MonoBehaviour
     {
@@ -82,7 +82,7 @@ namespace Goldmetal.UndeadSurvivor
             playerId = id;
             health = maxHealth;
             player.gameObject.SetActive(true);
-            uiLevelUp.Select(playerId % 2);
+            uiLevelUp.Select(playerId % 2 == 0 ? ItemData.ShovelId : ItemData.ShotgunId);
             if (gameplayHud && hudFont)
                 gameplayHud.gameObject.AddComponent<RunHud>().Initialize(this, hudFont);
             Resume();

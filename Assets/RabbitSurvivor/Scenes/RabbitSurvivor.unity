@@ -1633,7 +1633,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 861663791}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: RabbitSurvivor.GameManager, Assembly-CSharp
         m_MethodName: GameRetry
         m_Mode: 1
         m_Arguments:
@@ -17830,7 +17830,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 861663791}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: RabbitSurvivor.GameManager, Assembly-CSharp
         m_MethodName: GameQuit
         m_Mode: 1
         m_Arguments:

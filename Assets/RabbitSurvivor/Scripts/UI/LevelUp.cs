@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class LevelUp : MonoBehaviour
     {

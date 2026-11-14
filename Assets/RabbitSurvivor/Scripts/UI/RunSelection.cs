@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public sealed class RunSelection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {

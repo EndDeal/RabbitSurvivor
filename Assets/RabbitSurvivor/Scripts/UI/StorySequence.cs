@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Goldmetal.UndeadSurvivor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;

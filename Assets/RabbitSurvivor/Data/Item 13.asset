@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "손목 보호대"
   m_EditorClassIdentifier:
   itemType: 15
-  itemId: 13
+  itemId: 16
   itemName: "손목 보호대"
   itemDesc: "받는 피해 -{0}%"
   itemIcon: {fileID: 814230101, guid: bce965f3a4dc41e59b15e90e18e9d1dc, type: 3}

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public enum BossType { None, Mid, Final }
     public enum EnemyBehavior { Chase, Barrier, Shooter }

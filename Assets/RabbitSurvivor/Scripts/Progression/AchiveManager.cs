@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class AchiveManager : MonoBehaviour
     {

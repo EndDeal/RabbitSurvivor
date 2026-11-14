@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "씨앗 자루"
   m_EditorClassIdentifier: 
   itemType: 10
-  itemId: 10
+  itemId: 15
   itemName: "씨앗 자루"
   itemDesc: "\uCD5C\uB300 \uCCB4\uB825 +{0}%"
   itemIcon: {fileID: 814220105, guid: 00f24ec73e0b9c79b106204eb60cd430, type: 3}

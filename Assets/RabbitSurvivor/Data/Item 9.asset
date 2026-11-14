@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "물뿌리개"
   m_EditorClassIdentifier: 
   itemType: 9
-  itemId: 9
+  itemId: 14
   itemName: "물뿌리개"
   itemDesc: "근접 공격 범위 +{0}%"
   itemIcon: {fileID: 814220104, guid: 00f24ec73e0b9c79b106204eb60cd430, type: 3}

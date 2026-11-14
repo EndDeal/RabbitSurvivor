@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class Result : MonoBehaviour
     {

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "수확 상자"
   m_EditorClassIdentifier:
   itemType: 16
-  itemId: 14
+  itemId: 17
   itemName: "수확 상자"
   itemDesc: "아이템 획득 범위 +{0}%"
   itemIcon: {fileID: 814230102, guid: bce965f3a4dc41e59b15e90e18e9d1dc, type: 3}

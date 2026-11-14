@@ -2,7 +2,7 @@
 
 농부 토끼가 용궁에서 탈출하는 2D 픽셀 아트 뱀서라이크입니다. 얕은 바다를 달리며 몰려드는 바다 생물을 피하고, 농기구와 장비를 강화해 용왕을 쓰러뜨립니다.
 
-<img src="Assets/RabbitSurvivor/Art/Story/Loading-Undersea-Chase.png" width="270" alt="얕은 바다에서 망둑어와 게에게 쫓기는 농부 토끼">
+<img src="Assets/RabbitSurvivor/Art/Story/Loading-Undersea-Chase.png" width="270" alt="얕은 바다에서 망둥어와 게에게 쫓기는 농부 토끼">
 
 ## 실행과 조작
 
@@ -16,7 +16,7 @@
 ## 한 판의 흐름
 
 - 처치한 적이 떨어뜨리는 경험치 보석을 주워 레벨을 올립니다. 보석은 XP에 따라 여섯 가지 색으로 구분합니다. 자석은 멀리 있는 보석도 모으고, 회복약은 체력을 회복합니다.
-- 장벽을 만드는 투구게와 보라색 독방울을 쏘는 망둑어가 등장합니다. 해저 돌에 이동이 막힐 수 있고, 투구게는 장벽과 겹치는 돌을 부숩니다.
+- 장벽을 만드는 투구게와 보라색 독방울을 쏘는 망둥어가 등장합니다. 해저 돌에 이동이 막힐 수 있고, 투구게는 장벽과 겹치는 돌을 부숩니다.
 - **5:00**에 돌진하는 대장 거북, **10:00**에 독방울을 연사하고 호위 거북을 부르는 용왕이 나타납니다. 보스가 살아 있는 동안 게임 시계는 정지합니다. 용왕을 쓰러뜨리면 승리합니다.
 - 대장 거북의 보물상자는 진화 조건을 갖춘 무기에 사용할 수 있습니다. 조건을 아직 갖추지 못했다면 보유 장비 중 강화 가능한 하나가 한 단계 오르고, 이후 진화에 사용할 장비 강화권을 받습니다.
 
@@ -49,13 +49,23 @@
 
 현재 씬에서 사용하는 캐릭터, 무기, 패시브, 진화, 적과 웨이브, 보스, 경험치, 획득·전투·연출 값을 정리했습니다. 각 표에서 C# 타입과 Unity 원본을 확인할 수 있습니다. 엑셀은 Unity 씬·에셋·코드의 수치를 읽어 정리한 스냅샷입니다. 게임에 적용할 수치는 Unity 원본에서 수정합니다.
 
+장비 ID는 정수입니다. 무기는 `01–09`, 패시브는 `11–19`, 회복 항목인 새참은 `00`을 사용합니다.
+
 ## 프로젝트 구조
 
 | 경로 | 내용 |
 | --- | --- |
 | `Assets/RabbitSurvivor/Scenes` | 타이틀, 캐릭터 선택 이후 진행, 메인 전투 씬 |
 | `Assets/RabbitSurvivor/Art` | 토끼, 적, 농기구, 해저, 타이틀과 오프닝 아트 |
-| `Assets/RabbitSurvivor/Data` | 추가 무기와 패시브 데이터 |
+| `Assets/RabbitSurvivor/Data` | 무기, 패시브, 회복, 진화 조합 데이터 |
+| `Assets/RabbitSurvivor/Prefabs` | 적과 투사체 프리팹 |
+| `Assets/RabbitSurvivor/Animations` | 플레이어와 적의 기본 애니메이션 컨트롤러 |
+| `Assets/RabbitSurvivor/Audio` · `Fonts` | 배경 음악, 효과음, UI 폰트 |
+| `Assets/RabbitSurvivor/Settings` | 입력 액션과 렌더러 설정 |
 | `Assets/RabbitSurvivor/Scripts` | 이동, 전투, 적 행동, 성장, UI |
-| `Assets/Undead Survivor` | 기반 에셋 및 메인 씬에서 참조하는 일부 장비·프리팹 |
 | `docs` | Excel 밸런스 데이터 |
+
+## 외부 자산 출처
+
+- 일부 UI·타일 스프라이트, 기본 애니메이션, 오디오에 Goldmetal의 강좌 자산을 사용합니다. [Goldmetal](https://www.goldmetal.co.kr)
+- UI 폰트는 Neo둥근모입니다. [Neo둥근모 프로젝트](https://neodgm.dalgona.dev/)

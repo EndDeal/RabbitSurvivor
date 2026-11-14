@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "낫"
   m_EditorClassIdentifier: 
   itemType: 11
-  itemId: 5
+  itemId: 3
   itemName: "낫"
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220001, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}

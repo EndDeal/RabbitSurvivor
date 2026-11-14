@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "괭이"
   m_EditorClassIdentifier: 
   itemType: 12
-  itemId: 6
+  itemId: 4
   itemName: "괭이"
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220002, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}

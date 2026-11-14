@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Goldmetal.UndeadSurvivor
+namespace RabbitSurvivor
 {
     public class Enemy : MonoBehaviour
     {
