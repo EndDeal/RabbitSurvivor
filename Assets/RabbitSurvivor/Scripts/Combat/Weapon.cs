@@ -153,8 +153,8 @@ namespace RabbitSurvivor
             if (burstShots > 0) {
                 burstCooldown -= Time.deltaTime;
                 if (burstCooldown <= 0f) {
-                    Transform target = player.scanner.nearestTarget;
-                    if (target && target.gameObject.activeInHierarchy)
+                    Transform target = player.scanner.GetNearestTarget();
+                    if (target)
                         burstDirection = AimAt(target);
                     FireProjectile(burstDirection, 0);
                     burstCooldown = BurstShotInterval;
@@ -173,8 +173,8 @@ namespace RabbitSurvivor
                 return;
             }
 
-            Transform nearest = player.scanner.nearestTarget;
-            if (!nearest || !nearest.gameObject.activeInHierarchy)
+            Transform nearest = player.scanner.GetNearestTarget();
+            if (!nearest)
                 return;
 
             if (data.IsToolStrike) {

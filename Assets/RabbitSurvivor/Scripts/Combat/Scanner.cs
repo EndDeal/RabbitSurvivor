@@ -7,10 +7,10 @@ namespace RabbitSurvivor
     {
         public float scanRange;
         public LayerMask targetLayer;
-        public Transform nearestTarget;
-
         readonly List<Collider2D> targets = new List<Collider2D>(128);
         ContactFilter2D filter;
+        Collider2D nearestCollider;
+        double lastScanTime = double.NegativeInfinity;
 
         void Awake()
         {
@@ -18,19 +18,28 @@ namespace RabbitSurvivor
             filter.useTriggers = false;
         }
 
-        void FixedUpdate()
+        internal Transform GetNearestTarget()
         {
+            // Share a query until physics advances or the cached collider is disabled.
+            double physicsTime = Time.fixedTimeAsDouble;
+            if (lastScanTime == physicsTime &&
+                (ReferenceEquals(nearestCollider, null) || (nearestCollider && nearestCollider.isActiveAndEnabled)))
+                return nearestCollider ? nearestCollider.transform : null;
+
+            lastScanTime = physicsTime;
             Vector2 position = transform.position;
             Physics2D.OverlapCircle(position, scanRange, filter, targets);
-            nearestTarget = null;
+            nearestCollider = null;
             float bestDistance = float.PositiveInfinity;
             foreach (Collider2D target in targets) {
-                float distance = ((Vector2)target.transform.position - position).sqrMagnitude;
+                Transform candidate = target.transform;
+                float distance = ((Vector2)candidate.position - position).sqrMagnitude;
                 if (distance < bestDistance) {
                     bestDistance = distance;
-                    nearestTarget = target.transform;
+                    nearestCollider = target;
                 }
             }
+            return nearestCollider ? nearestCollider.transform : null;
         }
     }
 }

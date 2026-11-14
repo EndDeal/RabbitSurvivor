@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +10,8 @@ namespace RabbitSurvivor
 
         Text myText;
         Slider mySlider;
+        int displayedNumber = -1;
+        bool displayedBossClock;
 
         void Awake()
         {
@@ -19,31 +19,44 @@ namespace RabbitSurvivor
             mySlider = GetComponent<Slider>();
         }
 
+        void OnEnable()
+        {
+            displayedNumber = -1;
+        }
+
         void LateUpdate()
         {
+            GameManager game = GameManager.instance;
             switch (type) {
                 case InfoType.Exp:
-                    float curExp = GameManager.instance.exp;
-                    float maxExp = GameManager.instance.ExperienceToNextLevel;
-                    mySlider.value = curExp / maxExp;
+                    mySlider.value = (float)game.exp / game.ExperienceToNextLevel;
                     break;
                 case InfoType.Level:
-                    myText.text = string.Format("Lv.{0:F0}", GameManager.instance.level);
+                    if (displayedNumber != game.level) {
+                        displayedNumber = game.level;
+                        myText.text = $"Lv.{displayedNumber:F0}";
+                    }
                     break;
                 case InfoType.Kill:
-                    myText.text = string.Format("{0:F0}", GameManager.instance.kill);
+                    if (displayedNumber != game.kill) {
+                        displayedNumber = game.kill;
+                        myText.text = displayedNumber.ToString("F0");
+                    }
                     break;
                 case InfoType.Time:
-                    float elapsed = GameManager.instance.gameTime;
-                    myText.color = GameManager.instance.IsBossClockHeld ? new Color32(255, 206, 104, 255) : Color.white;
-                    int min = Mathf.FloorToInt(elapsed / 60);
-                    int sec = Mathf.FloorToInt(elapsed % 60);
-                    myText.text = string.Format("{0:D2}:{1:D2}", min, sec);
+                    bool bossClock = game.IsBossClockHeld;
+                    if (displayedNumber < 0 || displayedBossClock != bossClock) {
+                        displayedBossClock = bossClock;
+                        myText.color = bossClock ? new Color32(255, 206, 104, 255) : Color.white;
+                    }
+                    int seconds = Mathf.FloorToInt(game.gameTime);
+                    if (displayedNumber != seconds) {
+                        displayedNumber = seconds;
+                        myText.text = $"{seconds / 60:D2}:{seconds % 60:D2}";
+                    }
                     break;
                 case InfoType.Health:
-                    float curHealth = GameManager.instance.health;
-                    float maxHealth = GameManager.instance.maxHealth;
-                    mySlider.value = curHealth / maxHealth;
+                    mySlider.value = game.health / game.maxHealth;
                     break;
             }
         }
