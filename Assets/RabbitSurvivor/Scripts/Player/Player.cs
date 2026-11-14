@@ -7,6 +7,7 @@ namespace RabbitSurvivor
     public class Player : MonoBehaviour
     {
         static readonly int DeadState = Animator.StringToHash("Dead");
+        static readonly int SpeedParameter = Animator.StringToHash("Speed");
 
         public Vector2 inputVec;
         internal Vector2 LastMoveDirection { get; private set; }
@@ -120,7 +121,7 @@ namespace RabbitSurvivor
             GameManager game = GameManager.instance;
             if (game.isLive) {
                 KeepInsideArena(game);
-                anim.SetFloat("Speed", inputVec.magnitude);
+                anim.SetFloat(SpeedParameter, inputVec.magnitude);
                 if (inputVec.x != 0)
                     spriter.flipX = inputVec.x < 0;
             }

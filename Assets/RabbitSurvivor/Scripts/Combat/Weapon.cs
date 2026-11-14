@@ -33,6 +33,7 @@ namespace RabbitSurvivor
         Vector3 pulseCenter;
         readonly List<Collider2D> pulseHits = new List<Collider2D>();
         readonly List<Collider2D> groundTargets = new List<Collider2D>();
+        readonly List<GroundTarget> liveGroundTargets = new List<GroundTarget>();
         ContactFilter2D enemyFilter;
         SpriteRenderer swing;
         float swingRemaining;
@@ -43,6 +44,18 @@ namespace RabbitSurvivor
         float scytheHeading;
         LineRenderer furrowTrail;
         float furrowRemaining;
+
+        readonly struct GroundTarget
+        {
+            public readonly Collider2D Collider;
+            public readonly Bounds Bounds;
+
+            public GroundTarget(Collider2D collider)
+            {
+                Collider = collider;
+                Bounds = collider.bounds;
+            }
+        }
 
         public void Init(ItemData item)
         {
@@ -345,25 +358,29 @@ namespace RabbitSurvivor
         bool FindGroundImpact(Vector2 origin, float reach, float radius, out Vector2 impact)
         {
             Physics2D.OverlapCircle(origin, reach + radius, enemyFilter, groundTargets);
+            liveGroundTargets.Clear();
+            foreach (Collider2D collider in groundTargets) {
+                if (collider.TryGetComponent(out Enemy enemy) && enemy.IsAlive)
+                    liveGroundTargets.Add(new GroundTarget(collider));
+            }
+
             impact = default;
             int bestCount = 0;
             float bestDistance = float.PositiveInfinity;
-            foreach (Collider2D candidate in groundTargets) {
-                if (!candidate.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
-                    continue;
-
-                Vector2 center = candidate.bounds.center;
-                if ((center - origin).sqrMagnitude > reach * reach)
-                    center = candidate.ClosestPoint(origin);
+            float reachSquared = reach * reach;
+            float radiusSquared = radius * radius;
+            foreach (GroundTarget candidate in liveGroundTargets) {
+                Vector2 center = candidate.Bounds.center;
+                if ((center - origin).sqrMagnitude > reachSquared)
+                    center = candidate.Collider.ClosestPoint(origin);
                 float distance = (center - origin).sqrMagnitude;
-                if (distance > reach * reach)
+                if (distance > reachSquared)
                     continue;
 
                 int count = 0;
-                foreach (Collider2D nearby in groundTargets) {
-                    if (nearby.bounds.SqrDistance(center) <= radius * radius &&
-                        nearby.TryGetComponent(out Enemy grouped) && grouped.IsAlive &&
-                        (nearby.ClosestPoint(center) - center).sqrMagnitude <= radius * radius)
+                foreach (GroundTarget nearby in liveGroundTargets) {
+                    if (nearby.Bounds.SqrDistance(center) <= radiusSquared &&
+                        (nearby.Collider.ClosestPoint(center) - center).sqrMagnitude <= radiusSquared)
                         count++;
                 }
                 if (count > bestCount || (count == bestCount && distance < bestDistance)) {

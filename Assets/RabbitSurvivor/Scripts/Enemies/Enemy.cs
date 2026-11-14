@@ -17,6 +17,9 @@ namespace RabbitSurvivor
         const float RiceWallDamageInterval = .8f;
         const float RiceWallContactMargin = .07f;
 
+        static readonly int Hit = Animator.StringToHash("Hit");
+        static readonly int Dead = Animator.StringToHash("Dead");
+
         public float speed;
         public float health;
         public float maxHealth;
@@ -104,7 +107,7 @@ namespace RabbitSurvivor
                 return;
             }
 
-            if (!IsBoss && anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
+            if (!IsBoss && anim.GetCurrentAnimatorStateInfo(0).shortNameHash == Hit)
                 return;
 
             Vector2 direction = target.position - rigid.position;
@@ -234,7 +237,7 @@ namespace RabbitSurvivor
             rigid.simulated = true;
             spriter.sortingOrder = 2;
             anim.enabled = true;
-            anim.SetBool("Dead", false);
+            anim.SetBool(Dead, false);
             health = maxHealth;
             nextRiceWallDamageAt = 0f;
             nextBossOrbitHitAt = 0f;
@@ -246,7 +249,7 @@ namespace RabbitSurvivor
                 bossAttacks.enabled = false;
 
             anim.runtimeAnimatorController = animation ? animation : animCon[data.spriteType];
-            anim.ResetTrigger("Hit");
+            anim.ResetTrigger(Hit);
             anim.Play("Run", 0, 0f);
             speed = data.speed;
             maxHealth = data.health;
@@ -389,7 +392,7 @@ namespace RabbitSurvivor
                         StartCoroutine(KnockBack());
                     }
                 }
-                anim.SetTrigger("Hit");
+                anim.SetTrigger(Hit);
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
                 return;
             }
@@ -401,7 +404,7 @@ namespace RabbitSurvivor
             coll.enabled = false;
             rigid.simulated = false;
             spriter.sortingOrder = 1;
-            anim.SetBool("Dead", true);
+            anim.SetBool(Dead, true);
 
             game.RegisterKill(this);
 
