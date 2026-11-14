@@ -29,8 +29,10 @@ namespace RabbitSurvivor
         Vector2 burstDirection;
         LineRenderer pulse;
         float pulseTime;
+        float pulseRadius;
         Vector3 pulseCenter;
         readonly List<Collider2D> pulseHits = new List<Collider2D>();
+        readonly List<Collider2D> groundTargets = new List<Collider2D>();
         ContactFilter2D enemyFilter;
         SpriteRenderer swing;
         float swingRemaining;
@@ -39,6 +41,8 @@ namespace RabbitSurvivor
         float scytheSlashRadius;
         Vector2 scytheOrigin;
         float scytheHeading;
+        LineRenderer furrowTrail;
+        float furrowRemaining;
 
         public void Init(ItemData item)
         {
@@ -57,10 +61,12 @@ namespace RabbitSurvivor
                 player.hands[0].Equip(data.hand);
             }
 
-            if (data.itemType == ItemData.ItemType.Pulse)
+            if (data.itemType == ItemData.ItemType.Pulse || data.itemType == ItemData.ItemType.GroundStrike)
                 CreatePulse();
             if (data.itemType == ItemData.ItemType.Sweep)
                 CreateScytheSlash();
+            if (data.itemType == ItemData.ItemType.Furrow)
+                CreateFurrowTrail();
             if ((data.IsToolStrike || data.itemType == ItemData.ItemType.Pulse) && data.projectileSprite) {
                 swing = new GameObject("Tool Swing").AddComponent<SpriteRenderer>();
                 swing.transform.SetParent(transform, false);
@@ -141,6 +147,8 @@ namespace RabbitSurvivor
                 UpdateSwing();
             if (scytheSlash && scytheSlash.enabled)
                 UpdateScytheSlash(Time.deltaTime);
+            if (furrowTrail && furrowTrail.enabled)
+                UpdateFurrowTrail();
 
             if (burstShots > 0) {
                 burstCooldown -= Time.deltaTime;
@@ -169,12 +177,13 @@ namespace RabbitSurvivor
             if (!nearest || !nearest.gameObject.activeInHierarchy)
                 return;
 
-            Vector2 direction = AimAt(nearest);
             if (data.IsToolStrike) {
-                if (Strike(nearest, direction))
+                if (Strike(nearest))
                     cooldown = attackInterval;
                 return;
             }
+
+            Vector2 direction = AimAt(nearest);
             cooldown = attackInterval;
             switch (data.itemType) {
                 case ItemData.ItemType.Range:
@@ -247,42 +256,63 @@ namespace RabbitSurvivor
             }
         }
 
-        bool Strike(Transform target, Vector2 direction)
+        bool Strike(Transform nearest)
         {
             Vector2 origin = transform.position;
-            Vector2 destination = target.position;
-            if (direction.sqrMagnitude < 0.01f)
-                direction = player.GetComponent<SpriteRenderer>().flipX ? Vector2.left : Vector2.right;
-
             float length = attackRadius;
             float width = data.strikeWidth * attackAreaMultiplier;
-            Vector2 impact = origin + direction * (length * 0.55f);
-            if (data.itemType == ItemData.ItemType.GroundStrike) {
-                if (Vector2.Distance(origin, destination) > length)
+            Vector2 direction = AimAt(nearest);
+            if (direction == Vector2.zero)
+                direction = player.LastMoveDirection == Vector2.zero ? Vector2.right : player.LastMoveDirection;
+            Vector2 impact;
+            Enemy jabTarget = null;
+            switch (data.itemType) {
+                case ItemData.ItemType.Sweep:
+                    Vector2 input = player.inputVec;
+                    if (input.sqrMagnitude > .01f)
+                        direction = input.normalized;
+                    else if (player.LastMoveDirection != Vector2.zero)
+                        direction = player.LastMoveDirection;
+                    impact = origin + direction * (length * .55f);
+                    Physics2D.OverlapCircle(origin, length, enemyFilter, pulseHits);
+                    break;
+                case ItemData.ItemType.GroundStrike:
+                    if (!FindGroundImpact(origin, length, width, out impact))
+                        return false;
+                    if ((impact - origin).sqrMagnitude > .0001f)
+                        direction = (impact - origin).normalized;
+                    Physics2D.OverlapCircle(impact, width, enemyFilter, pulseHits);
+                    break;
+                case ItemData.ItemType.Jab:
+                    Physics2D.OverlapCircle(origin, length, enemyFilter, pulseHits);
+                    jabTarget = FindJabTarget(origin);
+                    if (!jabTarget)
+                        return false;
+                    impact = jabTarget.transform.position;
+                    direction = AimAt(jabTarget.transform);
+                    break;
+                case ItemData.ItemType.Furrow:
+                    impact = origin + direction * (length * .5f);
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    Physics2D.OverlapBox(impact, new Vector2(length, width), angle, enemyFilter, pulseHits);
+                    break;
+                default:
                     return false;
-                impact = destination;
-                Physics2D.OverlapCircle(impact, width, enemyFilter, pulseHits);
-            }
-            else if (data.itemType == ItemData.ItemType.Furrow) {
-                impact = origin + direction * (length * 0.5f);
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                Physics2D.OverlapBox(impact, new Vector2(length, width), angle, enemyFilter, pulseHits);
-            }
-            else {
-                Physics2D.OverlapCircle(origin, length, enemyFilter, pulseHits);
             }
 
             bool hitAny = false;
             foreach (Collider2D hit in pulseHits) {
                 if (!hit.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
                     continue;
-                if (data.itemType == ItemData.ItemType.Jab && enemy.transform != target)
+                if (data.itemType == ItemData.ItemType.Jab && enemy != jabTarget)
                     continue;
                 if (data.itemType == ItemData.ItemType.Sweep &&
                     Vector2.Dot(direction, ((Vector2)enemy.transform.position - origin).normalized) < 0.15f)
                     continue;
                 if (data.itemType == ItemData.ItemType.Furrow)
                     enemy.TakeFurrowDamage(Damage, direction, IsEvolved ? 2.35f : 1.8f);
+                else if (enemy == jabTarget)
+                    enemy.TakeJabDamage(Damage);
                 else
                     enemy.TakeDamage(Damage);
                 hitAny = true;
@@ -299,14 +329,69 @@ namespace RabbitSurvivor
                     UpdateScytheSlash(0f);
                 }
                 else if (data.itemType == ItemData.ItemType.Furrow) {
+                    ShowFurrowTrail(origin, direction, length, width);
                     ShowSwing(origin + direction * 0.55f, direction, Mathf.Min(1.25f, 0.95f * attackAreaMultiplier));
                 }
                 else {
+                    if (data.itemType == ItemData.ItemType.GroundStrike)
+                        ShowPulse(impact, width);
                     ShowSwing(impact, direction, 1.3f * attackAreaMultiplier);
                 }
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Melee);
             }
             return hitAny;
+        }
+
+        bool FindGroundImpact(Vector2 origin, float reach, float radius, out Vector2 impact)
+        {
+            Physics2D.OverlapCircle(origin, reach + radius, enemyFilter, groundTargets);
+            impact = default;
+            int bestCount = 0;
+            float bestDistance = float.PositiveInfinity;
+            foreach (Collider2D candidate in groundTargets) {
+                if (!candidate.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
+                    continue;
+
+                Vector2 center = candidate.bounds.center;
+                if ((center - origin).sqrMagnitude > reach * reach)
+                    center = candidate.ClosestPoint(origin);
+                float distance = (center - origin).sqrMagnitude;
+                if (distance > reach * reach)
+                    continue;
+
+                int count = 0;
+                foreach (Collider2D nearby in groundTargets) {
+                    if (nearby.bounds.SqrDistance(center) <= radius * radius &&
+                        nearby.TryGetComponent(out Enemy grouped) && grouped.IsAlive &&
+                        (nearby.ClosestPoint(center) - center).sqrMagnitude <= radius * radius)
+                        count++;
+                }
+                if (count > bestCount || (count == bestCount && distance < bestDistance)) {
+                    bestCount = count;
+                    bestDistance = distance;
+                    impact = center;
+                }
+            }
+            return bestCount > 0;
+        }
+
+        Enemy FindJabTarget(Vector2 origin)
+        {
+            Enemy best = null;
+            float bestDistance = float.PositiveInfinity;
+            foreach (Collider2D hit in pulseHits) {
+                if (!hit.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
+                    continue;
+
+                float distance = ((Vector2)enemy.transform.position - origin).sqrMagnitude;
+                if (best && (enemy.IsBoss != best.IsBoss ? !enemy.IsBoss :
+                    enemy.maxHealth < best.maxHealth || (enemy.maxHealth == best.maxHealth && distance >= bestDistance)))
+                    continue;
+
+                best = enemy;
+                bestDistance = distance;
+            }
+            return best;
         }
 
         bool EmitPulse()
@@ -315,10 +400,7 @@ namespace RabbitSurvivor
             if (pulseHits.Count == 0)
                 return false;
 
-            pulseCenter = transform.position;
-            pulseTime = 0f;
-            pulse.enabled = true;
-            UpdatePulse();
+            ShowPulse(transform.position, attackRadius);
             ShowSwing(pulseCenter + Vector3.up * 0.65f, Vector2.right, 1.45f * attackAreaMultiplier);
 
             foreach (Collider2D hit in pulseHits) {
@@ -327,6 +409,15 @@ namespace RabbitSurvivor
             }
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Melee);
             return true;
+        }
+
+        void ShowPulse(Vector2 center, float radius)
+        {
+            pulseCenter = center;
+            pulseRadius = radius;
+            pulseTime = 0f;
+            pulse.enabled = true;
+            UpdatePulse();
         }
 
         void ShowSwing(Vector2 position, Vector2 direction, float length)
@@ -362,6 +453,40 @@ namespace RabbitSurvivor
             scytheSlash.enabled = false;
         }
 
+        void CreateFurrowTrail()
+        {
+            furrowTrail = new GameObject("Furrow Trail").AddComponent<LineRenderer>();
+            furrowTrail.transform.SetParent(transform, false);
+            furrowTrail.sharedMaterial = data.pulseMaterial;
+            furrowTrail.sortingOrder = 4;
+            furrowTrail.loop = true;
+            furrowTrail.positionCount = 4;
+            furrowTrail.widthMultiplier = .045f;
+            furrowTrail.enabled = false;
+        }
+
+        void ShowFurrowTrail(Vector2 origin, Vector2 direction, float length, float width)
+        {
+            Vector2 side = Vector2.Perpendicular(direction) * (width * .5f);
+            Vector2 end = origin + direction * length;
+            furrowTrail.SetPosition(0, origin + side);
+            furrowTrail.SetPosition(1, end + side);
+            furrowTrail.SetPosition(2, end - side);
+            furrowTrail.SetPosition(3, origin - side);
+            furrowRemaining = PulseDuration;
+            furrowTrail.startColor = furrowTrail.endColor = attackColor;
+            furrowTrail.enabled = true;
+        }
+
+        void UpdateFurrowTrail()
+        {
+            furrowRemaining -= Time.deltaTime;
+            Color color = attackColor;
+            color.a *= Mathf.Clamp01(furrowRemaining / PulseDuration);
+            furrowTrail.startColor = furrowTrail.endColor = color;
+            furrowTrail.enabled = furrowRemaining > 0f;
+        }
+
         void UpdateScytheSlash(float deltaTime)
         {
             scytheSlashRemaining -= deltaTime;
@@ -393,7 +518,7 @@ namespace RabbitSurvivor
             pulseTime += Time.deltaTime;
             float progress = Mathf.Clamp01(pulseTime / PulseDuration);
             pulse.transform.position = pulseCenter;
-            pulse.transform.localScale = Vector3.one * attackRadius * Mathf.Lerp(0.25f, 1f, progress);
+            pulse.transform.localScale = Vector3.one * pulseRadius * Mathf.Lerp(0.25f, 1f, progress);
             Color color = attackColor;
             color.a = 1f - progress;
             pulse.startColor = pulse.endColor = color;

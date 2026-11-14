@@ -18,9 +18,9 @@ MonoBehaviour:
   itemDesc: "받는 피해 -{0}%"
   itemIcon: {fileID: 814230101, guid: bce965f3a4dc41e59b15e90e18e9d1dc, type: 3}
   damages:
-  - 0.04
-  - 0.08
+  - 0.06
   - 0.12
-  - 0.16
-  - 0.2
+  - 0.18
+  - 0.24
+  - 0.3
   counts: 0000000000000000000000000000000000000000

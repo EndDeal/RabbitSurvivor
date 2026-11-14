@@ -17,7 +17,7 @@ MonoBehaviour:
   itemName: "호미"
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220003, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
-  pickupDescription: "가까운 적 하나를 빠르게 찔러요"
+  pickupDescription: "사거리 안의 보스나 체력이 높은 적 하나를 빠르게 찔러요"
   baseDamage: 4.7
   baseCount: 0
   damages:

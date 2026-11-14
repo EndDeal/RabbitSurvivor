@@ -16,12 +16,16 @@ namespace RabbitSurvivor
         const int MaxSeeds = 4;
         const int RingPoints = 32;
         const float SeedSpacing = 7f;
+        const float MineTriggerRadius = .48f;
+        const float MineFuseSeconds = 1f;
         const float ChainInterval = .085f;
 
         enum SeedKind { Rice = 20, Wheat = 21, Potato = 22, Carrot = 23 }
         enum SeedGrade { Normal, Rare, Epic, Unique, Legendary }
 
         [SerializeField] Sprite[] seedSprites;
+        [SerializeField] Sprite guideBubble;
+        [SerializeField] Sprite guideTail;
         [SerializeField] Sprite scarecrowSprite;
         [SerializeField] Sprite turretSprite;
         [SerializeField] Sprite pelletSprite;
@@ -55,6 +59,7 @@ namespace RabbitSurvivor
             public int queuedBlasts;
             public float nextChainAt;
             public int mineKills;
+            public bool turretFlankLeft;
         }
 
         struct Burst
@@ -80,7 +85,7 @@ namespace RabbitSurvivor
         Vector2? lastSpawnPosition;
         Vector2 lastHeading = Vector2.up;
         bool hasPlayerPosition;
-        SpriteRenderer seedGuide;
+        SeedEdgeGuide seedGuide;
 
         internal int BestMineCombo { get; private set; }
         internal int CurrentMineCombo { get; private set; }
@@ -97,41 +102,30 @@ namespace RabbitSurvivor
 
         void LateUpdate()
         {
-            if (!game.isLive || !sceneCamera)
+            if (!game.isLive || !sceneCamera) {
+                seedGuide?.Hide();
                 return;
+            }
 
             UpdateBursts();
-            Seed seed = null;
+            if (seeds.Count == 0 || !guideBubble || !guideTail) {
+                seedGuide?.Hide();
+                return;
+            }
+
+            seedGuide ??= new SeedEdgeGuide(guideBubble, guideTail, MaxSeeds);
+            seedGuide.Begin(sceneCamera.pixelRect, Screen.safeArea);
             for (int index = seeds.Count - 1; index >= 0; index--) {
-                if (!seeds[index].activated) {
-                    seed = seeds[index];
-                    break;
-                }
+                Seed seed = seeds[index];
+                if (!seed.activated)
+                    seedGuide.Show(sceneCamera.WorldToScreenPoint(seed.position), seed.sprite.sprite, GradeColors[(int)seed.grade]);
             }
-            if (seedGuide)
-                seedGuide.enabled = false;
-            if (seed == null)
-                return;
-
-            Vector3 view = sceneCamera.WorldToViewportPoint(seed.position);
-            if (view.x >= .02f && view.x <= .98f && view.y >= .02f && view.y <= .98f)
-                return;
-
-            if (!seedGuide) {
-                seedGuide = new GameObject("Seed Direction").AddComponent<SpriteRenderer>();
-                seedGuide.transform.SetParent(transform, false);
-                seedGuide.transform.localScale = Vector3.one * .65f;
-                seedGuide.sortingOrder = 6;
-                if (effectMaterial)
-                    seedGuide.sharedMaterial = effectMaterial;
-            }
-            view.x = Mathf.Clamp(view.x, .065f, .935f);
-            view.y = Mathf.Clamp(view.y, .09f, .91f);
-            seedGuide.transform.position = sceneCamera.ViewportToWorldPoint(view);
-            seedGuide.sprite = seed.sprite.sprite;
-            seedGuide.color = Color.Lerp(GradeColors[(int)seed.grade], Color.white, .52f);
-            seedGuide.enabled = true;
+            seedGuide.End();
         }
+
+        void OnDisable() => seedGuide?.Hide();
+
+        void OnDestroy() => seedGuide?.Destroy();
 
         void FixedUpdate()
         {
@@ -205,10 +199,8 @@ namespace RabbitSurvivor
             if (bestSpacing == 0f)
                 return false;
 
-            bool firstSeed = !lastSpawnPosition.HasValue;
-            SeedKind kind = firstSeed ? SeedKind.Potato :
-                (SeedKind)Random.Range((int)SeedKind.Rice, (int)SeedKind.Carrot + 1);
-            SpawnSeed(best, kind, firstSeed ? SeedGrade.Normal : RollGrade());
+            SeedKind kind = (SeedKind)Random.Range((int)SeedKind.Rice, (int)SeedKind.Carrot + 1);
+            SpawnSeed(best, kind, RollGrade());
             lastSpawnPosition = best;
             return true;
         }
@@ -229,7 +221,9 @@ namespace RabbitSurvivor
             var root = new GameObject(CropNames[crop] + " 씨앗");
             root.transform.SetParent(transform, false);
             root.transform.position = position;
-            var sprite = root.AddComponent<SpriteRenderer>();
+            var sprite = new GameObject("Crop Sprite").AddComponent<SpriteRenderer>();
+            sprite.transform.SetParent(root.transform, false);
+            sprite.transform.localScale = Vector3.one * 1.3f;
             sprite.sprite = seedSprites[crop];
             sprite.sortingOrder = 4;
             if (effectMaterial)
@@ -259,6 +253,7 @@ namespace RabbitSurvivor
         void Activate(Seed seed)
         {
             seed.activated = true;
+            seed.sprite.transform.localScale = Vector3.one;
             int tier = (int)seed.grade;
             game.uiLevelUp.Notify($"{GradeNames[tier]} {CropNames[(int)seed.kind - (int)SeedKind.Rice]}");
             switch (seed.kind) {
@@ -271,11 +266,11 @@ namespace RabbitSurvivor
                     DrawRing(seed.ring, LureRadius(tier), 1f, .4f);
                     break;
                 case SeedKind.Potato:
-                    seed.expiresAt = elapsed + 1.55f;
-                    seed.nextEffectAt = elapsed + .45f;
+                    seed.expiresAt = elapsed + SeedLifetime;
+                    seed.nextEffectAt = float.PositiveInfinity;
                     seed.chain = new Queue<(Vector2 position, int depth)>();
-                    seed.nextChainAt = seed.nextEffectAt + ChainInterval;
-                    DrawRing(seed.ring, MineRadius(tier), 1f, .55f);
+                    seed.sprite.transform.localScale = new Vector3(.9f, .55f, 1f);
+                    DrawRing(seed.ring, MineTriggerRadius, 1f, .65f);
                     break;
                 case SeedKind.Carrot:
                     seed.sprite.sprite = turretSprite;
@@ -287,7 +282,7 @@ namespace RabbitSurvivor
 
         void ActivateWall(Seed seed, int tier)
         {
-            seed.expiresAt = elapsed + 3.5f + tier * .55f;
+            seed.expiresAt = elapsed + 7f + tier;
             seed.sprite.enabled = false;
             seed.ring.enabled = false;
             Vector2 across = Vector2.Perpendicular(lastHeading);
@@ -346,13 +341,7 @@ namespace RabbitSurvivor
         {
             int tier = (int)seed.grade;
             if (seed.kind == SeedKind.Potato) {
-                if (elapsed >= seed.nextEffectAt)
-                    Explode(seed, tier);
-                else if (seed.chain.Count > 0 && elapsed >= seed.nextChainAt) {
-                    var blast = seed.chain.Dequeue();
-                    MineBlast(seed, tier, blast.position, 1.18f + tier * .13f, 18f + tier * 3f, blast.depth);
-                    seed.nextChainAt = elapsed + ChainInterval;
-                }
+                UpdateMine(seed, tier);
                 return;
             }
             if (elapsed < seed.nextEffectAt || seed.kind != SeedKind.Carrot || projectileIndex < 0)
@@ -364,12 +353,17 @@ namespace RabbitSurvivor
 
             int shots = tier >= (int)SeedGrade.Unique ? tier - 1 : 1;
             for (int index = 0; index < shots; index++) {
-                float angle = (index - (shots - 1) * .5f) * 16f;
+                float angle = 0f;
+                if (index == 1)
+                    angle = seed.turretFlankLeft ? -16f : 16f;
+                else if (index == 2)
+                    angle = seed.turretFlankLeft ? 16f : -16f;
                 Vector2 direction = Quaternion.Euler(0, 0, angle) * aim;
                 Bullet bullet = game.pool.Get(projectileIndex).GetComponent<Bullet>();
                 bullet.transform.SetPositionAndRotation(seed.position, Quaternion.FromToRotation(Vector3.up, direction));
                 bullet.Init(4f + tier * .5f, tier >= (int)SeedGrade.Epic ? 1 : 0, direction, pelletSprite, Color.white);
             }
+            seed.turretFlankLeft = !seed.turretFlankLeft;
             seed.nextEffectAt = elapsed + .8f - tier * .06f;
         }
 
@@ -391,10 +385,41 @@ namespace RabbitSurvivor
             return aim;
         }
 
+        void UpdateMine(Seed seed, int tier)
+        {
+            if (seed.pulses == 0 && float.IsPositiveInfinity(seed.nextEffectAt)) {
+                Physics2D.OverlapCircle(seed.position, MineTriggerRadius, enemies, hits);
+                foreach (Collider2D hit in hits) {
+                    if (!hit.TryGetComponent(out Enemy enemy) || !enemy.IsAlive)
+                        continue;
+
+                    seed.nextEffectAt = elapsed + MineFuseSeconds;
+                    seed.nextChainAt = seed.nextEffectAt + ChainInterval;
+                    seed.expiresAt = seed.nextEffectAt + .7f;
+                    seed.ring.startColor = seed.ring.endColor = new Color(1f, .64f, .25f);
+                    DrawRing(seed.ring, MineRadius(tier), 1f, .35f);
+                    break;
+                }
+                return;
+            }
+
+            if (elapsed + .0001f >= seed.nextEffectAt)
+                Explode(seed, tier);
+            else if (seed.chain.Count > 0 && elapsed >= seed.nextChainAt) {
+                var blast = seed.chain.Dequeue();
+                MineBlast(seed, tier, blast.position, 1.18f + tier * .13f, 18f + tier * 3f, blast.depth);
+                seed.nextChainAt = elapsed + ChainInterval;
+            }
+            else if (seed.pulses == 0) {
+                float progress = 1f - (seed.nextEffectAt - elapsed) / MineFuseSeconds;
+                DrawRing(seed.ring, MineRadius(tier), 1f, Mathf.Lerp(.35f, 1f, progress));
+            }
+        }
+
         void Explode(Seed seed, int tier)
         {
             float radius = MineRadius(tier) + seed.pulses * .55f;
-            float damage = (18f + tier * 5f) * (seed.pulses == 0 ? 1f : .45f);
+            float damage = (18f + tier * 5f) * (seed.pulses == 0 ? 1f : .55f);
             MineBlast(seed, tier, seed.position, radius, damage, 0);
             seed.sprite.enabled = false;
             seed.ring.enabled = false;
@@ -519,8 +544,7 @@ namespace RabbitSurvivor
 
         internal void Clear()
         {
-            if (seedGuide)
-                seedGuide.enabled = false;
+            seedGuide?.Hide();
             for (int index = seeds.Count - 1; index >= 0; index--)
                 RemoveSeed(index);
             foreach (Burst burst in bursts) {

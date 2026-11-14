@@ -9,6 +9,7 @@ namespace RabbitSurvivor
         static readonly int DeadState = Animator.StringToHash("Dead");
 
         public Vector2 inputVec;
+        internal Vector2 LastMoveDirection { get; private set; }
         public float speed;
         public Scanner scanner;
         public Hand[] hands;
@@ -46,6 +47,7 @@ namespace RabbitSurvivor
 
         void OnEnable()
         {
+            LastMoveDirection = Vector2.zero;
             SetMoveSpeedBonus(0);
             hitbox.enabled = true;
             nextContactAt = 0f;
@@ -65,6 +67,8 @@ namespace RabbitSurvivor
                 return;
 
             touchDamage = 0f;
+            if (inputVec.sqrMagnitude > .01f)
+                LastMoveDirection = inputVec.normalized;
             Vector2 movement = Vector2.ClampMagnitude(inputVec, 1f) * speed * Time.fixedDeltaTime;
             Vector2 destination = game.ConstrainPlayerPosition(rigid.position + movement);
             Vector2 step = destination - rigid.position;

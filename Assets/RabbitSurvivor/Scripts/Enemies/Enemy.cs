@@ -12,6 +12,10 @@ namespace RabbitSurvivor
         const float ShotCooldown = 2.1f;
         const float FurrowPushSpeed = 7.5f;
         const float ObstacleLookAhead = 1.05f;
+        const float BossOrbitHitInterval = .35f;
+        const float RiceWallDamage = 3f;
+        const float RiceWallDamageInterval = .8f;
+        const float RiceWallContactMargin = .07f;
 
         public float speed;
         public float health;
@@ -59,6 +63,8 @@ namespace RabbitSurvivor
         Vector2 detourHeading;
         Vector2 pushDirection;
         float pushRemaining;
+        float nextRiceWallDamageAt;
+        float nextBossOrbitHitAt;
 
         void Awake()
         {
@@ -113,6 +119,8 @@ namespace RabbitSurvivor
                 direction = GameManager.instance.Crops.ChaseTarget(rigid.position, target.position) - rigid.position;
 
             Vector2 movement = SteerAroundObstacles(direction) * speed * Time.fixedDeltaTime;
+            if (!isLive || !GameManager.instance.isLive)
+                return;
             rigid.MovePosition(rigid.position + movement);
             rigid.velocity = Vector2.zero;
         }
@@ -129,6 +137,13 @@ namespace RabbitSurvivor
                 detourDirection = Vector2.zero;
                 detourHeading = Vector2.zero;
                 return forward;
+            }
+
+            if (obstacle.collider.gameObject.layer == SeedCrops.RiceWallLayer) {
+                if (obstacle.distance <= RiceWallContactMargin)
+                    TakeRiceWallDamage();
+                else if (detourHeading == Vector2.zero)
+                    return forward;
             }
 
             Vector2 normal = obstacle.normal;
@@ -221,6 +236,8 @@ namespace RabbitSurvivor
             anim.enabled = true;
             anim.SetBool("Dead", false);
             health = maxHealth;
+            nextRiceWallDamageAt = 0f;
+            nextBossOrbitHitAt = 0f;
         }
 
         public void Init(SpawnData data, BossType boss = BossType.None, RuntimeAnimatorController animation = null)
@@ -307,16 +324,43 @@ namespace RabbitSurvivor
 
         void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.CompareTag("Bullet") && collision.TryGetComponent(out Bullet bullet))
-                TakeDamage(bullet.damage);
+            if (!collision.CompareTag("Bullet") || !collision.TryGetComponent(out Bullet bullet))
+                return;
+
+            if (IsBoss && bullet.per == Bullet.InfinitePierce) {
+                if (!isLive || !GameManager.instance.isLive || Time.time < nextBossOrbitHitAt)
+                    return;
+
+                nextBossOrbitHitAt = Time.time + BossOrbitHitInterval;
+            }
+            TakeDamage(bullet.damage);
         }
 
         public void TakeDamage(float damage) => ApplyDamage(damage, Vector2.zero, 0f);
 
+        internal void TakeJabDamage(float damage) => ApplyDamage(damage, Vector2.zero, 0f, knockBack: false);
+
+        void OnCollisionEnter2D(Collision2D collision) => OnCollisionStay2D(collision);
+
+        void OnCollisionStay2D(Collision2D collision)
+        {
+            if (collision.gameObject.layer == SeedCrops.RiceWallLayer)
+                TakeRiceWallDamage();
+        }
+
+        void TakeRiceWallDamage()
+        {
+            if (!isLive || !GameManager.instance.isLive || Time.time < nextRiceWallDamageAt)
+                return;
+
+            nextRiceWallDamageAt = Time.time + RiceWallDamageInterval;
+            ApplyDamage(RiceWallDamage, Vector2.zero, 0f, stagger: false);
+        }
+
         internal void TakeFurrowDamage(float damage, Vector2 direction, float distance) =>
             ApplyDamage(damage, direction, distance);
 
-        void ApplyDamage(float damage, Vector2 direction, float pushDistance)
+        void ApplyDamage(float damage, Vector2 direction, float pushDistance, bool stagger = true, bool knockBack = true)
         {
             if (!isLive || damage <= 0f)
                 return;
@@ -333,13 +377,15 @@ namespace RabbitSurvivor
             }
 
             if (health > 0f) {
+                if (!stagger)
+                    return;
                 if (!IsBoss && !IsBarrier) {
                     if (pushDistance > 0f) {
                         pushDirection = direction;
                         pushRemaining = Mathf.Max(pushRemaining, pushDistance);
                         rigid.velocity = Vector2.zero;
                     }
-                    else if (pushRemaining <= 0f) {
+                    else if (knockBack && pushRemaining <= 0f) {
                         StartCoroutine(KnockBack());
                     }
                 }

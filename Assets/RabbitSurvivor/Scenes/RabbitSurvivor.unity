@@ -16775,6 +16775,8 @@ MonoBehaviour:
   - {fileID: 814251002, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
   - {fileID: 814251003, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
   - {fileID: 814251004, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  guideBubble: {fileID: 21300000, guid: 9bd6f47bd99a4ec788fd2f541247af0b, type: 3}
+  guideTail: {fileID: 21300000, guid: 99f02b6944cf4f24bcf21dff2295a984, type: 3}
   scarecrowSprite: {fileID: 814251005, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
   turretSprite: {fileID: 814251006, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
   pelletSprite: {fileID: 814251008, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}

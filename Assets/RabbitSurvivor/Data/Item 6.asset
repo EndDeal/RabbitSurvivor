@@ -17,7 +17,7 @@ MonoBehaviour:
   itemName: "괭이"
   itemDesc: "피해 증가"
   itemIcon: {fileID: 814220002, guid: 4e96427f046eb5c4633707260cc46fbd, type: 3}
-  pickupDescription: "가까운 적을 찍어 주변도 타격"
+  pickupDescription: "적이 가장 많이 모인 곳을 찍어요"
   baseDamage: 9
   baseCount: 0
   damages:

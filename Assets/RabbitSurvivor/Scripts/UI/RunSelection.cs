@@ -8,7 +8,7 @@ namespace RabbitSurvivor
     public sealed class RunSelection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         static readonly string[] RabbitNames = { "쌀 토끼", "밀 토끼", "감자 토끼", "당근 토끼" };
-        static readonly string[] RabbitDetails = { "이동 속도 +10%", "공격 간격 -10% · 삽 회전 속도 +10%", "무기 피해 +20%", "엽총 관통 +1" };
+        static readonly string[] RabbitDetails = { "이동 속도 +10%", "공격 간격 -10%", "무기 피해 +20%", "엽총 관통 +1" };
         // Opaque bounds in the 627-pixel portrait source images, measured from the bottom left.
         static readonly RectInt[] RabbitPortraitBounds = {
             new RectInt(129, 20, 403, 590),
