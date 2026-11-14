@@ -5,9 +5,6 @@ namespace RabbitSurvivor
     [CreateAssetMenu(fileName = "Item", menuName = "Scriptble Object/ItemData")]
     public class ItemData : ScriptableObject
     {
-        internal const int ShovelId = 1;
-        internal const int ShotgunId = 2;
-
         public enum ItemType { Melee, Range, Glove, Shoe, Heal, Spread, Pulse, Burst, Power, Area, Vitality,
                                Sweep, GroundStrike, Jab, Furrow, Padding, Harvest }
 

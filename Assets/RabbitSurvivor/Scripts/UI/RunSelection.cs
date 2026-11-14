@@ -8,7 +8,14 @@ namespace RabbitSurvivor
     public sealed class RunSelection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         static readonly string[] RabbitNames = { "쌀 토끼", "밀 토끼", "감자 토끼", "당근 토끼" };
-        static readonly string[] RabbitDetails = { "이동 속도 +10%", "무기 공격 간격 -10%", "무기 피해 +20%", "투사체 +1" };
+        static readonly string[] RabbitDetails = { "이동 속도 +10%", "공격 간격 -10% · 삽 회전 속도 +10%", "무기 피해 +20%", "엽총 관통 +1" };
+        // Opaque bounds in the 627-pixel portrait source images, measured from the bottom left.
+        static readonly RectInt[] RabbitPortraitBounds = {
+            new RectInt(129, 20, 403, 590),
+            new RectInt(109, 24, 386, 586),
+            new RectInt(146, 16, 369, 598),
+            new RectInt(119, 16, 365, 596),
+        };
         static readonly string[] StageNames = { "얕은 바다", "바닷가", "농장", "심해" };
         const int PlayableStage = 0;
         static readonly Color32 Ink = new Color32(13, 37, 52, 240);
@@ -18,6 +25,7 @@ namespace RabbitSurvivor
         Sprite[] portraits;
         Sprite[] stages;
         Action<int> play;
+        Func<int, ItemData> startingWeapon;
         Font font;
         Text heading;
         Text entryName;
@@ -27,6 +35,7 @@ namespace RabbitSurvivor
         Button confirm;
         Button back;
         Image portrait;
+        RectTransform portraitArea;
         Image stagePreview;
         RawImage background;
         Texture characterArtwork;
@@ -35,12 +44,14 @@ namespace RabbitSurvivor
         int characterIndex;
         int stageIndex = PlayableStage;
 
-        internal void Initialize(Sprite[] sprites, Texture artwork, Sprite[] stagePreviews, Font uiFont, Action<int> launch)
+        internal void Initialize(Sprite[] sprites, Texture artwork, Sprite[] stagePreviews, Font uiFont,
+            Func<int, ItemData> getStartingWeapon, Action<int> launch)
         {
             portraits = sprites;
             stages = stagePreviews;
             characterArtwork = artwork;
             font = uiFont;
+            startingWeapon = getStartingWeapon;
             play = launch;
             var root = (RectTransform)transform;
             Image input = gameObject.AddComponent<Image>();
@@ -60,8 +71,8 @@ namespace RabbitSurvivor
             cardFrame.effectColor = new Color32(255, 207, 112, 185);
             cardFrame.effectDistance = new Vector2(2f, -2f);
             heading = Label(Area(root, "Selection Title", .07f, .83f, .93f, .92f), "", 12, Gold);
-            portrait = Area(card, "Rabbit Portrait", .09f, .29f, .91f, .98f).gameObject.AddComponent<Image>();
-            portrait.preserveAspect = true;
+            portraitArea = Area(card, "Portrait Area", .09f, .35f, .91f, .95f);
+            portrait = Area(portraitArea, "Rabbit Portrait", .5f, 0f, .5f, 0f).gameObject.AddComponent<Image>();
             portrait.raycastTarget = false;
             stagePreview = Area(card, "Stage Preview", .045f, .355f, .955f, .962f).gameObject.AddComponent<Image>();
             stagePreview.preserveAspect = true;
@@ -79,6 +90,9 @@ namespace RabbitSurvivor
 
         void LateUpdate()
         {
+            if (!selectingStage)
+                AlignPortrait();
+
             if (!background || !background.texture)
                 return;
             Rect rect = background.rectTransform.rect;
@@ -90,6 +104,17 @@ namespace RabbitSurvivor
             float width = Mathf.Min(1f, aspect / imageAspect);
             float height = Mathf.Min(1f, imageAspect / aspect);
             background.uvRect = new Rect((1f - width) * .5f, (1f - height) * .5f, width, height);
+        }
+
+        void AlignPortrait()
+        {
+            RectInt bounds = RabbitPortraitBounds[characterIndex];
+            Rect source = portrait.sprite.rect;
+            Vector2 available = portraitArea.rect.size;
+            float scale = Mathf.Min(available.x / bounds.width, available.y / bounds.height);
+            portrait.rectTransform.sizeDelta = source.size * scale;
+            portrait.rectTransform.anchoredPosition = new Vector2(
+                source.width * .5f - bounds.center.x, source.height * .5f - bounds.yMin) * scale;
         }
 
         void Refresh()
@@ -110,8 +135,10 @@ namespace RabbitSurvivor
             }
             else {
                 entryName.text = RabbitNames[index];
-                detail.text = unlocked ? RabbitDetails[index] : AchiveManager.CharacterRequirement(index);
+                string description = unlocked ? RabbitDetails[index] : AchiveManager.CharacterRequirement(index);
+                detail.text = $"시작 무기 · {startingWeapon(index).itemName}\n{description}";
                 portrait.sprite = portraits[index];
+                AlignPortrait();
                 portrait.enabled = true;
                 stagePreview.enabled = false;
                 portrait.color = unlocked ? Color.white : new Color(.51f, .63f, .65f, .9f);

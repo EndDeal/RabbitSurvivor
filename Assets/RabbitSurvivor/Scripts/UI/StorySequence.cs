@@ -70,7 +70,8 @@ namespace RabbitSurvivor
 
             var root = (RectTransform)characterSelection.transform;
             root.offsetMin = root.offsetMax = Vector2.zero;
-            characterSelection.AddComponent<RunSelection>().Initialize(portraits, selectionArtwork, stagePreviews, selectionFont, Play);
+            characterSelection.AddComponent<RunSelection>().Initialize(portraits, selectionArtwork, stagePreviews,
+                selectionFont, gameManager.StartingWeaponFor, Play);
         }
 
         public void Play(int characterId)

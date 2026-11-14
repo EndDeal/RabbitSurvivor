@@ -22,6 +22,8 @@ namespace RabbitSurvivor
         RectTransform portraitLayout;
         RectTransform viewport;
         RectTransform loadingTrack;
+        RectTransform startButtonRect;
+        Vector2 startButtonRest;
         float titleAspect;
         bool ready;
 
@@ -31,6 +33,8 @@ namespace RabbitSurvivor
             portraitLayout = (RectTransform)chaseArtwork.transform.parent;
             viewport = (RectTransform)portraitLayout.parent;
             loadingTrack = (RectTransform)loadingFill.parent;
+            startButtonRect = (RectTransform)startButton.transform;
+            startButtonRest = startButtonRect.anchoredPosition;
             RawImage logo = titleArtwork.GetComponent<RawImage>();
             titleAspect = (logo.texture.width * logo.uvRect.width) / (logo.texture.height * logo.uvRect.height);
         }
@@ -67,8 +71,27 @@ namespace RabbitSurvivor
             yield return new WaitForSecondsRealtime(0.14f);
             ready = true;
             loadingPanel.SetActive(false);
+            startButtonRect.localScale = new Vector3(1.08f, 0.9f, 1f);
             startButton.gameObject.SetActive(true);
             startButton.Select();
+            StartCoroutine(AnimateStartButton());
+        }
+
+        IEnumerator AnimateStartButton()
+        {
+            float start = Time.unscaledTime;
+            while (ready) {
+                float phase = Mathf.Repeat(Time.unscaledTime - start, 1.6f);
+                float hop = Mathf.Sin(Mathf.PI * Mathf.Clamp01(phase / .42f));
+                float secondHop = Mathf.Sin(Mathf.PI * Mathf.Clamp01((phase - .42f) / .25f));
+                float squash = .1f * (1f - Mathf.Clamp01(phase / .1f));
+                startButtonRect.anchoredPosition = startButtonRest + Vector2.up *
+                    (startButtonRect.rect.height * (.19f * hop + .07f * secondHop));
+                startButtonRect.localScale = new Vector3(1f + squash - .025f * hop, 1f - squash + .05f * hop, 1f);
+                yield return null;
+            }
+            startButtonRect.anchoredPosition = startButtonRest;
+            startButtonRect.localScale = Vector3.one;
         }
 
         void LateUpdate()

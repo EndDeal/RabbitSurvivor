@@ -39,6 +39,7 @@ namespace RabbitSurvivor
         public Player player;
         public LevelUp uiLevelUp;
         public Result uiResult;
+        [SerializeField] ItemData[] startingWeapons;
         public Transform uiJoy;
         public GameObject enemyCleaner;
         public Sprite treasureChestSprite;
@@ -82,7 +83,7 @@ namespace RabbitSurvivor
             playerId = id;
             health = maxHealth;
             player.gameObject.SetActive(true);
-            uiLevelUp.Select(playerId % 2 == 0 ? ItemData.ShovelId : ItemData.ShotgunId);
+            uiLevelUp.Select(StartingWeaponFor(id));
             if (gameplayHud && hudFont)
                 gameplayHud.gameObject.AddComponent<RunHud>().Initialize(this, hudFont);
             Resume();
@@ -90,6 +91,8 @@ namespace RabbitSurvivor
             AudioManager.instance.PlayBgm(true);
             AudioManager.instance.PlaySfx(AudioManager.Sfx.Select);
         }
+
+        internal ItemData StartingWeaponFor(int characterId) => startingWeapons[characterId];
 
         public void GameOver()
         {

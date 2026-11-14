@@ -99,9 +99,9 @@ namespace RabbitSurvivor
                 notice.gameObject.SetActive(false);
         }
 
-        public void Select(int id)
+        internal void Select(ItemData startingWeapon)
         {
-            Item starter = items.Find(item => item.data.itemId == id && item.data.IsWeapon);
+            Item starter = items.Find(item => item.data == startingWeapon);
             starter?.Upgrade();
         }
 
