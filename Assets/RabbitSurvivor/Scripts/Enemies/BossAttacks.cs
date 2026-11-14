@@ -25,9 +25,12 @@ namespace RabbitSurvivor
 
         Enemy owner;
         Rigidbody2D body;
+        Collider2D footprint;
         Spawner spawner;
         LineRenderer dashGuide;
         readonly List<Enemy> guards = new List<Enemy>(MaxGuards);
+        readonly List<RaycastHit2D> dashHits = new List<RaycastHit2D>(8);
+        ContactFilter2D dashFilter;
         DashPhase dashPhase;
         Vector2 aim;
         float phaseUntil;
@@ -48,6 +51,9 @@ namespace RabbitSurvivor
         {
             owner = GetComponent<Enemy>();
             body = GetComponent<Rigidbody2D>();
+            footprint = GetComponent<Collider2D>();
+            dashFilter.SetLayerMask((1 << SeafloorRocks.Layer) | (1 << gameObject.layer));
+            dashFilter.useTriggers = false;
         }
 
         internal void Begin(Spawner source, int shotIndex, Material guideMaterial)
@@ -99,6 +105,7 @@ namespace RabbitSurvivor
                 case DashPhase.Dashing:
                     if (dashRemaining > 0f) {
                         float distance = Mathf.Min(CaptainDashSpeed * Time.fixedDeltaTime, dashRemaining);
+                        CrushDashObstacles(distance);
                         body.MovePosition(body.position + aim * distance);
                         dashRemaining -= distance;
                         return true;
@@ -127,6 +134,22 @@ namespace RabbitSurvivor
             phaseUntil = now + CaptainWindup;
             DrawDashGuide();
             return true;
+        }
+
+        void CrushDashObstacles(float distance)
+        {
+            var rocks = GameManager.instance.Rocks;
+            int count = footprint.Cast(aim, dashFilter, dashHits, distance);
+            bool brokeRock = false;
+            for (int index = 0; index < count; index++) {
+                Collider2D obstacle = dashHits[index].collider;
+                if (obstacle.gameObject.layer == SeafloorRocks.Layer)
+                    brokeRock |= rocks && rocks.BreakRock(obstacle);
+                else if (obstacle.TryGetComponent(out Enemy enemy) && enemy.IsBarrier)
+                    enemy.CrushBarrier();
+            }
+            if (brokeRock)
+                AudioManager.instance.PlayFeedback(AudioManager.Sfx.Hit, .7f, .8f);
         }
 
         void StepDragon(Vector2 toPlayer)

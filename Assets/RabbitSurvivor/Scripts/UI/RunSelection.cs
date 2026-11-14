@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace RabbitSurvivor
@@ -33,7 +34,10 @@ namespace RabbitSurvivor
         Text indexLabel;
         Text confirmLabel;
         Button confirm;
-        Button back;
+        CanvasGroup selectionControls;
+        GameObject quitDialog;
+        Button quitCancel;
+        GameObject previousSelection;
         Image portrait;
         RectTransform portraitArea;
         Image stagePreview;
@@ -53,9 +57,10 @@ namespace RabbitSurvivor
             font = uiFont;
             startingWeapon = getStartingWeapon;
             play = launch;
-            var root = (RectTransform)transform;
             Image input = gameObject.AddComponent<Image>();
             input.color = Ink;
+            var root = Area(transform, "Selection Content", 0f, 0f, 1f, 1f);
+            selectionControls = root.gameObject.AddComponent<CanvasGroup>();
 
             background = Area(root, "Selection Artwork", 0f, 0f, 1f, 1f).gameObject.AddComponent<RawImage>();
             background.texture = artwork;
@@ -84,12 +89,20 @@ namespace RabbitSurvivor
             AddButton(Area(root, "Next", .76f, .192f, .89f, .25f), ">", () => Move(1));
             confirm = AddButton(Area(root, "Confirm Selection", .23f, .099f, .77f, .174f), "", Confirm);
             confirmLabel = confirm.GetComponentInChildren<Text>();
-            back = AddButton(Area(root, "Back to Characters", .04f, .92f, .24f, .975f), "뒤로", Back);
+            AddButton(Area(root, "Selection Back", .04f, .92f, .24f, .975f), "뒤로", Back);
+            BuildQuitDialog();
             Refresh();
         }
 
         void LateUpdate()
         {
+            bool backPressed = Keyboard.current?.escapeKey.wasPressedThisFrame == true;
+#if UNITY_ANDROID && ENABLE_LEGACY_INPUT_MANAGER
+            backPressed |= Input.GetKeyDown(KeyCode.Escape);
+#endif
+            if (backPressed)
+                Back();
+
             if (!selectingStage)
                 AlignPortrait();
 
@@ -146,7 +159,6 @@ namespace RabbitSurvivor
                 background.color = Color.white;
                 cardFrame.effectColor = Gold;
             }
-            back.gameObject.SetActive(selectingStage);
             confirm.interactable = unlocked;
             confirmLabel.text = unlocked ? (selectingStage ? "입장" : "선택") : "잠김";
         }
@@ -176,8 +188,48 @@ namespace RabbitSurvivor
 
         void Back()
         {
-            selectingStage = false;
-            Refresh();
+            if (quitDialog.activeSelf) {
+                SetQuitDialog(false);
+            }
+            else if (selectingStage) {
+                selectingStage = false;
+                Refresh();
+            }
+            else {
+                SetQuitDialog(true);
+            }
+        }
+
+        void BuildQuitDialog()
+        {
+            var overlay = Area(transform, "Quit Confirmation", 0f, 0f, 1f, 1f);
+            overlay.gameObject.AddComponent<Image>().color = new Color32(5, 17, 25, 205);
+            quitDialog = overlay.gameObject;
+
+            var card = Area(overlay, "Quit Card", .12f, .40f, .88f, .60f);
+            card.gameObject.AddComponent<Image>().color = new Color32(19, 46, 60, 255);
+            var frame = card.gameObject.AddComponent<Outline>();
+            frame.effectColor = Gold;
+            frame.effectDistance = new Vector2(1f, -1f);
+            Label(Area(card, "Prompt", .06f, .52f, .94f, .89f), "게임을 종료하시겠습니까?", 12, Cream);
+            quitCancel = AddButton(Area(card, "Cancel Quit", .08f, .12f, .46f, .43f), "취소", () => SetQuitDialog(false));
+            Button quit = AddButton(Area(card, "Confirm Quit", .54f, .12f, .92f, .43f), "종료", () => GameManager.instance.GameQuit());
+            quitCancel.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnRight = quit };
+            quit.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnLeft = quitCancel };
+            quitDialog.SetActive(false);
+        }
+
+        void SetQuitDialog(bool show)
+        {
+            if (show)
+                previousSelection = EventSystem.current?.currentSelectedGameObject;
+            selectionControls.interactable = !show;
+            selectionControls.blocksRaycasts = !show;
+            quitDialog.SetActive(show);
+            if (show)
+                quitCancel.Select();
+            else
+                EventSystem.current?.SetSelectedGameObject(previousSelection);
         }
 
         public void OnBeginDrag(PointerEventData eventData) { }
@@ -186,6 +238,8 @@ namespace RabbitSurvivor
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (quitDialog.activeSelf)
+                return;
             Vector2 swipe = eventData.position - eventData.pressPosition;
             if (Mathf.Abs(swipe.x) >= Mathf.Max(24f, Screen.width * .08f) && Mathf.Abs(swipe.x) > Mathf.Abs(swipe.y))
                 Move(swipe.x < 0f ? 1 : -1);

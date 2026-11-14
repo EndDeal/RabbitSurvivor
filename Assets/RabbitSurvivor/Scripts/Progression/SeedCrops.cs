@@ -87,7 +87,6 @@ namespace RabbitSurvivor
         bool hasPlayerPosition;
         SeedEdgeGuide seedGuide;
 
-        internal int BestMineCombo { get; private set; }
         internal int CurrentMineCombo { get; private set; }
         internal float MineComboAt { get; private set; }
 
@@ -460,7 +459,6 @@ namespace RabbitSurvivor
                 }
             }
             if (seed.mineKills >= 3 && seed.mineKills > killsBeforeBlast) {
-                BestMineCombo = Mathf.Max(BestMineCombo, seed.mineKills);
                 CurrentMineCombo = seed.mineKills;
                 MineComboAt = Time.time;
             }

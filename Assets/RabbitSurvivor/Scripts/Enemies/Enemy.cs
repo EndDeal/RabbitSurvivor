@@ -363,7 +363,10 @@ namespace RabbitSurvivor
         internal void TakeFurrowDamage(float damage, Vector2 direction, float distance) =>
             ApplyDamage(damage, direction, distance);
 
-        void ApplyDamage(float damage, Vector2 direction, float pushDistance, bool stagger = true, bool knockBack = true)
+        internal void CrushBarrier() => ApplyDamage(health, Vector2.zero, 0f, awardKill: false);
+
+        void ApplyDamage(float damage, Vector2 direction, float pushDistance, bool stagger = true, bool knockBack = true,
+            bool awardKill = true)
         {
             if (!isLive || damage <= 0f)
                 return;
@@ -406,7 +409,8 @@ namespace RabbitSurvivor
             spriter.sortingOrder = 1;
             anim.SetBool(Dead, true);
 
-            game.RegisterKill(this);
+            if (awardKill)
+                game.RegisterKill(this);
 
             if (game.isLive)
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Dead);

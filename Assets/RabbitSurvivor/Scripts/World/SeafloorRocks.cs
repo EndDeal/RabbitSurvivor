@@ -146,19 +146,24 @@ namespace RabbitSurvivor
             Physics2D.SyncTransforms();
             foreach (Collider2D footprint in footprints) {
                 int count = footprint.OverlapCollider(rockFilter, overlaps);
-                for (int index = 0; index < count; index++) {
-                    Vector3 position = overlaps[index].transform.position;
-                    var cell = new Vector2Int(Mathf.FloorToInt(position.x / CellSize), Mathf.FloorToInt(position.y / CellSize));
-                    if (!rocks.TryGetValue(cell, out SpriteRenderer rock))
-                        continue;
-
-                    SpawnDebris(rock);
-                    rocks.Remove(cell);
-                    broken.Add(cell);
-                    rock.gameObject.SetActive(false);
-                    available.Push(rock);
-                }
+                for (int index = 0; index < count; index++)
+                    BreakRock(overlaps[index]);
             }
+        }
+
+        internal bool BreakRock(Collider2D footprint)
+        {
+            Vector3 position = footprint.transform.position;
+            var cell = new Vector2Int(Mathf.FloorToInt(position.x / CellSize), Mathf.FloorToInt(position.y / CellSize));
+            if (!rocks.TryGetValue(cell, out SpriteRenderer rock) || rock.gameObject != footprint.gameObject)
+                return false;
+
+            SpawnDebris(rock);
+            rocks.Remove(cell);
+            broken.Add(cell);
+            rock.gameObject.SetActive(false);
+            available.Push(rock);
+            return true;
         }
 
         void SpawnDebris(SpriteRenderer rock)
