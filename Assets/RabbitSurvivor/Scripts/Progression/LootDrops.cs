@@ -173,9 +173,11 @@ namespace RabbitSurvivor
                 attracted.Add(pickup);
                 nextFlightAt = Time.time + MagnetSpacing;
             }
-            int experience = MoveAttracted(playerPosition);
-            if (experience > 0)
+            int experience = MoveAttracted(playerPosition, out int highestValue);
+            if (experience > 0) {
+                AudioManager.instance.PlayGem(highestValue);
                 game.GainExperience(experience);
+            }
         }
 
         void CheckNearby(List<Pickup> pickups, Vector2 playerPosition, float attractionRangeSquared,
@@ -210,8 +212,9 @@ namespace RabbitSurvivor
             }
         }
 
-        int MoveAttracted(Vector2 playerPosition)
+        int MoveAttracted(Vector2 playerPosition, out int highestValue)
         {
+            highestValue = 0;
             int experience = 0;
             float step = ExperienceSpeed * Time.deltaTime;
             for (int index = attracted.Count - 1; index >= 0; index--) {
@@ -219,6 +222,7 @@ namespace RabbitSurvivor
                 pickup.position = Vector2.MoveTowards(pickup.position, playerPosition, step);
                 if ((pickup.position - playerPosition).sqrMagnitude <= ExperiencePickupRadius * ExperiencePickupRadius) {
                     experience += pickup.experience;
+                    highestValue = Mathf.Max(highestValue, pickup.experience);
                     Hide(ref pickup);
                     RemoveAt(attracted, index);
                     continue;

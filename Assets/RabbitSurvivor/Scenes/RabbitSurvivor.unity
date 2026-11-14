@@ -16703,6 +16703,7 @@ GameObject:
   - component: {fileID: 861663793}
   - component: {fileID: 861663794}
   - component: {fileID: 861663795}
+  - component: {fileID: 861663796}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -16750,12 +16751,36 @@ MonoBehaviour:
   enemyCleaner: {fileID: 2029806073}
   treasureChestSprite: {fileID: 813450073, guid: b4d72cba99f14ab4a0380ffbe6d1006b, type: 3}
   lootDrops: {fileID: 861663793}
+  seedCrops: {fileID: 861663796}
   hitFlashMaterial: {fileID: 2100000, guid: 2af380a5935b4d56ab53749053572d03, type: 2}
   bossPresentation: {fileID: 861663794}
   gameOverPresentation: {fileID: 861663795}
   gameplayHud: {fileID: 1403873274}
   hudFont: {fileID: 12800000, guid: 9ab5d73d96bf4fa2b25c91dfd969397f, type: 3}
   corpseLifetime: 2
+--- !u!114 &861663796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861663790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d3eec01d924d75ad9493b424fe9ad2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  seedSprites:
+  - {fileID: 814251001, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  - {fileID: 814251002, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  - {fileID: 814251003, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  - {fileID: 814251004, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  scarecrowSprite: {fileID: 814251005, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  turretSprite: {fileID: 814251006, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  pelletSprite: {fileID: 814251008, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  riceBlockSprite: {fileID: 814251007, guid: a27858fa615f409ca242c9cfbd80de91, type: 3}
+  effectMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  projectilePrefab: {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
 --- !u!114 &861663794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27574,6 +27599,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmClip: {fileID: 8300000, guid: 4559935c00ef8e94b846e2e03e39f0d0, type: 3}
   bgmVolume: 0.1
+  menuMusic: {fileID: 8300000, guid: 253bb55ef3714080b6d6cbe181cbd3c8, type: 3}
+  bossMusic: {fileID: 8300000, guid: fc9151cda550435ab10809e34bae65ec, type: 3}
   sfxClips:
   - {fileID: 8300000, guid: 291608b8d286e2a4580ff36324455ce2, type: 3}
   - {fileID: 8300000, guid: 0bddcb411d826e14bb26d40ae45d8e22, type: 3}
@@ -27585,6 +27612,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6f0c572d865b4664db7a460972bc4768, type: 3}
   - {fileID: 8300000, guid: 4b294d59d2399014daa718b35c9de73b, type: 3}
   - {fileID: 8300000, guid: 2c4bc183a5df5aa4baf7c4fcf236a2de, type: 3}
+  - {fileID: 8300000, guid: 6e5ec0717137464ca3bded15e19eb337, type: 3}
+  - {fileID: 8300000, guid: bb59b9484e5a4d988d340175fc1378ca, type: 3}
+  - {fileID: 8300000, guid: 36b60bf44d3d4dd8a8589017c65147e9, type: 3}
   sfxVolume: 0.5
   channels: 16
 --- !u!1 &1960552550

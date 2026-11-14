@@ -16,8 +16,11 @@ namespace RabbitSurvivor
         [SerializeField] RectTransform loadingGlint;
         [SerializeField] Text loadingLabel;
         [SerializeField] Button startButton;
+        [SerializeField] AudioClip openingMusic;
+        [SerializeField] AudioClip startSound;
 
         AsyncOperation sceneLoad;
+        AudioSource music;
         RectTransform titleArea;
         RectTransform portraitLayout;
         RectTransform viewport;
@@ -41,6 +44,15 @@ namespace RabbitSurvivor
 
         IEnumerator Start()
         {
+            AudioManager.LoadMasterVolume();
+            if (openingMusic) {
+                music = gameObject.AddComponent<AudioSource>();
+                music.playOnAwake = false;
+                music.clip = openingMusic;
+                music.loop = true;
+                music.volume = .12f;
+                music.Play();
+            }
             startButton.gameObject.SetActive(false);
             loadingPanel.SetActive(true);
             startButton.onClick.AddListener(EnterGame);
@@ -163,6 +175,22 @@ namespace RabbitSurvivor
             ready = false;
             startButton.interactable = false;
             EventSystem.current?.SetSelectedGameObject(null);
+            if (startSound)
+                AudioSource.PlayClipAtPoint(startSound, Camera.main.transform.position, .5f);
+            StartCoroutine(LeaveTitle());
+        }
+
+        IEnumerator LeaveTitle()
+        {
+            if (music) {
+                float volume = music.volume;
+                const float fadeSeconds = .18f;
+                for (float elapsed = 0f; elapsed < fadeSeconds; elapsed += Time.unscaledDeltaTime) {
+                    music.volume = volume * (1f - elapsed / fadeSeconds);
+                    yield return null;
+                }
+                music.Stop();
+            }
             sceneLoad.allowSceneActivation = true;
         }
     }

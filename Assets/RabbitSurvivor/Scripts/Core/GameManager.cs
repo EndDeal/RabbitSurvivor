@@ -44,6 +44,7 @@ namespace RabbitSurvivor
         public GameObject enemyCleaner;
         public Sprite treasureChestSprite;
         [SerializeField] LootDrops lootDrops;
+        [SerializeField] SeedCrops seedCrops;
         [SerializeField] Material hitFlashMaterial;
         [SerializeField] BossPresentation bossPresentation;
         [SerializeField] GameOverPresentation gameOverPresentation;
@@ -66,7 +67,11 @@ namespace RabbitSurvivor
         public float CorpseLifetime => corpseLifetime;
         internal bool IsEnding => ending;
         internal bool HasFinalArena => finalArenaBorder;
+        internal Vector2 FinalArenaCenter => finalArenaCenter;
+        internal float FinalArenaRadius => finalArenaRadius;
         internal SeafloorRocks Rocks => seafloorRocks;
+        internal SeedCrops Crops => seedCrops;
+        internal Font HudFont => hudFont;
         public bool IsBossClockHeld => clockBoss;
         internal bool HasWon { get; private set; }
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
@@ -136,6 +141,8 @@ namespace RabbitSurvivor
         {
             ending = true;
             isLive = false;
+            if (seedCrops)
+                seedCrops.Clear();
             clockBoss = null;
             ClearFinalArena();
             uiLevelUp.Dismiss();
@@ -184,6 +191,7 @@ namespace RabbitSurvivor
             finalBossStarted = type == BossType.Final;
             midBossStarted = true;
             clockBoss = encounterSpawner.SpawnBoss(type);
+            AudioManager.instance.PlayBossMusic();
             if (type == BossType.Final)
                 OpenFinalArena(clockBoss.transform.position);
         }
@@ -280,6 +288,8 @@ namespace RabbitSurvivor
             clockBoss = null;
             if (enemy.Boss == BossType.Final)
                 StartCoroutine(VictoryRoutine(bossPresentation ? bossPresentation.BannerSeconds : 0.5f));
+            else
+                AudioManager.instance.PlayBgm(true);
         }
 
         public void GainExperience(int amount)

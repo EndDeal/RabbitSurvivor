@@ -31,6 +31,8 @@ namespace RabbitSurvivor
         Image healthFill;
         Text healthLabel;
         Text gearDetails;
+        Text mineCombo;
+        float shownMineComboAt = -1f;
         int shownSlot = -1;
         int shownHealth = -1;
         int shownMaxHealth = -1;
@@ -66,6 +68,10 @@ namespace RabbitSurvivor
             gearDetails.horizontalOverflow = HorizontalWrapMode.Wrap;
             gearDetails.verticalOverflow = VerticalWrapMode.Truncate;
             detail.gameObject.SetActive(false);
+            var comboAnchor = new Vector2(.5f, .72f);
+            mineCombo = AddLabel(Place(transform, "Potato Combo", comboAnchor, Center, Vector2.zero, new Vector2(115f, 18f)), "", 10);
+            mineCombo.color = Gold;
+            mineCombo.gameObject.SetActive(false);
             settings = AddButton(transform, "Settings", "설정", TopRight, new Vector2(-3f, -28f), new Vector2(25f, 11f), OpenSettings);
             BuildSettings();
         }
@@ -76,6 +82,7 @@ namespace RabbitSurvivor
                 return;
 
             RefreshHealth();
+            RefreshMineCombo();
             if (stick.gameObject.activeSelf != game.isLive)
                 stick.gameObject.SetActive(game.isLive);
             if (!game.isLive && shownSlot >= 0)
@@ -98,6 +105,22 @@ namespace RabbitSurvivor
                 CloseSettings();
             else if (game.isLive)
                 OpenSettings();
+        }
+
+        void RefreshMineCombo()
+        {
+            SeedCrops crops = game.Crops;
+            bool visible = game.isLive && crops && crops.CurrentMineCombo > 0 && Time.time - crops.MineComboAt < 1.5f;
+            mineCombo.gameObject.SetActive(visible);
+            if (!visible)
+                return;
+
+            if (shownMineComboAt != crops.MineComboAt) {
+                shownMineComboAt = crops.MineComboAt;
+                mineCombo.text = $"감자 연쇄 {crops.CurrentMineCombo}마리!";
+            }
+            float pulse = Mathf.Clamp01(1f - (Time.time - shownMineComboAt) * 6f);
+            mineCombo.rectTransform.localScale = Vector3.one * (1f + .22f * pulse);
         }
 
         void BuildGearRow(string label, int start, float y)
@@ -335,7 +358,7 @@ namespace RabbitSurvivor
             return image;
         }
 
-        static RectTransform Place(Transform parent, string name, Vector2 anchor, Vector2 pivot, Vector2 offset, Vector2 size)
+        internal static RectTransform Place(Transform parent, string name, Vector2 anchor, Vector2 pivot, Vector2 offset, Vector2 size)
         {
             var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
             rect.SetParent(parent, false);

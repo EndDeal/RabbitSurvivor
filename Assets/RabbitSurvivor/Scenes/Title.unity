@@ -1119,6 +1119,8 @@ MonoBehaviour:
   loadingGlint: {fileID: 79036206}
   loadingLabel: {fileID: 442585533}
   startButton: {fileID: 1303266270}
+  openingMusic: {fileID: 8300000, guid: 253bb55ef3714080b6d6cbe181cbd3c8, type: 3}
+  startSound: {fileID: 8300000, guid: 4b294d59d2399014daa718b35c9de73b, type: 3}
 --- !u!114 &1418167887
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -71,7 +71,8 @@ namespace RabbitSurvivor
             defaultColliderSize = coll.size;
             defaultConstraints = rigid.constraints;
             defaultColor = spriter.color;
-            obstacleFilter.SetLayerMask((1 << SeafloorRocks.Layer) | (1 << gameObject.layer));
+            obstacleFilter.SetLayerMask((1 << SeafloorRocks.Layer) | (1 << SeedCrops.RiceWallLayer) |
+                (1 << gameObject.layer));
             obstacleFilter.useTriggers = false;
         }
 
@@ -107,6 +108,9 @@ namespace RabbitSurvivor
                 return;
             if (Behavior == EnemyBehavior.Shooter && AimOrShoot(direction))
                 return;
+
+            if (!IsBoss && Behavior == EnemyBehavior.Chase && GameManager.instance.Crops)
+                direction = GameManager.instance.Crops.ChaseTarget(rigid.position, target.position) - rigid.position;
 
             Vector2 movement = SteerAroundObstacles(direction) * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + movement);
@@ -165,7 +169,8 @@ namespace RabbitSurvivor
             float closest = float.PositiveInfinity;
             for (int index = 0; index < count; index++) {
                 RaycastHit2D hit = obstacleHits[index];
-                if (hit.collider.gameObject.layer != SeafloorRocks.Layer &&
+                int layer = hit.collider.gameObject.layer;
+                if (layer != SeafloorRocks.Layer && layer != SeedCrops.RiceWallLayer &&
                     (!hit.collider.TryGetComponent(out Enemy enemy) || !enemy.IsAlive || !enemy.IsBarrier))
                     continue;
                 if (hit.distance <= 0.025f) {

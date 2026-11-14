@@ -44,11 +44,18 @@ namespace RabbitSurvivor
 
         void OnTriggerEnter2D(Collider2D other)
         {
-            if (!gameObject.activeSelf || !GameManager.instance.isLive || !other.TryGetComponent(out Player player))
+            if (!gameObject.activeSelf || !GameManager.instance.isLive)
                 return;
 
-            gameObject.SetActive(false);
-            player.TakeDamage(hitDamage);
+            int layer = other.gameObject.layer;
+            if (layer == SeafloorRocks.Layer || layer == SeedCrops.RiceWallLayer) {
+                GameManager.instance.Crops?.PoisonImpact(other.ClosestPoint(body.position));
+                gameObject.SetActive(false);
+            }
+            else if (other.TryGetComponent(out Player player)) {
+                gameObject.SetActive(false);
+                player.TakeDamage(hitDamage);
+            }
         }
     }
 }

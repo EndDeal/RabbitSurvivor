@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4726916485856746164}
   - component: {fileID: 8807594086360756392}
   - component: {fileID: 4116257643729738682}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Goby Water Shot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
