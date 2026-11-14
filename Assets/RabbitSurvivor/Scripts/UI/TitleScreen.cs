@@ -19,6 +19,8 @@ namespace RabbitSurvivor
 
         AsyncOperation sceneLoad;
         RectTransform titleArea;
+        RectTransform portraitLayout;
+        RectTransform viewport;
         RectTransform loadingTrack;
         float titleAspect;
         bool ready;
@@ -26,6 +28,8 @@ namespace RabbitSurvivor
         void Awake()
         {
             titleArea = (RectTransform)titleArtwork.parent;
+            portraitLayout = (RectTransform)chaseArtwork.transform.parent;
+            viewport = (RectTransform)portraitLayout.parent;
             loadingTrack = (RectTransform)loadingFill.parent;
             RawImage logo = titleArtwork.GetComponent<RawImage>();
             titleAspect = (logo.texture.width * logo.uvRect.width) / (logo.texture.height * logo.uvRect.height);
@@ -69,6 +73,12 @@ namespace RabbitSurvivor
 
         void LateUpdate()
         {
+            Vector2 viewSize = viewport.rect.size;
+            float portraitWidth = Mathf.Min(viewSize.x, viewSize.y * 9f / 16f);
+            Vector2 inset = new Vector2(portraitWidth - viewSize.x, 0f);
+            if (portraitLayout.sizeDelta != inset)
+                portraitLayout.sizeDelta = inset;
+
             Rect area = chaseArtwork.rectTransform.rect;
             if (area.width > 0f && area.height > 0f) {
                 float screenAspect = area.width / area.height;

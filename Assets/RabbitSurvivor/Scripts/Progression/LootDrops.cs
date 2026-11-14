@@ -16,6 +16,7 @@ namespace Goldmetal.UndeadSurvivor
 
         [SerializeField] Spawner spawner;
         [SerializeField] Sprite experienceSprite;
+        [SerializeField] ExperienceGem[] experienceGems = System.Array.Empty<ExperienceGem>();
         [SerializeField] Sprite magnetSprite;
         [SerializeField] Sprite potionSprite;
         [SerializeField, Range(0f, 1f)] float potionDropChance = 0.003f;
@@ -23,6 +24,14 @@ namespace Goldmetal.UndeadSurvivor
         [SerializeField, Min(0f)] float potionCooldown = 18f;
 
         enum Kind { Experience, Magnet, Potion }
+
+        [System.Serializable]
+        struct ExperienceGem
+        {
+            [Min(1)] public int minimumExperience;
+            public Sprite sprite;
+            [Min(0.1f)] public float scale;
+        }
 
         struct Pickup
         {
@@ -319,13 +328,30 @@ namespace Goldmetal.UndeadSurvivor
                 renderer.transform.SetParent(transform, false);
             }
 
-            renderer.sprite = pickup.kind == Kind.Experience ? experienceSprite :
-                pickup.kind == Kind.Magnet ? magnetSprite : potionSprite;
-            renderer.transform.localScale = Vector3.one * (pickup.kind == Kind.Experience ? 0.56f : 1f);
-            renderer.sortingOrder = pickup.kind == Kind.Experience ? 1 : 4;
+            if (pickup.kind == Kind.Experience) {
+                ExperienceGem gem = GemFor(pickup.experience);
+                renderer.sprite = gem.sprite;
+                renderer.transform.localScale = Vector3.one * gem.scale;
+                renderer.sortingOrder = 1;
+            }
+            else {
+                renderer.sprite = pickup.kind == Kind.Magnet ? magnetSprite : potionSprite;
+                renderer.transform.localScale = Vector3.one;
+                renderer.sortingOrder = 4;
+            }
             renderer.transform.position = pickup.position;
             renderer.gameObject.SetActive(true);
             pickup.renderer = renderer;
+        }
+
+        ExperienceGem GemFor(int experience)
+        {
+            var best = new ExperienceGem { sprite = experienceSprite, scale = 0.56f };
+            foreach (ExperienceGem gem in experienceGems) {
+                if (gem.sprite && gem.minimumExperience <= experience && gem.minimumExperience > best.minimumExperience)
+                    best = gem;
+            }
+            return best;
         }
 
         void Hide(ref Pickup pickup)

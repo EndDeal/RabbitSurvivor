@@ -20,6 +20,7 @@ namespace Goldmetal.UndeadSurvivor
         internal void Launch(Vector2 position, Vector2 direction, float damage = 8f, float speed = 4.5f, float size = 1f)
         {
             body.position = position;
+            body.rotation = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             body.velocity = direction * speed;
             transform.localScale = baseScale * size;
             hitDamage = damage;
