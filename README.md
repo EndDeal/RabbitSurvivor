@@ -2,6 +2,8 @@
 
 농부 토끼가 씨앗을 발동하고 농기구를 진화시켜 용궁을 탈출하는 Unity 2D 픽셀 아트 뱀서라이크입니다. 이동만으로 싸우고, 네 토끼의 시작 무기와 해저에 나타나는 씨앗으로 매 판 다른 빌드를 만듭니다.
 
+게임 시계 3분에 대장 거북, 6분에 용왕이 등장합니다. 개발 빌드의 변경 사항과 QA 결과는 [개발 PR #1](https://github.com/EndDeal/RabbitSurvivor/pull/1)에 정리했습니다.
+
 <img src="Assets/RabbitSurvivor/Art/Story/Loading-Undersea-Chase.png" width="270" alt="얕은 바다에서 망둥어와 게에게 쫓기는 농부 토끼">
 
 - 씨앗 위에 1초 머무르면 쌀떡길, 밀짚 허수아비, 감자 지뢰, 당근 포탑이 발동합니다.
