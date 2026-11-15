@@ -33,7 +33,7 @@ MonoBehaviour:
   requiredPassive: {fileID: 11400000, guid: 96a539ae1d8b5ab49b46e3de0117ddb7, type: 2}
   evolutionName: "풍년 삽"
   evolutionIcon: {fileID: 712346103, guid: 695c0ade77f84385a31c7d15aa5b0001, type: 3}
-  evolutionDescription: "회전 삽 +2 · 크기·반경 +25%"
+  evolutionDescription: "기존 궤도 유지 · 바깥 궤도에 삽 +2 · 삽 크기 +25%"
   evolutionDamage: 1.4
   evolutionCount: 2
   evolutionInterval: 0.9

@@ -8,7 +8,7 @@ namespace RabbitSurvivor
         const float CaptainWindup = 0.65f;
         const float CaptainDashDistance = 3.8f;
         const float CaptainDashSpeed = 8f;
-        const float CaptainDashDamage = 14f;
+        const float CaptainDashDamage = 12f;
         const float CaptainRecovery = 0.4f;
         const float CaptainCooldown = 6f;
 

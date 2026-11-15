@@ -8,7 +8,7 @@ namespace RabbitSurvivor
         const int FirstMagnetKills = 100;
         const float CellSize = 8f;
         const float ExperiencePickupRadius = 0.35f;
-        const float ExperienceAttractRadius = 1.2f;
+        const float ExperienceAttractRadius = 1.65f;
         const float ExperienceSpeed = 12f;
         const float ItemPickupRadius = 0.7f;
         const int MagnetFlights = 32;

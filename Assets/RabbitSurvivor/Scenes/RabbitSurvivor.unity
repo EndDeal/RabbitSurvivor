@@ -16725,8 +16725,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   isLive: 0
   gameTime: 0
-  maxGameTime: 600
-  midBossTime: 300
+  maxGameTime: 360
+  midBossTime: 180
   encounterSpawner: {fileID: 1453284998}
   finalArenaRadius: 6.5
   finalArenaBorderMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
@@ -16737,7 +16737,7 @@ MonoBehaviour:
   level: 0
   kill: 0
   exp: 0
-  nextExp: 05000000090000000e000000140000001a00000020000000260000002c00000032000000380000003e000000440000004a00000050000000560000005c00000062000000680000006e000000740000007a00000080000000860000008c00000092000000980000009e000000a4000000aa000000
+  nextExp: 0400000006000000090000000d000000120000001a000000240000002e00000038000000420000004c00000056000000600000006a000000740000007e00000088000000920000009c000000a6000000b0000000ba000000c4000000ce000000d8000000e2000000ec000000f600000000010000
   pool: {fileID: 994102858}
   player: {fileID: 539536290}
   uiLevelUp: {fileID: 603419247}
@@ -20985,30 +20985,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPoint: []
   spawnData:
-  - spawnTime: 0.68
+  - spawnTime: 0.82
     spriteType: 0
-    health: 18
+    health: 15
     speed: 1.4
-    contactDamage: 6
+    contactDamage: 4
     killsPerMagnet: 100
     experience: 1
-  - spawnTime: 0.48
+  - spawnTime: 0.58
     spriteType: 0
-    health: 28
+    health: 24
     speed: 1.6
-    contactDamage: 7
+    contactDamage: 6
     killsPerMagnet: 125
     experience: 1
   - spawnTime: 0.35
     spriteType: 1
-    health: 42
+    health: 40
     speed: 1.75
     contactDamage: 9
     killsPerMagnet: 165
     experience: 3
   - spawnTime: 0.28
     spriteType: 1
-    health: 58
+    health: 55
     speed: 1.95
     killsPerMagnet: 200
     experience: 5
@@ -21022,30 +21022,30 @@ MonoBehaviour:
   finalBossAnimation: {fileID: 22100000, guid: c23c8ef18fa84840894c20c6ca840004, type: 2}
   midBoss:
     spriteType: 1
-    health: 145
+    health: 125
     speed: 1.3
     attackPose: {fileID: 813450062, guid: b4d72cba99f14ab4a0380ffbe6d1006a, type: 3}
     experience: 45
   finalBoss:
     spriteType: 1
-    health: 525
+    health: 480
     speed: 0
     attackPose: {fileID: 816230003, guid: c23c8ef18fa84840894c20c6ca840003, type: 3}
     projectile: {fileID: 4122565992612807282, guid: de6029ce1993bdd4b8b79da5d1c39a46, type: 3}
     experience: 1
   dashGuideMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
-  barrierStart: 90
+  barrierStart: 70
   barrierWave:
     spawnTime: 30
     spriteType: 2
-    health: 66
+    health: 55
     speed: 0
     behavior: 1
     experience: 9
-  earlyShooterStart: 45
-  earlyShooterEnd: 120
+  earlyShooterStart: 35
+  earlyShooterEnd: 90
   earlyShooterInterval: 16
-  shooterStart: 180
+  shooterStart: 125
   shooterWave:
     spawnTime: 7.5
     spriteType: 3

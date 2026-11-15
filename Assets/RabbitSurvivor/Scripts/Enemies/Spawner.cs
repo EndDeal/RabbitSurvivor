@@ -22,15 +22,15 @@ namespace RabbitSurvivor
         [SerializeField] RuntimeAnimatorController[] enemyAnimations = System.Array.Empty<RuntimeAnimatorController>();
         [SerializeField] RuntimeAnimatorController midBossAnimation;
         [SerializeField] RuntimeAnimatorController finalBossAnimation;
-        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 145, speed = 1.3f, experience = 45 };
-        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 525 };
+        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 125, speed = 1.3f, experience = 45 };
+        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 480 };
         [SerializeField] Material dashGuideMaterial;
-        [SerializeField, Min(0f)] float barrierStart = 90f;
+        [SerializeField, Min(0f)] float barrierStart = 70f;
         [SerializeField] SpawnData barrierWave;
-        [SerializeField, Min(0f)] float earlyShooterStart = 45f;
-        [SerializeField, Min(0f)] float earlyShooterEnd = 120f;
+        [SerializeField, Min(0f)] float earlyShooterStart = 35f;
+        [SerializeField, Min(0f)] float earlyShooterEnd = 90f;
         [SerializeField, Min(0.1f)] float earlyShooterInterval = 16f;
-        [SerializeField, Min(0f)] float shooterStart = 180f;
+        [SerializeField, Min(0f)] float shooterStart = 125f;
         [SerializeField] SpawnData shooterWave;
         [SerializeField, Min(12f)] float recycleDistance = 24f;
         [SerializeField, Min(BarrierCount + 2)] int maxWaveEnemies = 96;
@@ -55,7 +55,7 @@ namespace RabbitSurvivor
         void Update()
         {
             GameManager game = GameManager.instance;
-            if (!game.isLive || game.HasFinalArena)
+            if (!game.isLive || game.IsBossClockHeld || game.HasFinalArena)
                 return;
 
             if (Time.time >= nextCleanupAt)

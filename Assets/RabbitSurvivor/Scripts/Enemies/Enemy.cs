@@ -13,7 +13,6 @@ namespace RabbitSurvivor
         const float FurrowPushSpeed = 7.5f;
         const float ObstacleLookAhead = 1.05f;
         const float BossOrbitHitInterval = .35f;
-        const float RiceWallDamage = 3f;
         const float RiceWallDamageInterval = .8f;
         const float RiceWallContactMargin = .07f;
 
@@ -36,7 +35,7 @@ namespace RabbitSurvivor
         internal Enemy Summoner { get; set; }
         internal bool IsDashing => bossAttacks && bossAttacks.IsDashing;
 
-        internal float ContactDamage => Boss == BossType.Final ? 24f : Boss == BossType.Mid ? 16f :
+        internal float ContactDamage => Boss == BossType.Final ? 20f : Boss == BossType.Mid ? 16f :
             IsBarrier ? 8f : Behavior == EnemyBehavior.Shooter ? 4f : chaseContactDamage;
 
         bool isLive;
@@ -144,7 +143,7 @@ namespace RabbitSurvivor
 
             if (obstacle.collider.gameObject.layer == SeedCrops.RiceWallLayer) {
                 if (obstacle.distance <= RiceWallContactMargin)
-                    TakeRiceWallDamage();
+                    TakeRiceWallDamage(obstacle.collider);
                 else if (detourHeading == Vector2.zero)
                     return forward;
             }
@@ -348,16 +347,19 @@ namespace RabbitSurvivor
         void OnCollisionStay2D(Collision2D collision)
         {
             if (collision.gameObject.layer == SeedCrops.RiceWallLayer)
-                TakeRiceWallDamage();
+                TakeRiceWallDamage(collision.collider);
         }
 
-        void TakeRiceWallDamage()
+        void TakeRiceWallDamage(Collider2D wall)
         {
             if (!isLive || !GameManager.instance.isLive || Time.time < nextRiceWallDamageAt)
                 return;
 
+            float damage = GameManager.instance.Crops ? GameManager.instance.Crops.RiceContactDamage(wall) : 0f;
+            if (damage <= 0f)
+                return;
             nextRiceWallDamageAt = Time.time + RiceWallDamageInterval;
-            ApplyDamage(RiceWallDamage, Vector2.zero, 0f, stagger: false);
+            ApplyDamage(damage, Vector2.zero, 0f, stagger: false);
         }
 
         internal void TakeFurrowDamage(float damage, Vector2 direction, float distance) =>

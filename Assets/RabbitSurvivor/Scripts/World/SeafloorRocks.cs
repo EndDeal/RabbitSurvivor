@@ -144,11 +144,15 @@ namespace RabbitSurvivor
         internal void BreakOverlapping(Collider2D[] footprints)
         {
             Physics2D.SyncTransforms();
-            foreach (Collider2D footprint in footprints) {
-                int count = footprint.OverlapCollider(rockFilter, overlaps);
-                for (int index = 0; index < count; index++)
-                    BreakRock(overlaps[index]);
-            }
+            foreach (Collider2D footprint in footprints)
+                BreakOverlapping(footprint);
+        }
+
+        internal void BreakOverlapping(Collider2D footprint)
+        {
+            int count = footprint.OverlapCollider(rockFilter, overlaps);
+            for (int index = 0; index < count; index++)
+                BreakRock(overlaps[index]);
         }
 
         internal bool BreakRock(Collider2D footprint)

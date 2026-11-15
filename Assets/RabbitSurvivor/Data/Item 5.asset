@@ -33,7 +33,7 @@ MonoBehaviour:
   pulseMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   attackColor: {r: 1, g: 1, b: 1, a: 1}
   attackInterval: 0.95
-  attackRadius: 2.1
+  attackRadius: 2.25
   strikeWidth: 1
   requiredPassive: {fileID: 11400000, guid: a91a6525087b42f794c249e1628525a4, type: 2}
   evolutionName: "황금 낫"

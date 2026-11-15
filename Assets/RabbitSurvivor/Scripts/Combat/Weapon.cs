@@ -226,12 +226,17 @@ namespace RabbitSurvivor
         void ArrangeOrbit()
         {
             Sprite sprite = IsEvolved && data.evolutionIcon ? data.evolutionIcon : data.projectileSprite;
+            int innerCount = IsEvolved ? data.WeaponCountAt(rank) : Count;
+            float innerRadius = IsEvolved ? attackRadius / data.evolutionArea : attackRadius;
             for (int index = 0; index < Count; index++) {
                 Transform blade = index < transform.childCount ? transform.GetChild(index) :
                     GameManager.instance.pool.Get(prefabId).transform;
                 blade.SetParent(transform, true);
-                blade.localRotation = Quaternion.Euler(0f, 0f, 360f * index / Count);
-                blade.position = transform.position + blade.up * attackRadius;
+                bool outer = index >= innerCount;
+                float angle = outer ? 360f * (index - innerCount + .5f) / (Count - innerCount) :
+                    360f * index / innerCount;
+                blade.localRotation = Quaternion.Euler(0f, 0f, angle);
+                blade.position = transform.position + blade.up * (outer ? attackRadius : innerRadius);
                 blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, sprite, attackColor);
                 if (sprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
                     Bounds art = sprite.bounds;

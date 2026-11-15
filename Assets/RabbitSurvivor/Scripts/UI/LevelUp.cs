@@ -24,6 +24,8 @@ namespace RabbitSurvivor
         float noticeTime;
         List<Item> items;
         Item recovery;
+        Item starter;
+        Item starterPassive;
         readonly List<Item> eligible = new List<Item>();
         readonly List<Item> offered = new List<Item>();
         readonly List<Item> evolutionOffers = new List<Item>();
@@ -101,8 +103,12 @@ namespace RabbitSurvivor
 
         internal void Select(ItemData startingWeapon)
         {
-            Item starter = items.Find(item => item.data == startingWeapon);
-            starter?.Upgrade();
+            starter = items.Find(item => item.data == startingWeapon);
+            if (!starter)
+                return;
+            ItemData requiredPassive = starter.data.requiredPassive;
+            starterPassive = requiredPassive ? items.Find(item => item.data == requiredPassive) : null;
+            starter.Upgrade();
         }
 
         public void Show()
@@ -225,14 +231,21 @@ namespace RabbitSurvivor
                     eligible.Add(item);
             }
 
-            // Reserve one choice for a passive upgrade when the player can progress toward a recipe.
-            List<Item> passiveOffers = eligible.FindAll(item => item.data.IsPassive && item.level > 0);
-            if (passiveOffers.Count == 0 && passiveCount == 0)
-                passiveOffers = eligible.FindAll(item => item.data.IsPassive);
-            if (passiveOffers.Count > 0) {
-                Item passive = passiveOffers[Random.Range(0, passiveOffers.Count)];
-                eligible.Remove(passive);
-                offered.Add(passive);
+            if (!HasEvolved) {
+                if (starter && eligible.Remove(starter))
+                    offered.Add(starter);
+                if (starterPassive && starterPassive.level == 0 && eligible.Remove(starterPassive))
+                    offered.Add(starterPassive);
+            }
+            if (!offered.Exists(item => item.data.IsPassive)) {
+                List<Item> passiveOffers = eligible.FindAll(item => item.data.IsPassive && item.level > 0);
+                if (passiveOffers.Count == 0 && passiveCount == 0)
+                    passiveOffers = eligible.FindAll(item => item.data.IsPassive);
+                if (passiveOffers.Count > 0) {
+                    Item passive = passiveOffers[Random.Range(0, passiveOffers.Count)];
+                    eligible.Remove(passive);
+                    offered.Add(passive);
+                }
             }
 
             while (offered.Count < OfferCount && eligible.Count > 0) {

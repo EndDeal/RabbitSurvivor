@@ -15,8 +15,8 @@ namespace RabbitSurvivor
         [Header("# Game Control")]
         public bool isLive;
         public float gameTime;
-        public float maxGameTime = 600f;
-        [SerializeField, Min(0f)] float midBossTime = 300f;
+        public float maxGameTime = 360f;
+        [SerializeField, Min(0f)] float midBossTime = 180f;
         [SerializeField] Spawner encounterSpawner;
         [SerializeField, Min(4f)] float finalArenaRadius = 6.5f;
         [SerializeField] Material finalArenaBorderMaterial;
@@ -30,8 +30,8 @@ namespace RabbitSurvivor
         public int kill;
         public int exp;
         public int[] nextExp = {
-            5, 9, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86,
-            92, 98, 104, 110, 116, 122, 128, 134, 140, 146, 152, 158, 164, 170
+            4, 6, 9, 13, 18, 26, 36, 46, 56, 66, 76, 86, 96, 106, 116,
+            126, 136, 146, 156, 166, 176, 186, 196, 206, 216, 226, 236, 246, 256
         };
 
         [Header("# Game Object")]
