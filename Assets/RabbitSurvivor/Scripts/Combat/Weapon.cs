@@ -10,6 +10,8 @@ namespace RabbitSurvivor
         const int PulseSegments = 40;
         const int ScytheSegments = 16;
         const float ScytheSlashDuration = 0.18f;
+        const float OrbitPulsePeriod = 2.4f;
+        const float OrbitPulseAmplitude = 0.2f;
 
         public float Damage { get; private set; }
         public int Count { get; private set; }
@@ -24,6 +26,9 @@ namespace RabbitSurvivor
         float attackRadius;
         float attackAreaMultiplier;
         Color attackColor;
+        Hand heldWeapon;
+        float orbitPulseTime;
+        float orbitBladeScale = 1f;
         int burstShots;
         float burstCooldown;
         Vector2 burstDirection;
@@ -71,7 +76,8 @@ namespace RabbitSurvivor
             }
 
             if (data.itemType == ItemData.ItemType.Melee && data.hand) {
-                player.hands[0].Equip(data.hand);
+                heldWeapon = player.hands[0];
+                heldWeapon.Equip(data.hand);
             }
 
             if (data.itemType == ItemData.ItemType.Pulse || data.itemType == ItemData.ItemType.GroundStrike)
@@ -106,8 +112,12 @@ namespace RabbitSurvivor
 
             IsEvolved = true;
             name = data.evolutionName;
-            if (swing && data.evolutionIcon)
-                swing.sprite = data.evolutionIcon;
+            if (data.evolutionIcon) {
+                if (swing)
+                    swing.sprite = data.evolutionIcon;
+                if (heldWeapon)
+                    heldWeapon.Equip(data.evolutionIcon);
+            }
             RefreshStats();
         }
 
@@ -148,8 +158,11 @@ namespace RabbitSurvivor
 
             if (data.itemType == ItemData.ItemType.Melee) {
                 float rotation = 150f * Character.WeaponSpeed / (1f - player.AttackHaste);
-                if (IsEvolved)
+                if (IsEvolved) {
                     rotation /= data.evolutionInterval;
+                    orbitPulseTime = Mathf.Repeat(orbitPulseTime + Time.deltaTime, OrbitPulsePeriod);
+                    UpdateOrbitGeometry();
+                }
                 transform.Rotate(Vector3.back * rotation * Time.deltaTime);
                 return;
             }
@@ -226,26 +239,37 @@ namespace RabbitSurvivor
         void ArrangeOrbit()
         {
             Sprite sprite = IsEvolved && data.evolutionIcon ? data.evolutionIcon : data.projectileSprite;
-            int innerCount = IsEvolved ? data.WeaponCountAt(rank) : Count;
-            float innerRadius = IsEvolved ? attackRadius / data.evolutionArea : attackRadius;
+            Bounds art = sprite ? sprite.bounds : default;
+            if (sprite)
+                orbitBladeScale = attackAreaMultiplier / (art.size.y * transform.lossyScale.y);
+
             for (int index = 0; index < Count; index++) {
                 Transform blade = index < transform.childCount ? transform.GetChild(index) :
                     GameManager.instance.pool.Get(prefabId).transform;
                 blade.SetParent(transform, true);
-                bool outer = index >= innerCount;
-                float angle = outer ? 360f * (index - innerCount + .5f) / (Count - innerCount) :
-                    360f * index / innerCount;
-                blade.localRotation = Quaternion.Euler(0f, 0f, angle);
-                blade.position = transform.position + blade.up * (outer ? attackRadius : innerRadius);
+                blade.localRotation = Quaternion.Euler(0f, 0f, 360f * index / Count);
                 blade.GetComponent<Bullet>().Init(Damage, Bullet.InfinitePierce, Vector2.zero, sprite, attackColor);
                 if (sprite && blade.TryGetComponent(out BoxCollider2D hitbox)) {
-                    Bounds art = sprite.bounds;
-                    // Scale the visible blade and its attached hitbox along with the orbit.
-                    blade.localScale = Vector3.one * (attackAreaMultiplier / (art.size.y * transform.lossyScale.y));
                     hitbox.size = art.size;
                     hitbox.offset = art.center;
                     blade.GetComponent<SpriteRenderer>().flipY = true;
                 }
+            }
+
+            UpdateOrbitGeometry();
+        }
+
+        void UpdateOrbitGeometry()
+        {
+            float pulseScale = IsEvolved
+                ? 1f - OrbitPulseAmplitude * Mathf.Cos(orbitPulseTime * (2f * Mathf.PI / OrbitPulsePeriod))
+                : 1f;
+            float radius = attackRadius * pulseScale;
+            Vector3 bladeScale = Vector3.one * (orbitBladeScale * pulseScale);
+            for (int index = 0; index < Count; index++) {
+                Transform blade = transform.GetChild(index);
+                blade.position = transform.position + blade.up * radius;
+                blade.localScale = bladeScale;
             }
         }
 
