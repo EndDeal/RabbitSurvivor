@@ -1802,6 +1802,7 @@ MonoBehaviour:
   titles:
   - {fileID: 1025367650}
   - {fileID: 1562626306}
+  titleFont: {fileID: 12800000, guid: 9ab5d73d96bf4fa2b25c91dfd969397f, type: 3}
 --- !u!1 &411911343
 GameObject:
   m_ObjectHideFlags: 0
