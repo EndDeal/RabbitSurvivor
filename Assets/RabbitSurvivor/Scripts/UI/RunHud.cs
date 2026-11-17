@@ -16,6 +16,8 @@ namespace RabbitSurvivor
         static readonly Color32 Panel = new Color32(37, 73, 83, 255);
         static readonly Color32 Cream = new Color32(255, 244, 218, 255);
         static readonly Color32 Gold = new Color32(255, 207, 112, 255);
+        static readonly Color32 OxygenBlue = new Color32(57, 160, 203, 255);
+        static readonly Color32 RefillMint = new Color32(60, 188, 161, 255);
         static readonly string[] RankLabels = { "", "1", "2", "3", "4", "5" };
 
         readonly GearSlot[] slots = new GearSlot[SlotsPerRow * 2];
@@ -30,6 +32,10 @@ namespace RabbitSurvivor
         FloatingStick stick;
         Image healthFill;
         Text healthLabel;
+        Image oxygenFill;
+        Text oxygenLabel;
+        int shownOxygen = -1;
+        bool shownHasAir;
         Text gearDetails;
         Text mineCombo;
         float shownMineComboAt = -1f;
@@ -56,7 +62,11 @@ namespace RabbitSurvivor
             AddImage(touchArea, Color.clear).raycastTarget = true;
             stick = touchArea.gameObject.AddComponent<FloatingStick>();
             stick.Initialize(game.player, (RectTransform)game.uiJoy);
-            BuildHealth();
+            BuildMeter("Health", 0f, new Color32(215, 77, 94, 255), out healthFill, out healthLabel);
+            if (game.Oxygen) {
+                BuildMeter("Oxygen", 10f, OxygenBlue, out oxygenFill, out oxygenLabel);
+                RefreshOxygen();
+            }
             BuildGearRow("무기", 0, -45f);
             BuildGearRow("패시브", SlotsPerRow, -61f);
             RectTransform detail = Place(transform, "Gear Details", TopLeft, TopLeft, new Vector2(3f, -78f), new Vector2(83f, 19f));
@@ -82,6 +92,8 @@ namespace RabbitSurvivor
                 return;
 
             RefreshHealth();
+            if (oxygenFill)
+                RefreshOxygen();
             RefreshMineCombo();
             if (stick.gameObject.activeSelf != game.isLive)
                 stick.gameObject.SetActive(game.isLive);
@@ -203,19 +215,22 @@ namespace RabbitSurvivor
             gearDetails.text = $"{(data.IsWeapon ? "무기" : "패시브")} · {name} Lv.{item.level}\n{effect}";
         }
 
-        void BuildHealth()
+        void BuildMeter(string name, float bottom, Color color, out Image meterFill, out Text meterLabel)
         {
-            RectTransform track = Place(transform, "Player Health", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(0f, 10f));
+            RectTransform track = Place(transform, "Player " + name, Vector2.zero, Vector2.zero,
+                new Vector2(0f, bottom), new Vector2(0f, 10f));
             track.anchorMax = Vector2.right;
             AddImage(track, Ink);
-            RectTransform fill = Place(track, "Health Fill", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            RectTransform fillArea = Place(track, "Fill Area", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            fillArea.anchorMax = Vector2.one;
+            fillArea.offsetMin = Vector2.one;
+            fillArea.offsetMax = -Vector2.one;
+            RectTransform fill = Place(fillArea, name + " Fill", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
             fill.anchorMax = Vector2.one;
-            fill.offsetMin = Vector2.one;
-            fill.offsetMax = -Vector2.one;
-            healthFill = AddImage(fill, new Color32(215, 77, 94, 255));
-            RectTransform label = Place(track, "Health Value", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            meterFill = AddImage(fill, color);
+            RectTransform label = Place(track, name + " Value", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
             label.anchorMax = Vector2.one;
-            healthLabel = AddLabel(label, "", 6);
+            meterLabel = AddLabel(label, "", 6);
         }
 
         void RefreshHealth()
@@ -228,6 +243,24 @@ namespace RabbitSurvivor
             shownHealth = current;
             shownMaxHealth = maximum;
             healthLabel.text = $"{current} / {maximum}";
+        }
+
+        void RefreshOxygen()
+        {
+            UnderwaterOxygen oxygen = game.Oxygen;
+            float fraction = oxygen.Fraction;
+            oxygenFill.rectTransform.anchorMax = new Vector2(fraction, 1f);
+            oxygenFill.color = oxygen.HasAir ? RefillMint : fraction <= .25f ? Gold : OxygenBlue;
+
+            int current = fraction >= 1f ? 100 : Mathf.Min(99, Mathf.CeilToInt(fraction * 100f));
+            if (current == shownOxygen && oxygen.HasAir == shownHasAir)
+                return;
+
+            shownOxygen = current;
+            shownHasAir = oxygen.HasAir;
+            string status = oxygen.HasAir ? (current == 100 ? " · 호흡 가능" : " · 충전 중") : "";
+            oxygenLabel.text = $"산소 {current}%{status}";
+            oxygenLabel.color = !oxygen.HasAir && current <= 25 ? Gold : Cream;
         }
 
         void BuildSettings()

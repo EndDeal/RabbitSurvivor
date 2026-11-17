@@ -21,6 +21,7 @@ namespace RabbitSurvivor
         [SerializeField, Min(4f)] float finalArenaRadius = 6.5f;
         [SerializeField] Material finalArenaBorderMaterial;
         [SerializeField] SeafloorRocks seafloorRocks;
+        [SerializeField] UnderwaterOxygen oxygen;
 
         [Header("# Player Info")]
         public int playerId;
@@ -70,6 +71,7 @@ namespace RabbitSurvivor
         internal Vector2 FinalArenaCenter => finalArenaCenter;
         internal float FinalArenaRadius => finalArenaRadius;
         internal SeafloorRocks Rocks => seafloorRocks;
+        internal UnderwaterOxygen Oxygen => oxygen;
         internal SeedCrops Crops => seedCrops;
         internal Font HudFont => hudFont;
         public bool IsBossClockHeld => clockBoss;
@@ -89,6 +91,7 @@ namespace RabbitSurvivor
             health = maxHealth;
             player.gameObject.SetActive(true);
             uiLevelUp.Select(StartingWeaponFor(id));
+            oxygen?.Begin(player.transform.position);
             if (gameplayHud && hudFont)
                 gameplayHud.gameObject.AddComponent<RunHud>().Initialize(this, hudFont);
             Resume();
@@ -143,6 +146,7 @@ namespace RabbitSurvivor
             isLive = false;
             if (seedCrops)
                 seedCrops.Clear();
+            oxygen?.End();
             clockBoss = null;
             ClearFinalArena();
             uiLevelUp.Dismiss();
@@ -167,6 +171,11 @@ namespace RabbitSurvivor
         {
             if (!isLive)
                 return;
+
+            oxygen?.Advance(player, Time.deltaTime);
+            if (!isLive)
+                return;
+
             if (HasFinalArena) {
                 if (Time.time >= nextArenaCleanupAt)
                     RecycleOutsideArena();
@@ -201,14 +210,15 @@ namespace RabbitSurvivor
             if (seafloorRocks)
                 seafloorRocks.ClearArena(center, finalArenaRadius);
             finalArenaCenter = center;
+            oxygen?.OpenArena(center, finalArenaRadius);
             finalArenaBorder = new GameObject("Dragon Arena Border").AddComponent<LineRenderer>();
             finalArenaBorder.transform.SetParent(transform, false);
             finalArenaBorder.transform.position = center;
             finalArenaBorder.useWorldSpace = false;
             finalArenaBorder.loop = true;
-            finalArenaBorder.sortingOrder = 1;
+            finalArenaBorder.sortingOrder = 2;
             finalArenaBorder.widthMultiplier = 0.16f;
-            finalArenaBorder.startColor = new Color32(255, 226, 156, 220);
+            finalArenaBorder.startColor = new Color32(179, 242, 253, 235);
             finalArenaBorder.endColor = finalArenaBorder.startColor;
             if (finalArenaBorderMaterial)
                 finalArenaBorder.sharedMaterial = finalArenaBorderMaterial;

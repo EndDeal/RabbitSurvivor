@@ -79,12 +79,12 @@ namespace RabbitSurvivor
                 for (int x = center.x - radius.x; x <= center.x + radius.x; x++) {
                     var cell = new Vector2Int(x, y);
                     if (!rocks.ContainsKey(cell) && !broken.Contains(cell))
-                        PlaceRock(cell);
+                        PlaceRock(cell, game.Oxygen);
                 }
             }
         }
 
-        void PlaceRock(Vector2Int cell)
+        void PlaceRock(Vector2Int cell, bool hasOxygenStations)
         {
             uint value = Hash(cell);
             if ((value & 255) >= 103)
@@ -93,7 +93,8 @@ namespace RabbitSurvivor
             Vector2 position = new Vector2(
                 cell.x + Mathf.Lerp(0.26f, 0.74f, ((value >> 8) & 255) / 255f),
                 cell.y + Mathf.Lerp(0.26f, 0.74f, ((value >> 16) & 255) / 255f)) * CellSize;
-            if (position.sqrMagnitude < SpawnClearance * SpawnClearance)
+            if (position.sqrMagnitude < SpawnClearance * SpawnClearance ||
+                (hasOxygenStations && UnderwaterOxygen.NeedsRockClearance(position)))
                 return;
 
             SpriteRenderer rock = available.Count > 0 ? available.Pop() : CreateRock();
