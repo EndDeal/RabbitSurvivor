@@ -11,6 +11,7 @@ namespace RabbitSurvivor
 
         public Vector2 inputVec;
         internal Vector2 LastMoveDirection { get; private set; }
+        internal float LastHitAt { get; private set; } = float.NegativeInfinity;
         public float speed;
         public Scanner scanner;
         public Hand[] hands;
@@ -49,6 +50,7 @@ namespace RabbitSurvivor
         void OnEnable()
         {
             LastMoveDirection = Vector2.zero;
+            LastHitAt = float.NegativeInfinity;
             SetMoveSpeedBonus(0);
             hitbox.enabled = true;
             nextContactAt = 0f;
@@ -166,13 +168,16 @@ namespace RabbitSurvivor
             TakeDamage(damagePerSecond * interval);
         }
 
-        internal void TakeDamage(float amount)
+        internal void TakeDamage(float amount, bool showHitBorder = true)
         {
             GameManager game = GameManager.instance;
             if (!game.isLive)
                 return;
 
-            game.health = Mathf.Max(0f, game.health - amount * (1f - DamageReduction));
+            float previousHealth = game.health;
+            game.health = Mathf.Max(0f, previousHealth - amount * (1f - DamageReduction));
+            if (showHitBorder && game.health < previousHealth)
+                LastHitAt = Time.unscaledTime;
             bool lethal = game.health <= 0f;
             hitFlash ??= new SpriteHitFlash(spriter);
             hitFlash.Show(game.HitFlashMaterial, lethal);

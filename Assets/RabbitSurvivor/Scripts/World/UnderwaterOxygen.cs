@@ -72,7 +72,7 @@ namespace RabbitSurvivor
             suffocationTime += Mathf.Max(0f, deltaTime - remainingBreath);
             if (suffocationTime >= 1f) {
                 suffocationTime -= 1f;
-                player.TakeDamage(suffocationDamage);
+                player.TakeDamage(suffocationDamage, showHitBorder: false);
             }
         }
 

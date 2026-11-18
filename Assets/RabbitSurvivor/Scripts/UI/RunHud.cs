@@ -9,6 +9,7 @@ namespace RabbitSurvivor
     public class RunHud : MonoBehaviour
     {
         const int SlotsPerRow = 3;
+        const float HitBorderDuration = 0.24f;
         static readonly Vector2 TopLeft = new Vector2(0f, 1f);
         static readonly Vector2 TopRight = new Vector2(1f, 1f);
         static readonly Vector2 Center = new Vector2(0.5f, 0.5f);
@@ -18,6 +19,7 @@ namespace RabbitSurvivor
         static readonly Color32 Gold = new Color32(255, 207, 112, 255);
         static readonly Color32 OxygenBlue = new Color32(57, 160, 203, 255);
         static readonly Color32 RefillMint = new Color32(60, 188, 161, 255);
+        static readonly Color32 DamageRed = new Color32(240, 75, 87, 255);
         static readonly string[] RankLabels = { "", "1", "2", "3", "4", "5" };
 
         readonly GearSlot[] slots = new GearSlot[SlotsPerRow * 2];
@@ -34,6 +36,7 @@ namespace RabbitSurvivor
         Text healthLabel;
         Image oxygenFill;
         Text oxygenLabel;
+        PlayStatusBorder statusBorder;
         int shownOxygen = -1;
         bool shownHasAir;
         Text gearDetails;
@@ -62,6 +65,13 @@ namespace RabbitSurvivor
             AddImage(touchArea, Color.clear).raycastTarget = true;
             stick = touchArea.gameObject.AddComponent<FloatingStick>();
             stick.Initialize(game.player, (RectTransform)game.uiJoy);
+            RectTransform border = Place(transform, "Play Status Border", Vector2.zero, Vector2.zero,
+                Vector2.zero, Vector2.zero);
+            border.anchorMax = Vector2.one;
+            border.SetAsFirstSibling();
+            statusBorder = border.gameObject.AddComponent<PlayStatusBorder>();
+            statusBorder.raycastTarget = false;
+            statusBorder.enabled = false;
             BuildMeter("Health", 0f, new Color32(215, 77, 94, 255), out healthFill, out healthLabel);
             if (game.Oxygen) {
                 BuildMeter("Oxygen", 10f, OxygenBlue, out oxygenFill, out oxygenLabel);
@@ -94,6 +104,7 @@ namespace RabbitSurvivor
             RefreshHealth();
             if (oxygenFill)
                 RefreshOxygen();
+            RefreshStatusBorder();
             RefreshMineCombo();
             if (stick.gameObject.activeSelf != game.isLive)
                 stick.gameObject.SetActive(game.isLive);
@@ -250,7 +261,8 @@ namespace RabbitSurvivor
             UnderwaterOxygen oxygen = game.Oxygen;
             float fraction = oxygen.Fraction;
             oxygenFill.rectTransform.anchorMax = new Vector2(fraction, 1f);
-            oxygenFill.color = oxygen.HasAir ? RefillMint : fraction <= .25f ? Gold : OxygenBlue;
+            Color32 stateColor = OxygenStateColor(oxygen);
+            oxygenFill.color = stateColor;
 
             int current = fraction >= 1f ? 100 : Mathf.Min(99, Mathf.CeilToInt(fraction * 100f));
             if (current == shownOxygen && oxygen.HasAir == shownHasAir)
@@ -260,7 +272,31 @@ namespace RabbitSurvivor
             shownHasAir = oxygen.HasAir;
             string status = oxygen.HasAir ? (current == 100 ? " · 호흡 가능" : " · 충전 중") : "";
             oxygenLabel.text = $"산소 {current}%{status}";
-            oxygenLabel.color = !oxygen.HasAir && current <= 25 ? Gold : Cream;
+            oxygenLabel.color = !oxygen.HasAir && fraction <= .25f ? stateColor : Cream;
+        }
+
+        static Color32 OxygenStateColor(UnderwaterOxygen oxygen)
+        {
+            if (oxygen.HasAir)
+                return RefillMint;
+            if (oxygen.Fraction <= 0f)
+                return DamageRed;
+            return oxygen.Fraction <= .25f ? Gold : OxygenBlue;
+        }
+
+        void RefreshStatusBorder()
+        {
+            UnderwaterOxygen oxygen = game.Oxygen;
+            float hit = Mathf.Clamp01(1f - (Time.unscaledTime - game.player.LastHitAt) / HitBorderDuration);
+            statusBorder.enabled = game.isLive && (oxygen || hit > 0f);
+            if (!statusBorder.enabled)
+                return;
+
+            Color baseColor = oxygen ? OxygenStateColor(oxygen) : Color.clear;
+            baseColor.a = oxygen ? oxygen.Fraction <= 0f && !oxygen.HasAir ? .36f : .23f : 0f;
+            Color hitColor = DamageRed;
+            hitColor.a = .78f;
+            statusBorder.color = Color.Lerp(baseColor, hitColor, hit);
         }
 
         void BuildSettings()

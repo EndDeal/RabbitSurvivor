@@ -6,6 +6,7 @@ namespace RabbitSurvivor
     public class Weapon : MonoBehaviour
     {
         const float BurstShotInterval = 0.12f;
+        const float ExtraShotAngle = 6.5f;
         const float PulseDuration = 0.25f;
         const int PulseSegments = 40;
         const int ScytheSegments = 16;
@@ -86,7 +87,7 @@ namespace RabbitSurvivor
                 CreateScytheSlash();
             if (data.itemType == ItemData.ItemType.Furrow)
                 CreateFurrowTrail();
-            if ((data.IsToolStrike || data.itemType == ItemData.ItemType.Pulse) && data.projectileSprite) {
+            if (data.IsToolStrike && data.projectileSprite) {
                 swing = new GameObject("Tool Swing").AddComponent<SpriteRenderer>();
                 swing.transform.SetParent(transform, false);
                 swing.sortingOrder = player.GetComponent<SpriteRenderer>().sortingOrder + 1;
@@ -125,9 +126,8 @@ namespace RabbitSurvivor
         {
             Damage = DamageAtLevel(rank);
             Count = data.WeaponCountAt(rank);
-            if (data.itemType == ItemData.ItemType.Range || data.itemType == ItemData.ItemType.Spread ||
-                data.itemType == ItemData.ItemType.Burst)
-                Count += Character.Count;
+            if (data.itemType == ItemData.ItemType.Melee)
+                Count += Character.ExtraProjectileCount;
             attackInterval = data.attackInterval * Character.WeaponRate * (1f - player.AttackHaste);
             attackAreaMultiplier = (1f + player.AttackArea) * (IsEvolved ? data.evolutionArea : 1f);
             float rankProgress = (rank - 1f) / Mathf.Max(1, data.MaxLevel - 1);
@@ -214,6 +214,8 @@ namespace RabbitSurvivor
             switch (data.itemType) {
                 case ItemData.ItemType.Range:
                     FireProjectile(direction, Count);
+                    if (Character.ExtraProjectileCount > 0)
+                        FireProjectile(Quaternion.Euler(0f, 0f, ExtraShotAngle) * direction, Count);
                     break;
                 case ItemData.ItemType.Spread:
                     for (int index = 0; index < Count; index++) {
@@ -447,7 +449,6 @@ namespace RabbitSurvivor
                 return false;
 
             ShowPulse(transform.position, attackRadius);
-            ShowSwing(pulseCenter + Vector3.up * 0.65f, Vector2.right, 1.45f * attackAreaMultiplier);
 
             foreach (Collider2D hit in pulseHits) {
                 if (hit.TryGetComponent(out Enemy enemy))
