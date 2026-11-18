@@ -37,9 +37,9 @@ namespace RabbitSurvivor
         RectTransform healthPanel;
         RectTransform healthFill;
         RectTransform healthTrail;
-        Text healthCount;
+        Text healthPercent;
         Text healthName;
-        int lastHealth = -1;
+        int lastHealthPercent = -1;
         float trail;
 
         RectTransform banner;
@@ -162,7 +162,7 @@ namespace RabbitSurvivor
         {
             focusedBoss = boss;
             healthPanel.gameObject.SetActive(boss != null);
-            lastHealth = -1;
+            lastHealthPercent = -1;
             if (boss) {
                 healthName.text = boss.Boss == BossType.Final ? DragonName : CaptainName;
                 UpdateHealth(true);
@@ -175,11 +175,13 @@ namespace RabbitSurvivor
             trail = resetTrail ? ratio : Mathf.MoveTowards(trail, ratio, Time.unscaledDeltaTime * 0.9f);
             healthFill.anchorMax = new Vector2(ratio, 1f);
             healthTrail.anchorMax = new Vector2(trail, 1f);
-            int current = Mathf.CeilToInt(focusedBoss.health);
-            if (current == lastHealth)
+            int percent = Mathf.RoundToInt(ratio * 100f);
+            if (ratio > 0f && ratio < 1f)
+                percent = Mathf.Clamp(percent, 1, 99);
+            if (percent == lastHealthPercent)
                 return;
-            lastHealth = current;
-            healthCount.text = $"{current} / {Mathf.CeilToInt(focusedBoss.maxHealth)}";
+            lastHealthPercent = percent;
+            healthPercent.text = $"{percent}%";
         }
 
         void ShowBanner(BossType boss, bool defeated)
@@ -251,7 +253,7 @@ namespace RabbitSurvivor
             AddImage(face, Ink);
             healthName = AddText(Place(face, "Boss Name", new Vector2(0f, 1f), new Vector2(0f, 1f),
                 new Vector2(3f, -1f), new Vector2(34f, 6f)), 6, TextAnchor.MiddleLeft);
-            healthCount = AddText(Place(face, "Boss Health Number", new Vector2(1f, 1f), new Vector2(1f, 1f),
+            healthPercent = AddText(Place(face, "Boss Health Percent", new Vector2(1f, 1f), new Vector2(1f, 1f),
                 new Vector2(-3f, -1f), new Vector2(33f, 6f)), 6, TextAnchor.MiddleRight);
 
             RectTransform track = Stretch(face, "Boss Health Track");

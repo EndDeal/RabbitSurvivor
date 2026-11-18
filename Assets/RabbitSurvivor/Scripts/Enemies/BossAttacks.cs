@@ -176,7 +176,7 @@ namespace RabbitSurvivor
             float angle = ((BubbleCount + 1) * 0.5f - bubblesRemaining) * 8f;
             Vector2 direction = Quaternion.Euler(0f, 0f, angle) * aim;
             EnemyProjectile shot = GameManager.instance.pool.Get(projectileIndex).GetComponent<EnemyProjectile>();
-            shot.Launch(body.position + direction * 0.6f, direction, damage: 9f, speed: 4.2f, size: 1.25f);
+            shot.Launch(body.position + direction * 0.6f, direction, damage: 9f, speed: 3.8f, size: 1.25f);
             bubblesRemaining--;
             nextBubbleAt = now + BubbleSpacing;
             if (bubblesRemaining == 0)
