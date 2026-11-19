@@ -4,7 +4,7 @@ namespace RabbitSurvivor
 {
     public class EnemyProjectile : MonoBehaviour
     {
-        const float Lifetime = 2.4f;
+        internal const float Lifetime = 2.4f;
 
         Rigidbody2D body;
         Vector3 baseScale;

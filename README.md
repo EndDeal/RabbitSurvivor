@@ -12,7 +12,7 @@
 
 ## 실행과 조작
 
-Android 테스트 빌드는 [v1.0.13 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.13)에서 받을 수 있습니다.
+Android 테스트 빌드는 [v1.0.14 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.14)에서 받을 수 있습니다. [APK 다운로드](https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.14/RabbitSurvivor-v1.0.14.apk)
 
 1. Unity Hub에서 저장소 폴더를 Unity **2022.3.57f1**로 엽니다.
 2. `Assets/RabbitSurvivor/Scenes/Title.unity`를 열고 Play를 누릅니다.
@@ -32,6 +32,20 @@ Android 테스트 빌드는 [v1.0.13 릴리스](https://github.com/EndDeal/Rabbi
 - 일반 웨이브는 1분 30초 단위로 바뀌며 기본 적 체력은 순서대로 15, 24, 40, 55 HP입니다. 대장 거북은 125 HP, 용왕은 480 HP입니다.
 - 대장 거북의 보물상자는 진화 조건을 갖춘 무기에 사용할 수 있습니다. 조건을 아직 갖추지 못했다면 보유 장비 중 강화 가능한 하나가 한 단계 오르고, 이후 진화에 사용할 장비 강화권을 받습니다.
 - 결과 화면은 체력이 0이면 `DEAD`, 용왕을 처치하면 `SURVIVED!`를 표시합니다. 두 제목에는 크림색 글자와 짙은 외곽선을 적용했습니다. **돌아가기**를 누르면 캐릭터 선택으로 복귀합니다.
+
+## 보스 공격 전조
+
+공격이 시작되기 전에 위험한 방향과 위치를 표시합니다. 전조는 발동 시 사라지며, 일시정지하면 대기 시간도 함께 멈춥니다.
+
+| 보스 행동 | 전조 | 확인할 판단 |
+| --- | --- | --- |
+| 대장 거북 돌진 | 0.65초 전 빨간 사각형. 실제 충돌체 폭과 돌진 구간을 포함하며 조준 방향은 고정 | 사각형 옆으로 벗어나 돌진을 피하기 |
+| 용왕 독방울 연사 | 0.55초 전 분홍 부채꼴. 7발이 퍼지는 전체 48도 방향을 표시 | 부채꼴 밖으로 빠질 방향 고르기 |
+| 용왕 호위 거북 소환 | 0.8초 전 주황 원. 용왕 외형 밖에 나타나며 표시한 위치에 생성 | 소환 위치를 보고 다음 이동 경로 고르기 |
+
+<img src="docs/images/boss-captain-warning.png" width="230" alt="대장 거북의 실제 돌진 폭을 표시한 빨간 사각형 전조"> <img src="docs/images/boss-dragon-volley.png" width="230" alt="용왕 독방울이 퍼지는 방향을 표시한 분홍 부채꼴 전조"> <img src="docs/images/boss-dragon-summon.png" width="230" alt="용왕 외형 밖에 표시한 호위 거북 소환 원">
+
+Unity 세로 Play Mode에서 전조 후 공격, 표시 위치와 실제 생성 위치, 일시정지, 보스 비활성화 시 전조 제거를 확인했습니다. 호위 거북은 한 번에 최대 3마리, 동시에 최대 6마리이며 소환 완료 후 9초를 기다립니다.
 
 ## 씨앗과 감자 연쇄
 

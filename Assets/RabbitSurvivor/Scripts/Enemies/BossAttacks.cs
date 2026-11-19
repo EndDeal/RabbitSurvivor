@@ -15,7 +15,12 @@ namespace RabbitSurvivor
         const int BubbleCount = 7;
         const float BubbleWindup = 0.55f;
         const float BubbleSpacing = 0.12f;
+        const float BubbleAngleStep = 8f;
+        const float BubbleSpeed = 3.8f;
+        const float BubbleSpawnOffset = .6f;
         const float VolleyCooldown = 4f;
+        const float SummonWindup = .8f;
+        const float SummonMarkerRadius = .48f;
         const float SummonCooldown = 9f;
         const float DragonRange = 8f;
         const int GuardsPerSummon = 3;
@@ -26,8 +31,12 @@ namespace RabbitSurvivor
         Enemy owner;
         Rigidbody2D body;
         Collider2D footprint;
+        SpriteRenderer appearance;
         Spawner spawner;
-        LineRenderer dashGuide;
+        BossAttackTelegraph dashGuide;
+        BossAttackTelegraph volleyGuide;
+        readonly BossAttackTelegraph[] summonGuides = new BossAttackTelegraph[GuardsPerSummon];
+        readonly Vector2[] summonPositions = new Vector2[GuardsPerSummon];
         readonly List<Enemy> guards = new List<Enemy>(MaxGuards);
         readonly List<RaycastHit2D> dashHits = new List<RaycastHit2D>(8);
         ContactFilter2D dashFilter;
@@ -42,9 +51,11 @@ namespace RabbitSurvivor
         float nextBubbleAt;
         float volleyReadyAt;
         float summonReadyAt;
+        float summonAt;
+        int pendingGuards;
 
         internal bool IsDashing => dashPhase == DashPhase.Dashing;
-        internal bool IsAiming => dashPhase == DashPhase.Aiming || bubblesRemaining > 0;
+        internal bool IsAiming => dashPhase == DashPhase.Aiming || bubblesRemaining > 0 || pendingGuards > 0;
         internal Vector2 Aim => aim;
 
         void Awake()
@@ -52,6 +63,7 @@ namespace RabbitSurvivor
             owner = GetComponent<Enemy>();
             body = GetComponent<Rigidbody2D>();
             footprint = GetComponent<Collider2D>();
+            appearance = GetComponent<SpriteRenderer>();
             dashFilter.SetLayerMask((1 << SeafloorRocks.Layer) | (1 << gameObject.layer));
             dashFilter.useTriggers = false;
         }
@@ -63,17 +75,35 @@ namespace RabbitSurvivor
             dashReadyAt = Time.time + 2.2f;
             volleyReadyAt = Time.time + 2.2f;
             summonReadyAt = Time.time + 5f;
-            if (owner.Boss == BossType.Mid && !dashGuide)
-                CreateDashGuide(guideMaterial);
+            if (!guideMaterial)
+                return;
+            if (owner.Boss == BossType.Mid)
+                dashGuide ??= new BossAttackTelegraph(transform, guideMaterial, "Captain Dash Warning", new Color32(245, 61, 70, 255));
+            else {
+                volleyGuide ??= new BossAttackTelegraph(transform, guideMaterial, "Dragon Volley Warning", new Color32(231, 75, 152, 255));
+                for (int index = 0; index < summonGuides.Length; index++)
+                    summonGuides[index] ??= new BossAttackTelegraph(transform, guideMaterial, "Dragon Summon Warning", new Color32(255, 126, 73, 255));
+            }
         }
 
         void OnDisable()
         {
             dashPhase = DashPhase.Chasing;
             bubblesRemaining = 0;
+            pendingGuards = 0;
             guards.Clear();
-            if (dashGuide)
-                dashGuide.enabled = false;
+            dashGuide?.Hide();
+            volleyGuide?.Hide();
+            foreach (BossAttackTelegraph guide in summonGuides)
+                guide?.Hide();
+        }
+
+        void OnDestroy()
+        {
+            dashGuide?.Dispose();
+            volleyGuide?.Dispose();
+            foreach (BossAttackTelegraph guide in summonGuides)
+                guide?.Dispose();
         }
 
         internal bool Step(Vector2 toPlayer)
@@ -95,8 +125,7 @@ namespace RabbitSurvivor
                         return true;
                     }
 
-                    if (dashGuide)
-                        dashGuide.enabled = false;
+                    dashGuide?.Hide();
                     dashPhase = DashPhase.Dashing;
                     dashRemaining = CaptainDashDistance;
                     hitDuringDash = false;
@@ -156,71 +185,93 @@ namespace RabbitSurvivor
         {
             float now = Time.time;
             if (bubblesRemaining > 0) {
-                if (now >= nextBubbleAt)
+                if (now >= nextBubbleAt) {
+                    volleyGuide?.Hide();
                     FireBubble(now);
+                }
+                else if (bubblesRemaining == BubbleCount)
+                    DrawVolleyGuide(now);
             }
             else if (projectileIndex >= 0 && now >= volleyReadyAt && toPlayer.sqrMagnitude <= DragonRange * DragonRange) {
                 aim = toPlayer.sqrMagnitude > 0.001f ? toPlayer.normalized : Vector2.down;
                 bubblesRemaining = BubbleCount;
                 nextBubbleAt = now + BubbleWindup;
+                DrawVolleyGuide(now);
             }
 
-            if (now >= summonReadyAt && toPlayer.sqrMagnitude <= DragonRange * DragonRange) {
-                SummonGuards(toPlayer.sqrMagnitude > 0.001f ? -toPlayer.normalized : Vector2.up);
-                summonReadyAt = now + SummonCooldown;
+            if (pendingGuards > 0) {
+                if (now >= summonAt) {
+                    for (int index = 0; index < pendingGuards; index++) {
+                        summonGuides[index]?.Hide();
+                        guards.Add(spawner.SpawnDragonGuard(summonPositions[index], owner));
+                    }
+                    pendingGuards = 0;
+                    summonReadyAt = now + SummonCooldown;
+                }
+                else
+                    DrawSummonGuides(now);
+            }
+            else if (now >= summonReadyAt && toPlayer.sqrMagnitude <= DragonRange * DragonRange) {
+                PrepareSummon(toPlayer, now);
             }
         }
 
         void FireBubble(float now)
         {
-            float angle = ((BubbleCount + 1) * 0.5f - bubblesRemaining) * 8f;
+            float angle = ((BubbleCount + 1) * 0.5f - bubblesRemaining) * BubbleAngleStep;
             Vector2 direction = Quaternion.Euler(0f, 0f, angle) * aim;
             EnemyProjectile shot = GameManager.instance.pool.Get(projectileIndex).GetComponent<EnemyProjectile>();
-            shot.Launch(body.position + direction * 0.6f, direction, damage: 9f, speed: 3.8f, size: 1.25f);
+            shot.Launch(body.position + direction * BubbleSpawnOffset, direction, damage: 9f, speed: BubbleSpeed, size: 1.25f);
             bubblesRemaining--;
             nextBubbleAt = now + BubbleSpacing;
             if (bubblesRemaining == 0)
                 volleyReadyAt = now + VolleyCooldown;
         }
 
-        void SummonGuards(Vector2 awayFromPlayer)
+        void PrepareSummon(Vector2 toPlayer, float now)
         {
             guards.RemoveAll(guard => !guard || !guard.isActiveAndEnabled || !guard.IsAlive || guard.Summoner != owner);
-            int count = Mathf.Min(GuardsPerSummon, MaxGuards - guards.Count);
-            for (int index = 0; index < count; index++) {
-                Vector2 direction = Quaternion.Euler(0f, 0f, (index - 1) * 80f) * awayFromPlayer;
-                guards.Add(spawner.SpawnDragonGuard(body.position + direction * 1.45f, owner));
+            pendingGuards = Mathf.Min(GuardsPerSummon, MaxGuards - guards.Count);
+            if (pendingGuards == 0) {
+                summonReadyAt = now + SummonCooldown;
+                return;
             }
+            Vector2 awayFromPlayer = toPlayer.sqrMagnitude > .001f ? -toPlayer.normalized : Vector2.up;
+            if (bubblesRemaining == 0)
+                aim = -awayFromPlayer;
+            for (int index = 0; index < pendingGuards; index++) {
+                Vector2 direction = Quaternion.Euler(0f, 0f, (index - 1) * 80f) * awayFromPlayer;
+                Vector2 extent = appearance.bounds.extents;
+                float distance = Mathf.Abs(direction.x) * extent.x + Mathf.Abs(direction.y) * extent.y + SummonMarkerRadius;
+                summonPositions[index] = SeafloorRocks.FreeSpawnPosition(body.position + direction * distance);
+            }
+            summonAt = now + SummonWindup;
+            DrawSummonGuides(now);
         }
 
-        void CreateDashGuide(Material material)
+        void DrawVolleyGuide(float now)
         {
-            if (!material)
-                return;
+            float progress = 1f - (nextBubbleAt - now) / BubbleWindup;
+            float radius = BubbleSpawnOffset + BubbleSpeed * EnemyProjectile.Lifetime;
+            volleyGuide?.Sector(body.position, aim, radius, (BubbleCount - 1) * BubbleAngleStep, progress);
+        }
 
-            dashGuide = new GameObject("Captain Dash Guide").AddComponent<LineRenderer>();
-            dashGuide.transform.SetParent(transform, false);
-            dashGuide.sharedMaterial = material;
-            dashGuide.useWorldSpace = true;
-            dashGuide.sortingOrder = 1;
-            dashGuide.positionCount = 2;
-            dashGuide.numCapVertices = 4;
-            dashGuide.startWidth = 0.5f;
-            dashGuide.endWidth = 0.28f;
-            dashGuide.startColor = new Color32(246, 127, 82, 194);
-            dashGuide.endColor = new Color32(255, 206, 118, 175);
-            dashGuide.enabled = false;
+        void DrawSummonGuides(float now)
+        {
+            float progress = 1f - (summonAt - now) / SummonWindup;
+            for (int index = 0; index < pendingGuards; index++)
+                summonGuides[index]?.Circle(summonPositions[index], SummonMarkerRadius, progress);
         }
 
         void DrawDashGuide()
         {
-            if (!dashGuide)
-                return;
-
-            Vector2 position = body.position;
-            dashGuide.SetPosition(0, position + aim * 0.3f);
-            dashGuide.SetPosition(1, position + aim * CaptainDashDistance);
-            dashGuide.enabled = true;
+            Vector2 size = footprint.bounds.size;
+            Vector2 side = new Vector2(-aim.y, aim.x);
+            float width = Mathf.Abs(side.x) * size.x + Mathf.Abs(side.y) * size.y;
+            float depth = Mathf.Abs(aim.x) * size.x + Mathf.Abs(aim.y) * size.y;
+            Vector2 center = (Vector2)footprint.bounds.center + aim * (CaptainDashDistance * .5f);
+            float progress = 1f - (phaseUntil - Time.time) / CaptainWindup;
+            dashGuide?.Rectangle(center, aim, CaptainDashDistance + depth, width, progress);
         }
 
         void OnCollisionEnter2D(Collision2D collision) => HitDuringDash(collision);
