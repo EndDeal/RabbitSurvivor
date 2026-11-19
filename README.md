@@ -9,13 +9,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.14/RabbitSurvivor-v1.0.14.apk"><strong>Android APK 다운로드</strong></a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.15/RabbitSurvivor-v1.0.15.apk"><strong>Android APK 다운로드</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.14">v1.0.14 변경 내역</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.15">v1.0.15 변경 내역</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/tree/v1.0.14">Unity 소스</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/tree/v1.0.15">Unity 소스</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/blob/v1.0.14/docs/RabbitSurvivor-Data.xlsx">엑셀 데이터테이블</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/blob/v1.0.15/docs/RabbitSurvivor-Data.xlsx">엑셀 데이터테이블</a>
 </p>
 
 | 시작 화면 | 용궁 오프닝 | 말미잘 산소 보급 | 용왕전 |
@@ -30,7 +30,7 @@
 
 ## 실행과 조작
 
-Android 테스트 빌드는 [v1.0.14 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.14)에서 받을 수 있습니다. [APK 다운로드](https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.14/RabbitSurvivor-v1.0.14.apk)
+Android 테스트 빌드는 [v1.0.15 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.15)에서 받을 수 있습니다. [APK 다운로드](https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.15/RabbitSurvivor-v1.0.15.apk)
 
 1. Unity Hub에서 저장소 폴더를 Unity **2022.3.57f1**로 엽니다.
 2. `Assets/RabbitSurvivor/Scenes/Title.unity`를 열고 Play를 누릅니다.
@@ -47,9 +47,11 @@ Android 테스트 빌드는 [v1.0.14 릴리스](https://github.com/EndDeal/Rabbi
 - 청록색 바다 바닥에 작은 불가사리·조개·해초 6종을 배치했습니다. 장식은 통과할 수 있고, 산소 보급처 주변은 비워 두었습니다. 화면 밖 장식은 재사용해 이동 중 오브젝트 수를 관리합니다.
 - 장벽을 만드는 투구게와 보라색 독방울을 쏘는 망둥어가 등장합니다. 해저 돌에 이동이 막힐 수 있고, 투구게는 장벽과 겹치는 돌을 부숩니다.
 - **3:00**에 해저 돌과 투구게를 부수며 돌진하는 대장 거북, **6:00**에 독방울을 연사하고 호위 거북을 부르는 용왕이 나타납니다. 보스 체력은 남은 비율을 정수 %로 표시합니다. 보스전 동안 게임 시계와 일반 웨이브의 새 적 생성이 멈춥니다. 용왕을 쓰러뜨리면 승리합니다.
-- 일반 웨이브는 1분 30초 단위로 바뀌며 기본 적 체력은 순서대로 15, 24, 40, 55 HP입니다. 대장 거북은 125 HP, 용왕은 480 HP입니다.
+- 일반 웨이브는 1분 30초 단위로 바뀌며 기본 적 체력은 순서대로 13, 21, 35, 48 HP입니다. 투구게는 48 HP, 망둥어는 14 HP입니다. 대장 거북은 188 HP, 용왕은 720 HP입니다.
 - 대장 거북의 보물상자는 진화 조건을 갖춘 무기에 사용할 수 있습니다. 조건을 아직 갖추지 못했다면 보유 장비 중 강화 가능한 하나가 한 단계 오르고, 이후 진화에 사용할 장비 강화권을 받습니다.
 - 결과 화면은 체력이 0이면 `DEAD`, 용왕을 처치하면 `SURVIVED!`를 표시합니다. 두 제목에는 크림색 글자와 짙은 외곽선을 적용했습니다. **돌아가기**를 누르면 캐릭터 선택으로 복귀합니다.
+
+v1.0.15에서는 잡몹 체력을 약 13% 낮추고 보스 체력을 약 1.5배 늘렸습니다. 적 수·등장 간격·경험치와 공격 수치는 유지해, 일반 구간을 돌파하기 쉽게 하고 보스와 공방할 시간을 확보했습니다.
 
 ## 보스 공격 전조
 

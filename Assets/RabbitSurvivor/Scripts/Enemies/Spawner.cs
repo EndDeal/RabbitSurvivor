@@ -22,8 +22,8 @@ namespace RabbitSurvivor
         [SerializeField] RuntimeAnimatorController[] enemyAnimations = System.Array.Empty<RuntimeAnimatorController>();
         [SerializeField] RuntimeAnimatorController midBossAnimation;
         [SerializeField] RuntimeAnimatorController finalBossAnimation;
-        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 125, speed = 1.3f, experience = 45 };
-        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 480 };
+        [SerializeField] SpawnData midBoss = new SpawnData { spriteType = 1, health = 188, speed = 1.3f, experience = 45 };
+        [SerializeField] SpawnData finalBoss = new SpawnData { spriteType = 1, health = 720 };
         [SerializeField] Material dashGuideMaterial;
         [SerializeField, Min(0f)] float barrierStart = 70f;
         [SerializeField] SpawnData barrierWave;
