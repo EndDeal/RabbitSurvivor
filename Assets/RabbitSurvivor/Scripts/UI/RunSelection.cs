@@ -17,8 +17,6 @@ namespace RabbitSurvivor
             new RectInt(146, 16, 369, 598),
             new RectInt(119, 16, 365, 596),
         };
-        static readonly string[] StageNames = { "얕은 바다", "바닷가", "농장", "심해" };
-        const int PlayableStage = 0;
         static readonly Color32 Ink = new Color32(13, 37, 52, 240);
         static readonly Color32 Cream = new Color32(255, 244, 219, 255);
         static readonly Color32 Gold = new Color32(255, 207, 112, 255);
@@ -46,7 +44,7 @@ namespace RabbitSurvivor
         Outline cardFrame;
         bool selectingStage;
         int characterIndex;
-        int stageIndex = PlayableStage;
+        int stageIndex = StageCatalog.IndexOf(StageCatalog.ShallowSeaId);
 
         internal void Initialize(Sprite[] sprites, Texture artwork, Sprite[] stagePreviews, Font uiFont,
             Func<int, ItemData> getStartingWeapon, Action<int> launch)
@@ -134,15 +132,16 @@ namespace RabbitSurvivor
         {
             heading.text = selectingStage ? "스테이지 선택" : "캐릭터 선택";
             int index = selectingStage ? stageIndex : characterIndex;
-            indexLabel.text = $"{index + 1} / 4";
-            bool unlocked = selectingStage ? stageIndex == PlayableStage : AchiveManager.IsCharacterUnlocked(characterIndex);
+            indexLabel.text = $"{index + 1} / {(selectingStage ? StageCatalog.Count : RabbitNames.Length)}";
+            bool unlocked = selectingStage ? StageCatalog.At(stageIndex).IsPlayable : AchiveManager.IsCharacterUnlocked(characterIndex);
             if (selectingStage) {
-                entryName.text = StageNames[index];
+                StageDefinition stage = StageCatalog.At(index);
+                entryName.text = stage.Name;
                 detail.text = unlocked ? "햇빛이 비치는 해저" : "Coming Soon";
                 portrait.enabled = false;
                 stagePreview.enabled = true;
-                stagePreview.sprite = stages[index];
-                background.texture = stages[index].texture;
+                stagePreview.sprite = stages[stage.PreviewIndex];
+                background.texture = stages[stage.PreviewIndex].texture;
                 background.color = new Color(.53f, .67f, .71f);
                 cardFrame.effectColor = unlocked ? Gold : new Color32(123, 189, 190, 210);
             }
@@ -166,7 +165,7 @@ namespace RabbitSurvivor
         void Move(int step)
         {
             if (selectingStage)
-                stageIndex = (stageIndex + step + StageNames.Length) % StageNames.Length;
+                stageIndex = (stageIndex + step + StageCatalog.Count) % StageCatalog.Count;
             else
                 characterIndex = (characterIndex + step + RabbitNames.Length) % RabbitNames.Length;
             Refresh();
@@ -175,14 +174,14 @@ namespace RabbitSurvivor
         void Confirm()
         {
             if (selectingStage) {
-                if (stageIndex == PlayableStage)
+                if (GameManager.instance.TrySelectStage(StageCatalog.At(stageIndex).Id))
                     play(characterIndex);
                 return;
             }
             if (!AchiveManager.IsCharacterUnlocked(characterIndex))
                 return;
             selectingStage = true;
-            stageIndex = PlayableStage;
+            stageIndex = StageCatalog.IndexOf(StageCatalog.ShallowSeaId);
             Refresh();
         }
 

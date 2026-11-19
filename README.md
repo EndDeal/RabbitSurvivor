@@ -9,13 +9,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.15/RabbitSurvivor-v1.0.15.apk"><strong>Android APK 다운로드</strong></a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.16/RabbitSurvivor-v1.0.16.apk"><strong>Android APK 다운로드</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.15">v1.0.15 변경 내역</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.16">v1.0.16 변경 내역</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/tree/v1.0.15">Unity 소스</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/tree/v1.0.16">Unity 소스</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/EndDeal/RabbitSurvivor/blob/v1.0.15/docs/RabbitSurvivor-Data.xlsx">엑셀 데이터테이블</a>
+  <a href="https://github.com/EndDeal/RabbitSurvivor/blob/v1.0.16/docs/RabbitSurvivor-Data.xlsx">엑셀 데이터테이블</a>
 </p>
 
 | 시작 화면 | 용궁 오프닝 | 말미잘 산소 보급 | 용왕전 |
@@ -30,7 +30,7 @@
 
 ## 실행과 조작
 
-Android 테스트 빌드는 [v1.0.15 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.15)에서 받을 수 있습니다. [APK 다운로드](https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.15/RabbitSurvivor-v1.0.15.apk)
+Android 테스트 빌드는 [v1.0.16 릴리스](https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.16)에서 받을 수 있습니다. [APK 다운로드](https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.16/RabbitSurvivor-v1.0.16.apk)
 
 1. Unity Hub에서 저장소 폴더를 Unity **2022.3.57f1**로 엽니다.
 2. `Assets/RabbitSurvivor/Scenes/Title.unity`를 열고 Play를 누릅니다.
@@ -51,7 +51,7 @@ Android 테스트 빌드는 [v1.0.15 릴리스](https://github.com/EndDeal/Rabbi
 - 대장 거북의 보물상자는 진화 조건을 갖춘 무기에 사용할 수 있습니다. 조건을 아직 갖추지 못했다면 보유 장비 중 강화 가능한 하나가 한 단계 오르고, 이후 진화에 사용할 장비 강화권을 받습니다.
 - 결과 화면은 체력이 0이면 `DEAD`, 용왕을 처치하면 `SURVIVED!`를 표시합니다. 두 제목에는 크림색 글자와 짙은 외곽선을 적용했습니다. **돌아가기**를 누르면 캐릭터 선택으로 복귀합니다.
 
-v1.0.15에서는 잡몹 체력을 약 13% 낮추고 보스 체력을 약 1.5배 늘렸습니다. 적 수·등장 간격·경험치와 공격 수치는 유지해, 일반 구간을 돌파하기 쉽게 하고 보스와 공방할 시간을 확보했습니다.
+v1.0.16에서는 잡몹 체력을 약 13% 낮추고 보스 체력을 약 1.5배 늘렸습니다. 적 수·등장 간격·경험치와 공격 수치는 유지해, 일반 구간을 돌파하기 쉽게 하고 보스와 공방할 시간을 확보했습니다.
 
 ## 보스 공격 전조
 
@@ -105,11 +105,24 @@ Unity 세로 Play Mode에서 전조 후 공격, 표시 위치와 실제 생성 �
 
 [게임 데이터 테이블 다운로드](docs/RabbitSurvivor-Data.xlsx)
 
-캐릭터, 무기, 패시브, 진화, 씨앗, 적과 웨이브, 보스, 경험치, 산소·HUD, 전투·연출 값을 20개 시트로 정리했습니다. 각 표 아래에서 컬럼별 자료형을 선택한 이유를 읽고 Unity 원본을 찾을 수 있습니다. 게임에 적용할 수치는 Unity 원본에서 수정합니다.
+캐릭터, 무기, 패시브, 진화, 씨앗, 적과 웨이브, 보스, 경험치, 산소·HUD, 전투·연출 값을 21개 시트로 정리했습니다. 각 표 아래에서 컬럼별 자료형을 선택한 이유를 읽고 Unity 원본을 찾을 수 있습니다. 게임에 적용할 수치는 Unity 원본에서 수정합니다.
 
 적마다 획득 XP는 고정이며, 그 값이 속한 보석 외형 적용 XP 구간에 따라 보석의 색상과 크기가 정해집니다.
 
 장비 ID는 정수입니다. 무기는 `01–09`, 패시브는 `11–19`, 회복 항목인 새참은 `00`을 사용합니다. 씨앗은 쌀 `20`, 밀 `21`, 감자 `22`, 당근 `23`으로 구분하며 등급은 별도 코드 `0–4`로 기록합니다.
+
+## 맵 추가를 위한 스테이지 ID
+
+맵의 고유 ID를 화면 순서와 구분했습니다. Unity의 `StageCatalog`와 엑셀 ‘스테이지’ 시트에 같은 ID·이름·표시 순서·미리보기 인덱스·입장 가능 여부·실행 씬을 기록합니다.
+
+| 스테이지 ID | 맵 | 현재 상태 | 실행 씬 |
+| --- | --- | --- | --- |
+| 1001 | 얕은 바다 | 입장 가능 | RabbitSurvivor |
+| 1002 | 바닷가 | 추가 예정 · 잠김 | 미연결 |
+| 1003 | 농장 | 추가 예정 · 잠김 | 미연결 |
+| 1004 | 심해 | 추가 예정 · 잠김 | 미연결 |
+
+선택한 ID는 `GameManager.SelectedStageId`로 전달합니다. 표시 순서를 바꿔도 ID를 유지하며 예약·미등록 ID로는 전투에 입장할 수 없습니다. 추후 맵은 씬·웨이브·산소 설정과 미리보기를 연결한 뒤 입장 가능 상태로 전환해야 합니다. 현재 플레이 가능한 맵은 얕은 바다 한 곳입니다.
 
 ## 프로젝트 구조
 

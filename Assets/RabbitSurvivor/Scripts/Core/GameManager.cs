@@ -76,7 +76,18 @@ namespace RabbitSurvivor
         internal Font HudFont => hudFont;
         public bool IsBossClockHeld => clockBoss;
         internal bool HasWon { get; private set; }
+        internal int SelectedStageId { get; private set; } = StageCatalog.ShallowSeaId;
         public int ExperienceToNextLevel => nextExp[Mathf.Min(level, nextExp.Length - 1)];
+
+        internal bool TrySelectStage(int stageId)
+        {
+            if (!StageCatalog.TryGet(stageId, out StageDefinition stage) || !stage.IsPlayable ||
+                stage.SceneName != SceneManager.GetActiveScene().name)
+                return false;
+
+            SelectedStageId = stage.Id;
+            return true;
+        }
 
         void Awake()
         {
