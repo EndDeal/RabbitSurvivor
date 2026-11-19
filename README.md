@@ -1,14 +1,32 @@
-# 레빗서바이벌 · Rabbit Survivor
+<p align="center">
+  <img src="Assets/RabbitSurvivor/Art/Menu/Android-Launcher.png" width="116" alt="물속에서 웃고 있는 쌀 토끼">
+</p>
 
-농부 토끼가 씨앗을 발동하고 농기구를 진화시켜 용궁을 탈출하는 Unity 2D 픽셀 아트 뱀서라이크입니다. 이동만으로 싸우고, 네 토끼의 시작 무기와 해저에 나타나는 씨앗으로 매 판 다른 빌드를 만듭니다.
+<h1 align="center">레빗서바이벌 · Rabbit Survivor</h1>
 
-게임 시계 3분에 대장 거북, 6분에 용왕이 등장합니다. 개발 빌드의 변경 사항과 QA 결과는 [개발 PR #1](https://github.com/EndDeal/RabbitSurvivor/pull/1)에 정리했습니다.
+<p align="center">
+  <strong>산소를 채우고 씨앗으로 길을 열어, 별주부전의 용궁에서 살아남는 모바일 2D 뱀서라이크</strong>
+</p>
 
-<img src="Assets/RabbitSurvivor/Art/Story/Loading-Undersea-Chase.png" width="270" alt="얕은 바다에서 망둥어와 게에게 쫓기는 농부 토끼">
+<p align="center">
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/download/v1.0.14/RabbitSurvivor-v1.0.14.apk"><strong>Android APK 다운로드</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/EndDeal/RabbitSurvivor/releases/tag/v1.0.14">v1.0.14 변경 내역</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/EndDeal/RabbitSurvivor/tree/v1.0.14">Unity 소스</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/EndDeal/RabbitSurvivor/blob/v1.0.14/docs/RabbitSurvivor-Data.xlsx">엑셀 데이터테이블</a>
+</p>
 
-- 씨앗 위에 1초 머무르면 쌀떡길, 밀짚 허수아비, 감자 지뢰, 당근 포탑이 발동합니다.
-- 농기구는 7종이며, 장비를 강화하고 패시브를 조합해 진화시킵니다.
-- 감자 지뢰로 몰려드는 적을 연쇄 폭발에 휘말리게 하고, 용왕을 쓰러뜨려 승리합니다.
+| 시작 화면 | 용궁 오프닝 | 말미잘 산소 보급 | 용왕전 |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/media/title-screen.png" width="170" alt="토끼와 바다 생물이 등장하는 게임 타이틀과 시작 버튼"> | <img src="docs/media/palace-opening.png" width="170" alt="용궁 앞에서 세 토끼가 거북과 만나는 오프닝"> | <img src="docs/media/oxygen-refill.png" width="170" alt="말미잘 구역에 선 토끼와 산소 39% 충전 HUD"> | <img src="docs/media/dragon-battle.png" width="170" alt="용왕의 독방울 발사 방향을 표시한 부채꼴 전조"> |
+
+## 한 판의 재미
+
+- **산소를 채울 때를 고릅니다.** 토끼를 움직여 적을 피합니다. 무기는 자동으로 공격합니다. 산소가 부족할 때 적이 보급처를 막고 있으면 바로 돌파할지, 돌아갈지, 씨앗을 발동할 1초를 쓸지 판단합니다.
+- **키울 무기와 짝 패시브를 고릅니다.** 무기마다 진화에 필요한 패시브가 다릅니다. 무기 Lv.5와 짝 패시브를 갖추면 보물상자에서 진화할 수 있습니다.
+- **게임 시계 3분과 6분에 두 보스를 만납니다.** 대장 거북을 격파해 진화 기회를 얻고, 키운 장비로 용왕을 쓰러뜨리면 승리합니다.
 
 ## 실행과 조작
 
@@ -55,14 +73,13 @@ Unity 세로 Play Mode에서 전조 후 공격, 표시 위치와 실제 생성 �
 - 감자를 활성화하면 그 자리에 지뢰를 설치합니다. 적이 지뢰를 밟으면 1초 뒤에 폭발하며, 쓰러진 일반 적의 자리에서 다음 폭발이 이어집니다. 3마리부터 전투 HUD에 연쇄 처치 수가 표시됩니다.
 - 타이틀·선택·스토리와 보스전에 자체 제작한 임시 배경 음악을 사용합니다. 보석을 연달아 주우면 효과음의 음이 올라갑니다.
 
-## 캐릭터
+## 농부 토끼 네 마리
 
-| 캐릭터 | 시작 무기 | 특성 | 해금 |
-| --- | --- | --- | --- |
-| 쌀 토끼 | 삽 | 이동 속도 +10% | 기본 |
-| 밀 토끼 | 낫 | 공격 간격 −10% | 기본 |
-| 감자 토끼 | 괭이 | 무기 피해 +20% | 한 판에서 적 20마리 처치 |
-| 당근 토끼 | 엽총 | 발사체 +1 (삽 회전체·엽총 탄환, 진화형 포함) | 용왕 처치 후 승리 |
+| 쌀 토끼 | 밀 토끼 | 감자 토끼 | 당근 토끼 |
+| :---: | :---: | :---: | :---: |
+| <img src="Assets/RabbitSurvivor/Art/Menu/Rice-Portrait.png" width="124" alt="쌀 이삭을 꽂은 모자를 쓴 쌀 토끼"> | <img src="Assets/RabbitSurvivor/Art/Menu/Wheat-Portrait.png" width="124" alt="밀 토끼 캐릭터 초상"> | <img src="Assets/RabbitSurvivor/Art/Menu/Potato-Portrait.png" width="124" alt="감자 토끼 캐릭터 초상"> | <img src="Assets/RabbitSurvivor/Art/Menu/Carrot-Portrait.png" width="124" alt="당근이 달린 모자를 쓴 당근 토끼"> |
+| 삽<br>이동 속도 +10% | 낫<br>공격 간격 −10% | 괭이<br>무기 피해 +20% | 엽총<br>발사체 +1<br>(삽 회전체·엽총 탄환, 진화형 포함) |
+| 기본 캐릭터 | 기본 캐릭터 | 한 판에서 적 20마리 처치 | 용왕 격파 |
 
 ## 장비와 진화
 
