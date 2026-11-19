@@ -1899,6 +1899,7 @@ GameObject:
   - component: {fileID: 430624466}
   - component: {fileID: 430624468}
   - component: {fileID: 430624469}
+  - component: {fileID: 430624470}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -1918,7 +1919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c23c8ef18fa84840894c20c6ca840002, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  seafloor: {fileID: 21300000, guid: 5c67b880730846f1a7296a632cbfb957, type: 3}
+  seafloor: {fileID: 21300000, guid: b154e8b564214d9ebf025c591ca73843, type: 3}
   unlitMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!114 &430624469
 MonoBehaviour:
@@ -1936,6 +1937,26 @@ MonoBehaviour:
   - {fileID: 814230001, guid: 3e0667a4ee1e44429ae7beedcb463a12, type: 3}
   - {fileID: 814230002, guid: 3e0667a4ee1e44429ae7beedcb463a12, type: 3}
   - {fileID: 814230003, guid: 3e0667a4ee1e44429ae7beedcb463a12, type: 3}
+  unlitMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+--- !u!114 &430624470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430624465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e61922f4f404ff2a3559d5279fae230, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  sprites:
+  - {fileID: 814240001, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
+  - {fileID: 814240002, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
+  - {fileID: 814240003, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
+  - {fileID: 814240004, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
+  - {fileID: 814240005, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
+  - {fileID: 814240006, guid: 832211bc897b4ed8a68531f0e9502061, type: 3}
   unlitMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!156049354 &430624466
 Grid:
